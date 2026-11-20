@@ -22,17 +22,19 @@
 <?php endif ?>
 <a class="nav-link" href="/account/password">⚙ Ubah Password</a>
 </nav>
-<div class="sidebar-bottom">
-<span class="small text-secondary"><?= esc(session()->get('email')) ?></span>
-<span class="small text-secondary"><?= esc(ucfirst((string) session()->get('role'))) ?></span>
-<a class="nav-link" href="/logout">Keluar</a>
-</div>
 </aside>
 <main class="main-content">
 <header class="topbar">
 <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
-<span class="text-secondary">Personal cloud workspace</span>
-<button class="btn btn-sm btn-outline-secondary ms-auto" id="themeToggle">Ganti tema</button>
+<span class="text-secondary topbar-caption">Personal cloud workspace</span>
+<div class="topbar-actions ms-auto">
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema">◐ <span class="d-none d-sm-inline">Tema</span></button>
+<div class="user-top-card">
+<div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
+<div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span></div>
+</div>
+<a class="logout-top-btn" href="/logout"><span class="logout-icon">↪</span><span>Keluar</span></a>
+</div>
 </header>
 <div class="content-wrap">
 <?php if (session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
