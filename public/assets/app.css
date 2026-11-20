@@ -3,3 +3,20 @@
 .file-actions{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:nowrap}.file-action-btn{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #344761;border-radius:10px;background:#17263c;color:#b9c9df;text-decoration:none;font-size:16px;line-height:1;transition:all .16s ease}.file-action-btn:hover{background:#29466d;border-color:#5b8fe0;color:#fff;transform:translateY(-1px)}.file-action-btn.is-favorite{color:#f5c451;border-color:#806b37}.file-action-btn.is-danger{color:#ff8c96}.file-action-btn.is-danger:hover{background:#612b39;border-color:#c85a6b;color:#fff}.modal-content{background:#111d30;color:#e7edf7;border:1px solid #344761;border-radius:16px}.modal-header,.modal-footer{border-color:#26364f}.btn-close{filter:invert(1)}.file-actions form{margin:0}html[data-bs-theme=light] .file-action-btn{background:#fff;color:#53647c;border-color:#d7dfeb}html[data-bs-theme=light] .file-action-btn:hover{background:#eaf1ff;color:#2456b4;border-color:#9bb8ed}html[data-bs-theme=light] .modal-content{background:#fff;color:#17243a;border-color:#e1e7f0}html[data-bs-theme=light] .modal-header,html[data-bs-theme=light] .modal-footer{border-color:#e1e7f0}html[data-bs-theme=light] .btn-close{filter:none}@media(max-width:767px){.file-actions{gap:3px}.file-action-btn{width:31px;height:31px;border-radius:8px;font-size:14px}}
 
 .file-action-menu{min-width:210px;padding:7px;background:#142238;border:1px solid #344761;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28)}.file-action-menu .dropdown-item{padding:9px 12px;border-radius:8px;color:#d8e3f3;font-size:.9rem}.file-action-menu .dropdown-item:hover,.file-action-menu .dropdown-item:focus{background:#263d5d;color:#fff}.file-action-menu form{margin:0}.file-action-menu .text-danger{color:#ff929c!important}.action-menu-trigger{width:34px;height:34px;border-radius:9px;font-size:20px;line-height:1;padding:0}html[data-bs-theme=light] .file-action-menu{background:#fff;border-color:#e1e7f0;box-shadow:0 12px 30px rgba(24,45,78,.12)}html[data-bs-theme=light] .file-action-menu .dropdown-item{color:#26364f}html[data-bs-theme=light] .file-action-menu .dropdown-item:hover{background:#edf3ff;color:#174da6}
+
+
+/* Folder and file action menus share one responsive, non-sticky behavior. */
+.folder-actions,.file-actions-dropdown{position:relative;flex:0 0 auto;align-self:center}
+.action-menu-trigger{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;padding:0;border-radius:10px}
+.file-action-menu{position:absolute!important;inset:auto 0 auto auto!important;transform:none!important;z-index:1080;min-width:210px;max-width:min(280px,calc(100vw - 32px));max-height:min(65vh,420px);overflow-y:auto;overscroll-behavior:contain}
+.folder-tile{position:relative;overflow:visible}
+.folder-tile>a{min-width:0;overflow-wrap:anywhere}
+.folder-tile .dropdown-menu{margin-top:6px!important}
+.table-responsive{overflow-x:auto;overflow-y:visible}
+.file-actions-dropdown .dropdown-menu{right:0!important;left:auto!important}
+@media(max-width:767px){
+ .folder-tile{gap:8px;padding:11px}
+ .action-menu-trigger{min-width:38px;min-height:38px}
+ .file-action-menu{min-width:190px;max-height:60vh}
+ .table-responsive{overscroll-behavior-x:contain}
+}
