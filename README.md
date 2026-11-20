@@ -17,8 +17,9 @@ Aplikasi cloud storage multi-user mandiri berbasis CodeIgniter 4, PHP, dan MySQL
 - Trash: restore file/folder dan hapus permanen; penghapusan folder permanen menghapus isi turunannya.
 - Pencarian nama file dan folder di seluruh drive milik akun.
 - Preview gambar JPEG/PNG/GIF/WebP, PDF, dan video MP4/WebM/OGG.
-- Link berbagi file viewer dengan token acak, hash token di database, expiry 1/7/30 hari atau tanpa expiry, dan pencabutan link.
-- Riwayat aktivitas login/logout, upload, rename, move, favorit, trash/restore, purge, share, dan revoke. Admin dapat melihat aktivitas semua akun; user hanya miliknya.
+- Thumbnail gambar di daftar file serta preview dokumen Office (DOC/DOCX, XLS/XLSX, PPT/PPTX, ODT/ODS/ODP) melalui konversi PDF menggunakan LibreOffice.
+- Manajemen link berbagi: daftar URL, ubah masa berlaku per link, cabut link satu per satu, atau cabut seluruh link file. Token diverifikasi dengan hash dan URL disimpan terenkripsi untuk dapat ditampilkan kembali.
+- Audit log login/logout, upload, rename, move, favorit, trash/restore, purge, share/revoke, serta tindakan administrasi pengguna. Filter tanggal, jenis aktivitas, dan pengguna (admin).
 - Private storage, pemeriksaan kepemilikan, kuota akun, CSRF, dan migration database.
 - Update in-place aaPanel tanpa menghapus file .env, database, dan file pengguna.
 
@@ -39,13 +40,17 @@ Updater menjalankan git pull, menyalin app/ dan public/assets/, Composer install
 - Cari: /search
 - Sampah: /trash
 - Riwayat: /activity
+- Manajemen link berbagi: /shares
 - Buat link share dari menu aksi setiap file.
+- Audit log dengan filter pengguna/tanggal: /activity
+- Office preview membutuhkan LibreOffice di server (opsional): `apt install libreoffice`.
 - Preview tersedia untuk gambar, PDF, dan video yang didukung browser.
 
 ## Migration
 Migration tambahan:
 - 2026-11-20-000002_CreateDriveFolders.php
 - 2026-11-20-000003_AddDriveSearchAndActivityIndexes.php
+- 2026-11-20-000004_AddEncryptedShareTokens.php
 
 Updater menjalankan migration otomatis. Untuk manual: php spark migrate
 
@@ -63,5 +68,6 @@ Panduan: docs/INSTALL-AA-PANEL.md.
 - Pencarian saat ini berbasis nama file/folder, bukan isi dokumen.
 - Folder restore dilakukan bertahap dari parent ke child.
 - Link share adalah bearer link: siapa pun yang memiliki URL dapat mengakses sampai dicabut/kedaluwarsa. Jangan bagikan file sensitif menggunakan link publik.
-- Belum ada antivirus scanning, file versioning, kolaborasi editor, pencarian isi, thumbnail generator, object storage, atau automated integration tests.
+- Konversi Office dilakukan saat preview pertama dan cache PDF; ukuran sumber dibatasi 50 MB. LibreOffice tidak disertakan otomatis oleh updater.
+- Belum ada antivirus scanning, file versioning, kolaborasi editor, pencarian isi dokumen, object storage, atau automated integration tests.
 - Jangan gunakan untuk data penting sebelum uji integrasi, backup/restore, batas upload PHP/Nginx, dan security review.
