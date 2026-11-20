@@ -13,7 +13,6 @@
 <nav class="nav flex-column mt-4">
 <a class="nav-link" href="/dashboard">⌂ Dashboard</a>
 <a class="nav-link" href="/files">▤ File Saya</a>
-<a class="nav-link" href="/search">⌕ Cari File</a>
 <a class="nav-link" href="/trash">♲ Sampah</a>
 <a class="nav-link" href="/activity">◷ Riwayat Aktivitas</a>
 <?php if (session()->get('role') === 'admin'): ?>
