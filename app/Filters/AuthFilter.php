@@ -25,7 +25,12 @@ class AuthFilter implements FilterInterface
             session()->set('role', $user['role']);
         }
 
-        if ((int) $user['must_change_password'] === 1 && $request->getUri()->getPath() !== 'account/password') {
+        // Normalize the path so the forced-password-change exception also
+        // works when CodeIgniter is served with index.php in the URL.
+        $path = trim($request->getUri()->getPath(), '/');
+        $path = preg_replace('#^index\\.php/?#', '', $path);
+
+        if ((int) $user['must_change_password'] === 1 && $path !== 'account/password') {
             return redirect()->to('/account/password')->with('error', 'Demi keamanan, silakan ganti password sementara terlebih dahulu.');
         }
     }
