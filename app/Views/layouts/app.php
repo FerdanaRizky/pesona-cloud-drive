@@ -28,7 +28,7 @@
 <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
 <span class="text-secondary topbar-caption">Personal cloud workspace</span>
 <div class="topbar-actions ms-auto">
-<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema">◐ <span class="d-none d-sm-inline">Tema</span></button>
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Klik untuk mengganti tema"><span class="theme-toggle-icon" aria-hidden="true">◐</span><span class="theme-toggle-caption">Tema: <strong id="themeModeLabel">Dark</strong></span></button>
 <div class="dropdown account-dropdown">
 <button class="user-top-card account-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Buka menu akun">
 <div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
