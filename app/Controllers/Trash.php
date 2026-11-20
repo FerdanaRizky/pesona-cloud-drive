@@ -44,6 +44,43 @@ class Trash extends BaseController
         return redirect()->back()->with('message', 'Folder berhasil dipulihkan. Pulihkan juga subfolder/file jika diperlukan.');
     }
 
+    public function bulkDeletePermanently()
+    {
+        $uid = (int) session()->get('user_id');
+        $fileIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')), static fn($id) => $id > 0)));
+        $folderIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('folder_ids')), static fn($id) => $id > 0)));
+        if (!$fileIds && !$folderIds) return redirect()->back()->with('error', 'Pilih minimal satu item dari sampah.');
+
+        $fileModel = new DriveFileModel();
+        $folderModel = new DriveFolderModel();
+        $db = db_connect();
+        $deletedFiles = 0;
+        $deletedFolders = 0;
+        $db->transBegin();
+        foreach ($fileIds as $id) {
+            $file = $fileModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
+            if (!$file) continue;
+            $db->table('file_shares')->where('file_id', $id)->delete();
+            $fileModel->delete($id);
+            $db->table('users')->where('id', $uid)->set('used_bytes', 'GREATEST(used_bytes-' . (int) $file['size_bytes'] . ',0)', false)->update();
+            if (is_file($file['storage_path'])) @unlink($file['storage_path']);
+            $deletedFiles++;
+        }
+        foreach ($folderIds as $id) {
+            $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
+            if (!$folder) continue;
+            $this->purgeFolder($id, $uid);
+            $deletedFolders++;
+        }
+        $db->transCommit();
+
+        if ($deletedFiles || $deletedFolders) {
+            $this->log($uid, 'bulk.delete_permanent', 'Menghapus permanen ' . $deletedFiles . ' file dan ' . $deletedFolders . ' folder beserta isinya dari sampah.');
+            return redirect()->back()->with('message', 'Berhasil menghapus permanen ' . $deletedFiles . ' file dan ' . $deletedFolders . ' folder beserta isinya.');
+        }
+        return redirect()->back()->with('error', 'Item yang dipilih tidak ditemukan di sampah.');
+    }
+
     public function deleteFilePermanently(int $id)
     {
         $uid = (int) session()->get('user_id');
