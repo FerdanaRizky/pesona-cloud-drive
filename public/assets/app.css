@@ -32,3 +32,73 @@ html[data-bs-theme=light] .file-thumbnail{background:#edf3ff;border-color:#d8e3f
 .file-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
 .file-thumbnail span{padding:2px}
 html[data-bs-theme=light] .file-thumbnail{background:#edf3ff;border-color:#d8e3f5;color:#315b9a}
+
+
+/* Refined top-right account controls */
+.topbar{gap:16px}
+.topbar-actions{display:flex;align-items:center;gap:12px;min-width:0}
+.user-top-card{display:flex;align-items:center;gap:10px;min-width:0;padding:5px 12px 5px 6px;border:1px solid #2c405d;border-radius:999px;background:rgba(28,46,72,.72)}
+.user-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#478cf5,#7a5be8);color:#fff;font-weight:800}
+.user-top-meta{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.user-top-meta strong{font-size:.82rem;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-top-meta span{font-size:.69rem;color:#91a2bb}
+.logout-top-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:linear-gradient(135deg,#e65c70,#c83f61);color:#fff;text-decoration:none;font-size:.84rem;font-weight:700;box-shadow:0 5px 16px rgba(200,63,97,.22);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.logout-top-btn:hover{color:#fff;transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 8px 22px rgba(200,63,97,.34)}
+.logout-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);font-size:15px}
+.theme-toggle-btn{border-radius:999px;padding:8px 12px}
+html[data-bs-theme=light] .user-top-card{background:#f7f9fd;border-color:#e0e7f1}
+html[data-bs-theme=light] .user-top-meta span{color:#738198}
+@media(max-width:575px){.topbar{padding:0 12px}.topbar-caption{display:none}.topbar-actions{gap:7px}.user-top-card{padding:4px}.user-top-meta{display:none}.logout-top-btn{padding:8px 11px;gap:5px}.theme-toggle-btn{padding:7px 9px}}
+
+/* Trash page action menus and empty states */
+.page-eyebrow{font-size:.68rem;letter-spacing:.14em;font-weight:800;color:#78a8f8;margin-bottom:7px}
+.trash-notice{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid rgba(226,169,75,.28);border-radius:15px;background:linear-gradient(110deg,rgba(153,105,34,.16),rgba(20,34,56,.35))}
+.trash-notice-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;background:rgba(226,169,75,.15);color:#f2c36e;font-size:25px}
+.trash-section-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#1c304d;color:#9fc0f4}
+.trash-item-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:11px;background:#1a2d48;color:#a9c7f5;font-size:18px}
+.empty-trash,.empty-users{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:30px 12px;text-align:center;color:#91a0b7}
+.empty-trash>span,.empty-users>span{font-size:28px;opacity:.75}
+.empty-trash strong,.empty-users strong{color:inherit;font-size:.95rem}
+.empty-trash small,.empty-users small{font-size:.8rem}
+html[data-bs-theme=light] .trash-notice{background:linear-gradient(110deg,#fff8e9,#f8faff);border-color:#f0dfbd}
+html[data-bs-theme=light] .trash-notice-icon{color:#a36a13;background:#fff0d2}
+html[data-bs-theme=light] .trash-section-icon,html[data-bs-theme=light] .trash-item-icon{background:#edf3ff;color:#315b9a}
+
+/* User administration cards */
+.users-page-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.users-head-icon{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(135deg,#2d6fca,#7658df);color:white;font-size:27px;box-shadow:0 8px 24px rgba(62,111,206,.24)}
+.user-metric-card{height:100%;display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #2b3d58;border-radius:16px;background:linear-gradient(135deg,#172943,#111d30)}
+.metric-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;font-size:19px;font-weight:800}
+.metric-blue{background:rgba(72,139,239,.17);color:#82b5ff}.metric-green{background:rgba(61,183,130,.15);color:#70d8aa}.metric-purple{background:rgba(143,112,239,.17);color:#b6a0ff}
+.metric-value{font-size:1.55rem;line-height:1.15;font-weight:750;letter-spacing:-.03em}.metric-value small{font-size:.85rem;color:#91a0b7;font-weight:500}
+.user-create-card{background:linear-gradient(145deg,#142640,#111d30)}
+.create-user-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:rgba(73,139,241,.18);color:#8bb9ff;font-size:24px}
+.create-user-submit{min-height:38px}
+.users-count-pill{padding:7px 12px;border:1px solid #344761;border-radius:999px;background:#172943;color:#a9c7f5;font-size:.78rem;font-weight:700}
+.user-management-card{padding:18px;border:1px solid #2b3d58;border-radius:17px;background:linear-gradient(145deg,#15263e,#111d30);transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+.user-management-card:hover{border-color:#456da5;transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.16)}
+.user-card-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:16px;border-bottom:1px solid #2a3b54}
+.user-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.user-card-avatar{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#4388ff,#5e69dc);color:#fff;font-weight:800;font-size:17px}
+.user-card-avatar.avatar-admin{background:linear-gradient(135deg,#a77a34,#d6a64c)}
+.user-card-name{font-size:.95rem;overflow-wrap:anywhere}
+.role-pill,.status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;font-size:.68rem;font-weight:750;white-space:nowrap}
+.role-admin{background:rgba(163,125,49,.18);color:#edc77c}.role-user{background:rgba(87,139,208,.17);color:#9dc3fa}
+.status-active{background:rgba(49,174,117,.14);color:#70d9a6}.status-suspended{background:rgba(222,89,105,.14);color:#ff9ba5}
+.status-pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.user-storage-block{padding:15px 0}
+.user-storage-progress{height:7px;border-radius:99px;background:#263b57;overflow:hidden}
+.user-storage-progress .progress-bar{border-radius:99px;background:linear-gradient(90deg,#4388ff,#7a69e8)}
+.user-card-controls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.user-setting-form,.user-password-form{min-width:0;padding:13px;border:1px solid #2a3b54;border-radius:12px;background:rgba(9,20,36,.22)}
+.control-heading{font-size:.75rem;font-weight:750;margin-bottom:10px;color:#b8c8df}
+.user-card-controls .form-label{color:#91a0b7;margin-bottom:5px}
+.user-card-controls .form-control,.user-card-controls .form-select{min-width:0}
+html[data-bs-theme=light] .user-metric-card,html[data-bs-theme=light] .user-create-card,html[data-bs-theme=light] .user-management-card{background:#fff;border-color:#e0e7f1;color:#17243a}
+html[data-bs-theme=light] .users-count-pill{background:#edf3ff;border-color:#d9e5f8;color:#315b9a}
+html[data-bs-theme=light] .user-card-heading{border-color:#e7edf5}
+html[data-bs-theme=light] .user-setting-form,html[data-bs-theme=light] .user-password-form{background:#f8faff;border-color:#e3eaf4}
+html[data-bs-theme=light] .control-heading{color:#40536e}
+html[data-bs-theme=light] .user-storage-progress{background:#e5ebf4}
+@media(max-width:767px){.user-card-controls{grid-template-columns:1fr}.user-management-card{padding:14px}.user-card-heading{gap:8px}.user-metric-card{padding:14px}.metric-value{font-size:1.35rem}}
+@media(max-width:420px){.user-card-heading{flex-direction:column}.user-card-heading>.d-flex{flex-direction:row!important;align-items:center!important}.users-head-icon{width:44px;height:44px;flex-basis:44px}.trash-notice{align-items:flex-start;padding:13px}}
