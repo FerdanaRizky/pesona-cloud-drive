@@ -52,6 +52,14 @@ class Users extends BaseController
         if (!in_array($status, ['active', 'suspended'], true) || $quotaGb < 1 || $quotaGb > 10000) {
             return redirect()->back()->with('error', 'Status atau kuota tidak valid.');
         }
+        $phone = preg_replace('/[\\s+().-]/', '', (string) $this->request->getPost('phone'));
+        if ($phone !== '' && !preg_match('/^[1-9][0-9]{8,14}$/', $phone)) {
+            return redirect()->back()->with('error', 'Nomor WhatsApp pengguna tidak valid. Gunakan format internasional, contoh 6281234567890.');
+        }
+        if ($phone !== '') {
+            $duplicate = db_connect()->table('users')->where('phone', $phone)->where('id !=', $id)->countAllResults();
+            if ($duplicate > 0) return redirect()->back()->with('error', 'Nomor WhatsApp sudah digunakan pengguna lain.');
+        }
         $quotaBytes = $quotaGb * 1073741824;
         if ($quotaBytes < (int) $target['used_bytes']) {
             return redirect()->back()->with('error', 'Kuota tidak boleh lebih kecil daripada penyimpanan yang sudah digunakan.');
@@ -64,7 +72,7 @@ class Users extends BaseController
             if ($activeAdmins <= 1) return redirect()->back()->with('error', 'Tidak dapat menonaktifkan administrator aktif terakhir.');
         }
 
-        $users->update($id, ['status' => $status, 'quota_bytes' => $quotaBytes]);
+        $users->update($id, ['status' => $status, 'quota_bytes' => $quotaBytes, 'phone' => $phone !== '' ? $phone : null]);
         $this->logAdmin('admin.user_update', 'Mengubah status/kuota pengguna #' . $id . ' menjadi ' . $status . ', kuota ' . $quotaGb . ' GB');
         return redirect()->to('/admin/users')->with('message', 'Pengaturan pengguna berhasil diperbarui.');
     }
