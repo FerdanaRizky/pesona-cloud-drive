@@ -21,6 +21,10 @@ class Trash extends BaseController
         $uid = (int) session()->get('user_id');
         $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
         if (!$file) return redirect()->back()->with('error', 'File di sampah tidak ditemukan.');
+        if (!empty($file['parent_id'])) {
+            $parent = (new DriveFolderModel())->where('id', (int) $file['parent_id'])->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$parent) return redirect()->back()->with('error', 'Pulihkan folder induk terlebih dahulu sebelum memulihkan file ini.');
+        }
         (new DriveFileModel())->update($id, ['is_trashed' => 0]);
         $this->log($uid, 'file.restore', 'Memulihkan file: ' . $file['original_name']);
         return redirect()->back()->with('message', 'File berhasil dipulihkan.');
@@ -31,6 +35,10 @@ class Trash extends BaseController
         $uid = (int) session()->get('user_id');
         $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
         if (!$folder) return redirect()->back()->with('error', 'Folder di sampah tidak ditemukan.');
+        if (!empty($folder['parent_id'])) {
+            $parent = (new DriveFolderModel())->where('id', (int) $folder['parent_id'])->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$parent) return redirect()->back()->with('error', 'Pulihkan folder induk terlebih dahulu.');
+        }
         (new DriveFolderModel())->update($id, ['is_trashed' => 0]);
         $this->log($uid, 'folder.restore', 'Memulihkan folder: ' . $folder['name']);
         return redirect()->back()->with('message', 'Folder berhasil dipulihkan. Pulihkan juga subfolder/file jika diperlukan.');
