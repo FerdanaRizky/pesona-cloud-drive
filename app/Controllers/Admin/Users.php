@@ -41,6 +41,7 @@ class Users extends BaseController
             'quota_bytes' => (int) $this->request->getPost('quota_gb') * 1073741824,
             'used_bytes' => 0,
             'must_change_password' => true,
+            'password_changed_at' => date('Y-m-d H:i:s'),
         ]);
         $this->logAdmin('admin.user_create', 'Membuat akun pengguna #' . (int) $newId . ' (' . strtolower(trim((string) $this->request->getPost('email'))) . ')');
         return redirect()->to('/admin/users')->with('message', 'Pengguna berhasil dibuat. Minta pengguna mengganti password saat pertama kali masuk.');
@@ -90,7 +91,7 @@ class Users extends BaseController
         if (strlen($password) < 12 || strlen($password) > 200) {
             return redirect()->back()->with('error', 'Password sementara harus terdiri dari 12 sampai 200 karakter.');
         }
-        $users->update($id, ['password_hash' => password_hash($password, PASSWORD_DEFAULT), 'must_change_password' => true]);
+        $users->update($id, ['password_hash' => password_hash($password, PASSWORD_DEFAULT), 'must_change_password' => true, 'password_changed_at' => date('Y-m-d H:i:s')]);
         $this->logAdmin('admin.user_password_reset', 'Reset password pengguna #' . $id);
         return redirect()->to('/admin/users')->with('message', 'Password direset. Sampaikan password sementara secara aman kepada pengguna.');
     }
