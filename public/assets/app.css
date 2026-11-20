@@ -156,3 +156,8 @@ html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-
 .user-storage-block .progress-bar{transition:width .35s ease}
 html[data-bs-theme="light"] .user-management-card:before{opacity:.9}
 @media(max-width:767px){.user-create-card .row>[class*="col-"]{width:100%}.user-create-card .create-user-submit{min-height:42px}}
+
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(2),#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(3){display:inline-block!important;width:auto!important;padding:3px 8px 3px 0!important;color:#91a6c2;font-size:.76rem}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(4){display:none!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2){display:block!important;color:#91a6c2;font-size:.78rem}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2){display:block!important;color:#91a6c2;font-size:.78rem}
