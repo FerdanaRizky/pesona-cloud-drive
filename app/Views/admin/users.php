@@ -15,7 +15,7 @@
     <?= csrf_field() ?>
     <div class="col-md-3"><label class="form-label">Nama lengkap</label><input class="form-control" name="name" maxlength="120" value="<?= esc(old('name')) ?>" placeholder="Nama pengguna" required></div>
     <div class="col-md-3"><label class="form-label">Alamat email</label><input class="form-control" type="email" name="email" maxlength="190" value="<?= esc(old('email')) ?>" placeholder="nama@email.com" required></div>
-    <div class="col-md-3"><label class="form-label" for="new_user_password">Password sementara</label><div class="input-group"><input class="form-control" id="new_user_password" type="password" name="password" minlength="12" autocomplete="new-password" placeholder="Minimal 12 karakter" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_user_password" aria-label="Tampilkan password sementara" aria-pressed="false">Intip</button></div></div>
+    <div class="col-md-3"><label class="form-label" for="new_user_password">Password sementara</label><div class="input-group"><input class="form-control" id="new_user_password" type="password" name="password" minlength="12" autocomplete="new-password" placeholder="Minimal 12 karakter" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_user_password" aria-label="Tampilkan password sementara" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <div class="col-md-2"><label class="form-label">Kuota (GB)</label><input class="form-control" type="number" name="quota_gb" min="1" max="10000" value="<?= esc(old('quota_gb') ?: '10') ?>" required></div>
     <div class="col-md-1 d-flex align-items-end"><button class="btn btn-primary w-100 create-user-submit">Buat</button></div>
   </form>
@@ -43,7 +43,7 @@
       </form>
       <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
         <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
-        <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" aria-label="Tampilkan password baru" aria-pressed="false">Intip</button></div>
+        <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
         <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
         <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
       </form>
