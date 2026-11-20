@@ -7,6 +7,8 @@ $routes->setDefaultMethod('login');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
 $routes->setAutoRoute(false);
+$routes->get('/setup', 'Setup::index');
+$routes->post('/setup', 'Setup::create');
 $routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
