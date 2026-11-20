@@ -89,15 +89,20 @@ class Share extends BaseController
     {
         $share = $this->findShare($token);
         if (!$share) return $this->response->setStatusCode(404)->setBody('Tautan tidak tersedia atau sudah kedaluwarsa.');
-        $canPreview = in_array($share['mime_type'], self::PREVIEW_TYPES, true);
-        return view('drive/shared', ['title' => 'File dibagikan - ' . $share['original_name'], 'share' => $share, 'canPreview' => $canPreview, 'token' => $token]);
+        $officePreview = \\App\\Libraries\\OfficePreview::supports($share);
+        $canPreview = in_array($share['mime_type'], self::PREVIEW_TYPES, true) || $officePreview;
+        return view('drive/shared', ['title' => 'File dibagikan - ' . $share['original_name'], 'share' => $share, 'canPreview' => $canPreview, 'officePreview' => $officePreview, 'token' => $token]);
     }
 
     public function content(string $token)
     {
         $share = $this->findShare($token);
-        if (!$share || !in_array($share['mime_type'], self::PREVIEW_TYPES, true)) return $this->response->setStatusCode(404);
-        return $this->inlineFile($share);
+        if (!$share) return $this->response->setStatusCode(404);
+        if (in_array($share['mime_type'], self::PREVIEW_TYPES, true)) return $this->inlineFile($share);
+        if (!\\App\\Libraries\\OfficePreview::supports($share)) return $this->response->setStatusCode(404);
+        $pdf = \\App\\Libraries\\OfficePreview::convert($share);
+        if (!$pdf) return $this->response->setStatusCode(503)->setBody('Office preview is not available.');
+        return $this->inlineFile(['storage_path'=>$pdf, 'original_name'=>$share['original_name'] . '.pdf', 'mime_type'=>'application/pdf']);
     }
 
     public function download(string $token)
