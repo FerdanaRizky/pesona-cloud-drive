@@ -16,7 +16,11 @@
     <?= csrf_field() ?>
     <div class="col-md-3"><label class="form-label">Nama</label><input class="form-control" name="name" maxlength="120" value="<?= esc(old('name')) ?>" required></div>
     <div class="col-md-3"><label class="form-label">Email</label><input class="form-control" type="email" name="email" maxlength="190" value="<?= esc(old('email')) ?>" required></div>
-    <div class="col-md-3"><label class="form-label">Password sementara</label><input class="form-control" type="password" name="password" minlength="12" required><div class="form-text">Minimal 12 karakter.</div></div>
+    <div class="col-md-3">
+      <label class="form-label" for="new_user_password">Password sementara</label>
+      <div class="input-group"><input class="form-control" id="new_user_password" type="password" name="password" minlength="12" autocomplete="new-password" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_user_password" aria-label="Tampilkan password sementara" aria-pressed="false">Intip</button></div>
+      <div class="form-text">Minimal 12 karakter.</div>
+    </div>
     <div class="col-md-2"><label class="form-label">Kuota (GB)</label><input class="form-control" type="number" name="quota_gb" min="1" max="10000" value="<?= esc(old('quota_gb') ?: '10') ?>" required></div>
     <div class="col-md-1 d-flex align-items-end"><button class="btn btn-primary w-100">Buat</button></div>
   </form>
@@ -44,7 +48,7 @@
           <td>
             <form method="post" action="/admin/users/reset-password/<?= (int) $u['id'] ?>" class="d-flex flex-column gap-1">
               <?= csrf_field() ?>
-              <input class="form-control form-control-sm" type="password" name="new_password" minlength="12" placeholder="Password baru" required>
+              <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int) $u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int) $u['id'] ?>" aria-label="Tampilkan password baru" aria-pressed="false">Intip</button></div>
               <button class="btn btn-sm btn-outline-warning">Reset password</button>
             </form>
             <?php if (!empty($u['must_change_password'])): ?><small class="text-warning">Wajib ganti password</small><?php endif ?>
