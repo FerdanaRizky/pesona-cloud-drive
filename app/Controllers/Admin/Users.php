@@ -27,7 +27,7 @@ class Users extends BaseController
         ];
         if (!$this->validate($rules)) return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
 
-        (new UserModel())->insert([
+        $newId = (new UserModel())->insert([
             'name' => trim((string) $this->request->getPost('name')),
             'email' => strtolower(trim((string) $this->request->getPost('email'))),
             'password_hash' => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
@@ -37,6 +37,7 @@ class Users extends BaseController
             'used_bytes' => 0,
             'must_change_password' => true,
         ]);
+        $this->logAdmin('admin.user_create', 'Membuat akun pengguna #' . (int) $newId . ' (' . strtolower(trim((string) $this->request->getPost('email'))) . ')');
         return redirect()->to('/admin/users')->with('message', 'Pengguna berhasil dibuat. Minta pengguna mengganti password saat pertama kali masuk.');
     }
 
@@ -64,6 +65,7 @@ class Users extends BaseController
         }
 
         $users->update($id, ['status' => $status, 'quota_bytes' => $quotaBytes]);
+        $this->logAdmin('admin.user_update', 'Mengubah status/kuota pengguna #' . $id . ' menjadi ' . $status . ', kuota ' . $quotaGb . ' GB');
         return redirect()->to('/admin/users')->with('message', 'Pengaturan pengguna berhasil diperbarui.');
     }
 
@@ -76,6 +78,15 @@ class Users extends BaseController
             return redirect()->back()->with('error', 'Password sementara harus terdiri dari 12 sampai 200 karakter.');
         }
         $users->update($id, ['password_hash' => password_hash($password, PASSWORD_DEFAULT), 'must_change_password' => true]);
+        $this->logAdmin('admin.user_password_reset', 'Reset password pengguna #' . $id);
         return redirect()->to('/admin/users')->with('message', 'Password direset. Sampaikan password sementara secara aman kepada pengguna.');
+    }
+    private function logAdmin(string $action, string $details): void
+    {
+        db_connect()->table('activity_logs')->insert([
+            'user_id' => (int) session()->get('user_id'), 'action' => $action,
+            'details' => mb_substr($details, 0, 2000), 'ip_address' => $this->request->getIPAddress(),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 }
