@@ -46,7 +46,7 @@
       </form>
       <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
         <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
-        <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" tabindex="0" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
         <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
         <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
       </form>
