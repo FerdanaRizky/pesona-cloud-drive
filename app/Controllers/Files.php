@@ -15,9 +15,7 @@ class Files extends BaseController
 
         if ($folderId > 0) {
             $current = $folders->where('id', $folderId)->where('user_id', $uid)->where('is_trashed', 0)->first();
-            if (!$current) {
-                return redirect()->to('/files')->with('error', 'Folder tidak ditemukan.');
-            }
+            if (!$current) return redirect()->to('/files')->with('error', 'Folder tidak ditemukan.');
         }
 
         $folderQuery = $folders->where('user_id', $uid)->where('is_trashed', 0);
@@ -33,18 +31,14 @@ class Files extends BaseController
         while ($cursor) {
             array_unshift($breadcrumbs, $cursor);
             $cursor = !empty($cursor['parent_id'])
-                ? $folders->where('id', (int) $cursor['parent_id'])->where('user_id', $uid)->first()
+                ? $folders->where('id', (int) $cursor['parent_id'])->where('user_id', $uid)->where('is_trashed', 0)->first()
                 : null;
         }
 
         $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
         return view('drive/files', [
-            'title' => 'File Saya',
-            'files' => $files,
-            'folders' => $childFolders,
-            'currentFolder' => $current,
-            'breadcrumbs' => $breadcrumbs,
-            'user' => $user,
+            'title' => 'File Saya', 'files' => $files, 'folders' => $childFolders,
+            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user,
         ]);
     }
 
@@ -53,19 +47,14 @@ class Files extends BaseController
         $uid = (int) session()->get('user_id');
         $name = trim((string) $this->request->getPost('name'));
         $parentId = (int) $this->request->getPost('parent_id');
-        if ($name === '' || mb_strlen($name) > 120 || str_contains($name, '/') || str_contains($name, "\\\\")) {
+        if ($name === '' || mb_strlen($name) > 120 || str_contains($name, '/') || str_contains($name, chr(92))) {
             return redirect()->back()->with('error', 'Nama folder tidak valid (maksimal 120 karakter dan tanpa slash).');
         }
         if ($parentId > 0 && !(new DriveFolderModel())->where('id', $parentId)->where('user_id', $uid)->where('is_trashed', 0)->first()) {
             return redirect()->back()->with('error', 'Folder induk tidak valid.');
         }
 
-        (new DriveFolderModel())->insert([
-            'user_id' => $uid,
-            'parent_id' => $parentId ?: null,
-            'name' => $name,
-            'is_trashed' => 0,
-        ]);
+        (new DriveFolderModel())->insert(['user_id' => $uid, 'parent_id' => $parentId ?: null, 'name' => $name, 'is_trashed' => 0]);
         return redirect()->to($parentId > 0 ? '/files?folder=' . $parentId : '/files')->with('message', 'Folder berhasil dibuat.');
     }
 
@@ -82,9 +71,7 @@ class Files extends BaseController
             $single = $this->request->getFile('file');
             $uploads = $single ? [$single] : [];
         }
-        if (!$uploads) {
-            return redirect()->back()->with('error', 'Pilih minimal satu file.');
-        }
+        if (!$uploads) return redirect()->back()->with('error', 'Pilih minimal satu file.');
 
         $root = rtrim((string) env('storage.privatePath', WRITEPATH . 'private'), '/');
         $dir = $root . '/' . $uid . '/' . date('Y/m');
@@ -111,57 +98,47 @@ class Files extends BaseController
             }
 
             $stored = bin2hex(random_bytes(24));
+            $path = null;
             try {
                 $file->move($dir, $stored);
                 $path = $dir . '/' . $stored;
-                $mime = (new \\finfo(FILEINFO_MIME_TYPE))->file($path) ?: 'application/octet-stream';
+                $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path) ?: 'application/octet-stream';
                 $model = new DriveFileModel();
-                $model->insert([
-                    'user_id' => $uid,
-                    'parent_id' => $folderId ?: null,
-                    'original_name' => basename($file->getClientName()),
-                    'stored_name' => $stored,
-                    'mime_type' => $mime,
-                    'extension' => strtolower($file->getClientExtension() ?: ''),
-                    'size_bytes' => $size,
-                    'storage_path' => $path,
+                $inserted = $model->insert([
+                    'user_id' => $uid, 'parent_id' => $folderId ?: null,
+                    'original_name' => basename($file->getClientName()), 'stored_name' => $stored,
+                    'mime_type' => $mime, 'extension' => strtolower($file->getClientExtension() ?: ''),
+                    'size_bytes' => $size, 'storage_path' => $path,
                 ]);
+                if (!$inserted) throw new \RuntimeException('Metadata file gagal disimpan.');
                 $db->table('users')->where('id', $uid)->set('used_bytes', 'used_bytes+' . $size, false)->update();
                 $db->transCommit();
                 $success++;
-            } catch (\\Throwable $e) {
+            } catch (\Throwable $e) {
                 $db->transRollback();
-                if (isset($path) && is_file($path)) {
-                    @unlink($path);
-                }
+                if ($path && is_file($path)) @unlink($path);
                 log_message('error', 'Cloud Drive upload failed: {message}', ['message' => $e->getMessage()]);
                 $errors[] = 'Gagal menyimpan ' . basename($file->getClientName()) . '.';
             }
         }
 
         $target = $folderId > 0 ? '/files?folder=' . $folderId : '/files';
-        if ($success > 0 && !$errors) {
-            return redirect()->to($target)->with('message', $success . ' file berhasil diunggah.');
-        }
-        if ($success > 0) {
-            return redirect()->to($target)->with('error', $success . ' file berhasil diunggah. ' . implode(' ', $errors));
-        }
+        if ($success > 0 && !$errors) return redirect()->to($target)->with('message', $success . ' file berhasil diunggah.');
+        if ($success > 0) return redirect()->to($target)->with('error', $success . ' file berhasil diunggah. ' . implode(' ', $errors));
         return redirect()->to($target)->with('error', implode(' ', $errors) ?: 'Tidak ada file yang berhasil diunggah.');
     }
 
     public function download(int $id)
     {
         $row = (new DriveFileModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
-        if (!$row || !is_file($row['storage_path'])) {
-            return $this->response->setStatusCode(404);
-        }
+        if (!$row || !is_file($row['storage_path'])) return $this->response->setStatusCode(404);
         return $this->response->download($row['storage_path'], null)->setFileName($row['original_name']);
     }
 
     public function rename(int $id)
     {
         $name = trim((string) $this->request->getPost('name'));
-        if ($name === '' || mb_strlen($name) > 255 || str_contains($name, '/') || str_contains($name, "\\\\")) {
+        if ($name === '' || mb_strlen($name) > 255 || str_contains($name, '/') || str_contains($name, chr(92))) {
             return redirect()->back()->with('error', 'Nama file tidak valid.');
         }
         (new DriveFileModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->set(['original_name' => $name])->update();
@@ -183,9 +160,7 @@ class Files extends BaseController
     {
         $model = new DriveFileModel();
         $file = $model->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
-        if (!$file) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
-        }
+        if (!$file) return redirect()->back()->with('error', 'File tidak ditemukan.');
         $model->update($id, ['is_starred' => empty($file['is_starred']) ? 1 : 0]);
         return redirect()->back()->with('message', 'Status favorit diperbarui.');
     }
@@ -194,19 +169,19 @@ class Files extends BaseController
     {
         $model = new DriveFileModel();
         $file = $model->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
-        if ($file) {
-            $model->update($id, ['is_trashed' => 1]);
-        }
+        if ($file) $model->update($id, ['is_trashed' => 1]);
         return redirect()->back()->with('message', 'File dipindahkan ke sampah.');
     }
 
     public function renameFolder(int $id)
     {
         $name = trim((string) $this->request->getPost('name'));
-        if ($name === '' || mb_strlen($name) > 120 || str_contains($name, '/') || str_contains($name, "\\\\")) {
+        if ($name === '' || mb_strlen($name) > 120 || str_contains($name, '/') || str_contains($name, chr(92))) {
             return redirect()->back()->with('error', 'Nama folder tidak valid.');
         }
-        (new DriveFolderModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->set(['name' => $name])->update();
+        $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
+        if (!$folder) return redirect()->back()->with('error', 'Folder tidak ditemukan.');
+        (new DriveFolderModel())->update($id, ['name' => $name]);
         return redirect()->back()->with('message', 'Nama folder diperbarui.');
     }
 
@@ -214,14 +189,10 @@ class Files extends BaseController
     {
         $uid = (int) session()->get('user_id');
         $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
-        if (!$folder) {
-            return redirect()->back()->with('error', 'Folder tidak ditemukan.');
-        }
+        if (!$folder) return redirect()->back()->with('error', 'Folder tidak ditemukan.');
         $hasFolders = (new DriveFolderModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
         $hasFiles = (new DriveFileModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
-        if ($hasFolders || $hasFiles) {
-            return redirect()->back()->with('error', 'Folder harus kosong sebelum dihapus. Pindahkan atau hapus isinya terlebih dahulu.');
-        }
+        if ($hasFolders || $hasFiles) return redirect()->back()->with('error', 'Folder harus kosong sebelum dihapus. Pindahkan atau hapus isinya terlebih dahulu.');
         (new DriveFolderModel())->update($id, ['is_trashed' => 1]);
         return redirect()->to('/files')->with('message', 'Folder dipindahkan ke sampah.');
     }
