@@ -13,25 +13,34 @@ echo "=== $APP_NAME aaPanel installer ==="
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Jalankan sebagai root."; exit 1; }
 [[ -r /dev/tty && -w /dev/tty ]] || { echo "[ERROR] Terminal interaktif diperlukan. Jalankan: curl -fsSL URL | bash"; exit 1; }
 
+# Initialize every value before prompting; installer runs with nounset enabled.
+DOMAIN="$DOMAIN_DEFAULT"
+APP_DIR="$APP_DIR_DEFAULT"
+SOURCE_DIR="$SOURCE_DIR_DEFAULT"
+DB_NAME="$DB_NAME_DEFAULT"
+DB_USER="pcd_user"
+DB_PASS=""
+STORAGE="$STORAGE_DEFAULT"
+
 prompt() {
-    local label="$1" default="$2" value=""
+    local target="$1" label="$2" default="$3" value=""
     IFS= read -r -p "$label [$default]: " value </dev/tty || true
-    REPLY="${value:-$default}"
+    printf -v "$target" '%s' "${value:-$default}"
 }
 secret() {
-    local label="$1" value=""
+    local target="$1" label="$2" value=""
     IFS= read -r -s -p "$label: " value </dev/tty || true
     printf '\n' >/dev/tty
-    REPLY="$value"
+    printf -v "$target" '%s' "$value"
 }
 
-prompt "Domain" "$DOMAIN_DEFAULT"; DOMAIN="$REPLY"
-prompt "Direktori aplikasi" "/www/wwwroot/$DOMAIN/app-src"; APP_DIR="$REPLY"
-prompt "Direktori source Git" "$SOURCE_DIR_DEFAULT"; SOURCE_DIR="$REPLY"
-prompt "Nama database MySQL" "$DB_NAME_DEFAULT"; DB_NAME="$REPLY"
-prompt "Username MySQL" "pcd_user"; DB_USER="$REPLY"
-secret "Password MySQL"; DB_PASS="$REPLY"
-prompt "Private storage path" "/www/wwwroot/$DOMAIN-private"; STORAGE="$REPLY"
+prompt DOMAIN "Domain" "$DOMAIN_DEFAULT"
+prompt APP_DIR "Direktori aplikasi" "/www/wwwroot/$DOMAIN/app-src"
+prompt SOURCE_DIR "Direktori source Git" "$SOURCE_DIR_DEFAULT"
+prompt DB_NAME "Nama database MySQL" "$DB_NAME_DEFAULT"
+prompt DB_USER "Username MySQL" "pcd_user"
+secret DB_PASS "Password MySQL"
+prompt STORAGE "Private storage path" "/www/wwwroot/$DOMAIN-private"
 
 [[ "$DOMAIN" =~ ^[A-Za-z0-9.-]+$ ]] || { echo "[ERROR] Format domain tidak valid."; exit 1; }
 [[ "$DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] || { echo "[ERROR] Nama database hanya boleh huruf, angka, underscore."; exit 1; }
