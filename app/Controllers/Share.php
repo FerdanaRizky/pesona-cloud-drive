@@ -14,13 +14,17 @@ class Share extends BaseController
     {
         $uid = (int) session()->get('user_id');
         $rows = db_connect()->table('file_shares s')
-            ->select('s.id AS share_id, s.expires_at, s.created_at, s.token_hash, f.id AS file_id, f.original_name, f.mime_type, f.size_bytes')
+            ->select('s.id AS share_id, s.expires_at, s.created_at, s.token_ciphertext, f.id AS file_id, f.original_name, f.mime_type, f.size_bytes')
             ->join('drive_files f', 'f.id = s.file_id')
             ->where('s.owner_id', $uid)
             ->orderBy('s.created_at', 'DESC')->get()->getResultArray();
         foreach ($rows as &$row) {
             $row['expired'] = !empty($row['expires_at']) && strtotime($row['expires_at']) < time();
             $row['active'] = !$row['expired'];
+            $row['share_url'] = null;
+            if (!empty($row['token_ciphertext'])) {
+                try { $row['share_url'] = site_url('s/' . service('encrypter')->decrypt($row['token_ciphertext'])); } catch (\\Throwable $e) { $row['share_url'] = null; }
+            }
         }
         unset($row);
         return view('drive/shares', ['title' => 'Manajemen Link Berbagi', 'shares' => $rows]);
@@ -64,7 +68,7 @@ class Share extends BaseController
             ? date('Y-m-d H:i:s', strtotime('+' . (int) $expiry . ' days')) : null;
         db_connect()->table('file_shares')->insert([
             'file_id' => $id, 'owner_id' => $uid, 'shared_with_email' => null,
-            'token_hash' => hash('sha256', $token), 'permission' => 'viewer',
+            'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token), 'permission' => 'viewer',
             'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
         ]);
         $this->log($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
