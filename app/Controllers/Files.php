@@ -39,10 +39,11 @@ class Files extends BaseController
                 : null;
         }
 
+        $allFolders = (new DriveFolderModel())->where('user_id', $uid)->where('is_trashed', 0)->orderBy('name', 'ASC')->findAll(500);
         $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
         return view('drive/files', [
             'title' => 'File Saya', 'files' => $files, 'folders' => $childFolders,
-            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user, 'term' => $term,
+            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user, 'term' => $term, 'allFolders' => $allFolders,
         ]);
     }
 
