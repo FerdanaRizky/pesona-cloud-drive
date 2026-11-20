@@ -10,6 +10,8 @@ class Files extends BaseController
     {
         $uid = (int) session()->get('user_id');
         $folderId = (int) $this->request->getGet('folder');
+        $term = trim((string) $this->request->getGet('q'));
+        $term = mb_substr($term, 0, 120);
         $folders = new DriveFolderModel();
         $current = null;
 
@@ -20,11 +22,13 @@ class Files extends BaseController
 
         $folderQuery = $folders->where('user_id', $uid)->where('is_trashed', 0);
         $folderId > 0 ? $folderQuery->where('parent_id', $folderId) : $folderQuery->where('parent_id', null);
-        $childFolders = $folderQuery->orderBy('name', 'ASC')->findAll();
+        if ($term !== '') $folderQuery->like('name', $term);
+        $childFolders = $folderQuery->orderBy('name', 'ASC')->findAll(200);
 
         $fileQuery = (new DriveFileModel())->where('user_id', $uid)->where('is_trashed', 0);
         $folderId > 0 ? $fileQuery->where('parent_id', $folderId) : $fileQuery->where('parent_id', null);
-        $files = $fileQuery->orderBy('original_name', 'ASC')->findAll();
+        if ($term !== '') $fileQuery->like('original_name', $term);
+        $files = $fileQuery->orderBy('original_name', 'ASC')->findAll(200);
 
         $breadcrumbs = [];
         $cursor = $current;
@@ -38,7 +42,7 @@ class Files extends BaseController
         $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
         return view('drive/files', [
             'title' => 'File Saya', 'files' => $files, 'folders' => $childFolders,
-            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user,
+            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user, 'term' => $term,
         ]);
     }
 
