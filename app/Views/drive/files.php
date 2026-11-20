@@ -18,6 +18,8 @@ function refreshSelection(){
  hiddenIds.innerHTML='';
  selected.forEach(box=>{const hidden=document.createElement('input');hidden.type='hidden';hidden.name=box.dataset.itemType==='folder'?'folder_ids[]':'file_ids[]';hidden.value=box.value;hiddenIds.appendChild(hidden);});
  if(menuTrigger)menuTrigger.disabled=!selected.length;
+ const selectionBar=document.querySelector(".bulk-selection-bar");
+ if(selectionBar){selectionBar.classList.toggle("is-selection-active",selected.length>0);selectionBar.setAttribute("aria-hidden",selected.length===0?"true":"false");}
  if(selectAll){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="file"]')];selectAll.checked=all.length>0&&all.every(x=>x.checked);selectAll.indeterminate=all.some(x=>x.checked)&&!selectAll.checked;}
  if(selectAllFolders){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="folder"]')];selectAllFolders.checked=all.length>0&&all.every(x=>x.checked);selectAllFolders.indeterminate=all.some(x=>x.checked)&&!selectAllFolders.checked;}
 }
@@ -60,7 +62,7 @@ const modalEl=document.getElementById('uploadModal');document.getElementById('op
 
 <div id="driveViewRoot" data-drive-view="list">
 
-<form id="bulkActionForm" method="post" action="/files/bulk-trash" class="bulk-selection-bar mb-3">
+<form id="bulkActionForm" method="post" action="/files/bulk-trash" class="bulk-selection-bar mb-3" aria-hidden="true">
 <?= csrf_field() ?>
 <div id="bulkSelectedIds"></div>
 <div class="bulk-selection-info"><span class="bulk-selection-icon">✓</span><div><strong id="bulkSelectionCount">0 item dipilih</strong><small id="bulkSelectionHint" class="text-secondary d-block">Pilih file atau folder, lalu buka menu aksi.</small></div></div>
