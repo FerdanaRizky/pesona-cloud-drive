@@ -36,7 +36,7 @@ class Account extends BaseController
   if(!$this->validate($rules))return redirect()->to('/account/profile#ubah-password')->withInput()->with('errors',$this->validator->getErrors());
   $users=new UserModel(); $user=$users->find((int)session()->get('user_id'));
   if(!$user||!password_verify((string)$this->request->getPost('current_password'),$user['password_hash']))return redirect()->to('/account/profile#ubah-password')->with('error','Password saat ini tidak sesuai.');
-  $users->update((int)$user['id'],['password_hash'=>password_hash((string)$this->request->getPost('password'),PASSWORD_DEFAULT),'must_change_password'=>false]);
+  $users->update((int)$user['id'],['password_hash'=>password_hash((string)$this->request->getPost('password'),PASSWORD_DEFAULT),'password_changed_at'=>date('Y-m-d H:i:s'),'must_change_password'=>false]);
   session()->regenerate(); return redirect()->to('/account/profile#ubah-password')->with('message','Password berhasil diperbarui.');
  }
 }
