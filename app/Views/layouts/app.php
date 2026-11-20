@@ -13,6 +13,9 @@
 <nav class="nav flex-column mt-4">
 <a class="nav-link" href="/dashboard">⌂ Dashboard</a>
 <a class="nav-link" href="/files">▤ File Saya</a>
+<a class="nav-link" href="/search">⌕ Cari File</a>
+<a class="nav-link" href="/trash">♲ Sampah</a>
+<a class="nav-link" href="/activity">◷ Riwayat Aktivitas</a>
 <?php if (session()->get('role') === 'admin'): ?>
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
 <a class="nav-link" href="/admin/users">♙ Manajemen Pengguna</a>
@@ -34,6 +37,7 @@
 <div class="content-wrap">
 <?php if (session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?php if (session()->getFlashdata('share_link')): ?><div class="alert alert-info d-flex flex-wrap align-items-center gap-2"><span>Link berbagi:</span><a class="text-break" href="<?= esc(session()->getFlashdata('share_link')) ?>" target="_blank" rel="noopener"><?= esc(session()->getFlashdata('share_link')) ?></a></div><?php endif ?>
 <?php if (session()->getFlashdata('errors')): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach (session()->getFlashdata('errors') as $error): ?><li><?= esc($error) ?></li><?php endforeach ?></ul></div><?php endif ?>
 <?= $this->renderSection('content') ?>
 </div>
