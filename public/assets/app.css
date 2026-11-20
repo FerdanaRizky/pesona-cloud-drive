@@ -412,3 +412,12 @@ html[data-bs-theme="light"] #driveViewRoot .bulk-selection-bar{background:#f7f9f
 #trashViewRoot[data-trash-view="grid"] tbody tr{position:relative;padding-top:32px}
 html[data-bs-theme="light"] #trashViewRoot .trash-bulk-selection{background:#f7f9fc;border-color:#dce5f1}
 @media(max-width:575px){#trashViewRoot .trash-bulk-selection{gap:7px;padding:6px 8px}#trashViewRoot .trash-bulk-selection .bulk-action-controls{margin-left:auto}#trashViewRoot .trash-bulk-selection .btn{padding:5px 8px}}
+
+
+/* Trash bulk actions follow the shared three-dot action-menu pattern */
+#trashViewRoot .trash-bulk-selection .bulk-menu-trigger{width:34px;height:34px;min-width:34px;min-height:34px;padding:0;border-radius:9px;background:#17263c;color:#d8e3f3;border:1px solid #344761}
+#trashViewRoot .trash-bulk-selection .bulk-menu-trigger:hover:not(:disabled){background:#29466d;color:#fff;border-color:#5b8fe0}
+#trashViewRoot .trash-bulk-selection .bulk-menu-trigger:disabled{opacity:.45;cursor:not-allowed}
+#trashViewRoot .trash-bulk-selection .bulk-action-controls .btn{flex:0 0 auto}
+#trashViewRoot .trash-bulk-selection .bulk-action-menu{min-width:210px}
+html[data-bs-theme="light"] #trashViewRoot .trash-bulk-selection .bulk-menu-trigger{background:#fff;color:#40536e;border-color:#d5dfec}
