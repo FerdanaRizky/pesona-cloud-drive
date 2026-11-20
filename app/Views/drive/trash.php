@@ -2,10 +2,11 @@
 <?= $this->section('content') ?>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
   <div><div class="page-eyebrow">PENGELOLAAN DRIVE</div><h1 class="h3 mb-1">Sampah</h1><p class="text-secondary mb-0">Pulihkan item atau hapus permanen jika sudah tidak diperlukan.</p></div>
-  <a class="btn btn-outline-secondary rounded-pill px-3" href="/files">← Kembali ke Drive</a>
+  <div class="d-flex align-items-center gap-2"><div class="view-switcher" role="group" aria-label="Tampilan sampah"><button type="button" class="view-switch-btn" data-trash-view="list" aria-pressed="true" title="Tampilan daftar">☷</button><button type="button" class="view-switch-btn" data-trash-view="grid" aria-pressed="false" title="Tampilan grid">▦</button></div><a class="btn btn-outline-secondary rounded-pill px-3" href="/files">← Kembali ke Drive</a></div>
 </div>
 <div class="trash-notice mb-4"><span class="trash-notice-icon">♲</span><div><strong>Item di sampah</strong><div class="small text-secondary">File masih menggunakan kuota sampai dihapus permanen. Penghapusan permanen tidak dapat dibatalkan.</div></div></div>
-<div class="card p-3 p-lg-4 mb-4">
+<div id="trashViewRoot" data-trash-view="list">
+<div class="card p-3 p-lg-4 mb-4 trash-files-card">
   <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">File</h2><span class="small text-secondary"><?= count($files) ?> file</span></div><span class="trash-section-icon">▤</span></div>
   <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Nama file</th><th>Ukuran</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
   <?php foreach ($files as $f): ?>
@@ -25,7 +26,7 @@
   <?php if (!$files): ?><tr><td colspan="4"><div class="empty-trash"><span>▤</span><strong>Belum ada file di sampah</strong><small>File yang Anda hapus akan muncul di sini.</small></div></td></tr><?php endif ?>
   </tbody></table></div>
 </div>
-<div class="card p-3 p-lg-4">
+<div class="card p-3 p-lg-4 trash-folders-card">
   <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div><span class="trash-section-icon">📁</span></div>
   <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Nama folder</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
   <?php foreach ($folders as $f): ?>
@@ -45,6 +46,7 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
+ const root=document.getElementById('trashViewRoot'),buttons=document.querySelectorAll('[data-trash-view]');const saved=localStorage.getItem('pcd-trash-view')||'list';function setView(view){if(!root)return;root.dataset.trashView=view;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.trashView===view)));localStorage.setItem('pcd-trash-view',view);}buttons.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.trashView)));setView(saved);
  document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown){
   const trigger=dropdown.querySelector('[data-bs-toggle="dropdown"]'),menu=dropdown.querySelector('.file-action-menu');if(!trigger||!menu)return;let placeholder=null;
   dropdown.addEventListener('shown.bs.dropdown',function(){placeholder=document.createComment('trash-action-menu');menu.parentNode.insertBefore(placeholder,menu);document.body.appendChild(menu);const rect=trigger.getBoundingClientRect(),w=Math.min(Math.max(menu.offsetWidth,210),window.innerWidth-24),h=Math.min(menu.scrollHeight,window.innerHeight-24);let left=Math.max(12,Math.min(rect.right-w,window.innerWidth-w-12)),top=rect.bottom+8;if(top+h>window.innerHeight-12)top=Math.max(12,rect.top-h-8);menu.style.position='fixed';menu.style.left=left+'px';menu.style.top=top+'px';menu.style.right='auto';menu.style.bottom='auto';menu.style.transform='none';menu.style.zIndex='2000';});
@@ -52,4 +54,5 @@ document.addEventListener('DOMContentLoaded',function(){
  });
 });
 </script>
+</div><!-- /trashViewRoot -->
 <?= $this->endSection() ?>
