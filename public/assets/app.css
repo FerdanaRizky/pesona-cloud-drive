@@ -311,3 +311,34 @@ html[data-bs-theme="light"] .theme-toggle-caption strong{color:#315fba}
 html[data-bs-theme="light"] .multi-select-control span{background:#fff;border-color:#aab8ca}
 html[data-bs-theme="light"] .bulk-selection-bar{background:linear-gradient(110deg,#edf4ff,#f8faff);border-color:#d5e3f7}
 @media(max-width:575px){.bulk-selection-bar{align-items:flex-start;flex-direction:column}.bulk-selection-bar>div:last-child{width:100%;justify-content:flex-end}.bulk-selection-bar .btn{flex:1}}
+
+
+/* Multi-select and bulk action toolbar */
+.bulk-selection-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 16px;border:1px solid #36547c;border-radius:15px;background:linear-gradient(110deg,rgba(44,91,153,.22),rgba(20,34,56,.92));box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.bulk-selection-info{display:flex;align-items:center;gap:11px;min-width:180px}
+.bulk-selection-info strong{font-size:.9rem}
+.bulk-selection-icon{width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px;border-radius:11px;background:rgba(63,132,226,.2);color:#9bc4ff;font-weight:800}
+.bulk-action-controls{display:flex;align-items:end;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.bulk-inline-field{display:grid;gap:4px;min-width:116px}
+.bulk-inline-field>span{font-size:.68rem;color:#9aacc5}
+.bulk-inline-field .form-select{min-width:116px}
+.multi-select-control{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;width:24px;height:28px;cursor:pointer;margin:0}
+.multi-select-control input{width:17px;height:17px;accent-color:#528ff0;cursor:pointer}
+.selection-column{width:38px;text-align:center}
+.selection-column .form-check-input{width:17px;height:17px;cursor:pointer;accent-color:#528ff0}
+.folder-tile .multi-select-control{margin-left:1px}
+.folder-tile .multi-select-control+ a{min-width:0}
+.bulk-action-controls .btn{white-space:nowrap;border-radius:9px;font-weight:650}
+.bulk-action-controls .btn:disabled{opacity:.35;cursor:not-allowed}
+html[data-bs-theme="light"] .bulk-selection-bar{background:linear-gradient(110deg,#edf4ff,#fff);border-color:#cbdcf4}
+html[data-bs-theme="light"] .bulk-selection-icon{background:#e0edff;color:#2456b4}
+html[data-bs-theme="light"] .bulk-inline-field>span{color:#687b95}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column{display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-folders-section .multi-select-control{align-self:flex-start}
+@media(max-width:767px){
+ .bulk-selection-bar{align-items:stretch;padding:12px}
+ .bulk-selection-info{width:100%}
+ .bulk-action-controls{justify-content:flex-start;width:100%}
+ .bulk-inline-field{flex:1 1 130px}
+ .bulk-action-controls .btn{flex:1 1 auto}
+}
