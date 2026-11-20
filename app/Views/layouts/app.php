@@ -14,6 +14,7 @@
 <a class="nav-link" href="/dashboard">⌂ Dashboard</a>
 <a class="nav-link" href="/files">▤ File Saya</a>
 <a class="nav-link" href="/trash">♲ Sampah</a>
+<a class="nav-link" href="/shares">⛓ Link Berbagi</a>
 <a class="nav-link" href="/activity">◷ Riwayat Aktivitas</a>
 <?php if (session()->get('role') === 'admin'): ?>
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
