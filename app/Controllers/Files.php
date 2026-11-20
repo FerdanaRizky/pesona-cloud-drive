@@ -139,6 +139,7 @@ class Files extends BaseController
     {
         $row = (new DriveFileModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
         if (!$row || !is_file($row['storage_path'])) return $this->response->setStatusCode(404);
+        $this->logActivity((int) session()->get('user_id'), 'file.download', 'Mengunduh file: ' . $row['original_name']);
         return $this->response->download($row['storage_path'], null)->setFileName($row['original_name']);
     }
 
@@ -247,6 +248,7 @@ class Files extends BaseController
         }
 
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        $this->logActivity($uid, 'file.preview', 'Membuka preview file: ' . $file['original_name']);
         $officePreview = false;
         if (!in_array($file['mime_type'], $allowed, true)) {
             if (!\App\Libraries\OfficePreview::supports($file)) {
