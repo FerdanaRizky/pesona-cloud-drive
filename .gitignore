@@ -1,0 +1,9 @@
+/vendor/
+/writable/cache/*
+/writable/logs/*
+/writable/session/*
+/.env
+/storage/*
+!/storage/.gitkeep
+.DS_Store
+.phpunit.cache/
