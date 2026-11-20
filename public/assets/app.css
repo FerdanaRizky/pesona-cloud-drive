@@ -540,3 +540,16 @@ html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folder
 .profile-account-summary .user-profile-detail{padding:4px 2px}
 #ubah-password{scroll-margin-top:90px}
 @media(max-width:575px){.profile-account-summary{grid-template-columns:1fr 1fr}.profile-page-avatar{width:42px;height:42px}}
+
+/* Inline edit controls for profile name and WhatsApp */
+.profile-value-with-edit{display:flex;align-items:center;gap:8px;min-width:0}
+.profile-value-with-edit>strong{overflow-wrap:anywhere}
+.profile-inline-edit{position:relative;flex:0 0 auto}
+.profile-inline-edit>summary{list-style:none;display:grid;place-items:center;width:27px;height:27px;border:1px solid #3b5272;border-radius:8px;background:#1a2b45;color:#9fc4ff;cursor:pointer;font-size:15px;line-height:1;transition:all .15s}
+.profile-inline-edit>summary::-webkit-details-marker{display:none}
+.profile-inline-edit>summary:hover{background:#29466d;border-color:#6595df;color:#fff}
+.profile-inline-edit[open]>summary{background:#29466d;color:#fff}
+.profile-inline-form{width:min(320px,calc(100vw - 80px));margin-top:9px;padding:12px;border:1px solid #3b5272;border-radius:11px;background:#111d30;box-shadow:0 12px 28px rgba(0,0,0,.24)}
+.profile-inline-form .form-control{font-size:.88rem}
+html[data-bs-theme="light"] .profile-inline-edit>summary{background:#fff;color:#315fba;border-color:#d5dfec}
+html[data-bs-theme="light"] .profile-inline-form{background:#fff;border-color:#dce5f1}
