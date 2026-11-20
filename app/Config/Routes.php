@@ -45,6 +45,9 @@ $routes->post('files/star/(:num)', 'Files::toggleStar/$1', ['filter' => 'auth'])
 $routes->get('files/download/(:num)', 'Files::download/$1', ['filter' => 'auth']);
 $routes->post('files/delete/(:num)', 'Files::delete/$1', ['filter' => 'auth']);
 $routes->post('files/bulk-trash', 'Files::bulkTrash', ['filter' => 'auth']);
+$routes->post('files/bulk-move', 'Files::bulkMove', ['filter' => 'auth']);
+$routes->post('files/bulk-share', 'Files::bulkShare', ['filter' => 'auth']);
+$routes->post('files/bulk-download', 'Files::bulkDownload', ['filter' => 'auth']);
 
 $routes->get('admin/users', 'Admin\\Users::index', ['filter' => 'admin']);
 $routes->post('admin/users/create', 'Admin\\Users::create', ['filter' => 'admin']);
