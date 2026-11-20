@@ -5,7 +5,9 @@
   <div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="/files">Kembali</a><a class="btn btn-primary" href="/files/download/<?= (int)$file['id'] ?>">Unduh</a></div>
 </div>
 <div class="card p-3 preview-stage">
-<?php if (str_starts_with($file['mime_type'], 'image/')): ?>
+<?php if (!empty($officePreview)): ?>
+  <iframe src="/files/preview-content/<?= (int)$file['id'] ?>" title="<?= esc($file['original_name']) ?>" style="width:100%;height:78vh;border:0;background:#fff"></iframe>
+<?php elseif (str_starts_with($file['mime_type'], 'image/')): ?>
   <img src="/files/preview-content/<?= (int)$file['id'] ?>" alt="<?= esc($file['original_name']) ?>" class="img-fluid mx-auto" style="max-height:75vh;object-fit:contain">
 <?php elseif ($file['mime_type'] === 'application/pdf'): ?>
   <iframe src="/files/preview-content/<?= (int)$file['id'] ?>" title="<?= esc($file['original_name']) ?>" style="width:100%;height:78vh;border:0;background:#fff"></iframe>
