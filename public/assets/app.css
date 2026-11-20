@@ -365,3 +365,34 @@ html[data-bs-theme="light"] .bulk-inline-field>span{color:#687b95}
 html[data-bs-theme="light"] .bulk-selection-bar{background:linear-gradient(110deg,#fff,#f5f8fd);border-color:#dce5f1;color:#17243a}
 html[data-bs-theme="light"] .bulk-menu-trigger{background:#fff;color:#40536e;border-color:#d5dfec}
 @media(max-width:575px){.bulk-selection-bar{align-items:flex-start;padding:11px}.bulk-action-controls{margin-left:auto}.bulk-selection-info{width:100%}}
+
+
+/* Compact multi-select toolbar: only appears while items are selected */
+#driveViewRoot .bulk-selection-bar{
+ display:none;
+ align-items:center;
+ justify-content:flex-end;
+ gap:10px;
+ min-height:48px;
+ padding:7px 10px;
+ margin:0 0 12px!important;
+ border:1px solid #344761;
+ border-radius:10px;
+ background:rgba(20,34,56,.72);
+ box-shadow:none;
+}
+#driveViewRoot .bulk-selection-bar.is-selection-active{display:flex}
+#driveViewRoot .bulk-selection-info{flex:1 1 auto;min-width:0;gap:8px}
+#driveViewRoot .bulk-selection-icon{width:25px;height:25px;flex-basis:25px;border-radius:8px;font-size:.78rem}
+#driveViewRoot .bulk-selection-info strong{font-size:.82rem;font-weight:650}
+#driveViewRoot .bulk-selection-info small{display:none!important}
+#driveViewRoot .bulk-action-controls{flex:0 0 auto;gap:6px}
+#driveViewRoot .bulk-action-controls .btn{min-height:34px;padding:5px 10px;font-size:.78rem}
+#driveViewRoot .bulk-menu-trigger{width:34px;height:34px;min-width:34px;min-height:34px;padding:0;border-radius:9px}
+html[data-bs-theme="light"] #driveViewRoot .bulk-selection-bar{background:#f7f9fc;border-color:#dce5f1}
+@media(max-width:575px){
+ #driveViewRoot .bulk-selection-bar{gap:7px;padding:6px 8px}
+ #driveViewRoot .bulk-selection-info{gap:6px}
+ #driveViewRoot .bulk-selection-info strong{font-size:.76rem}
+ #driveViewRoot .bulk-action-controls .btn{padding:5px 8px}
+}
