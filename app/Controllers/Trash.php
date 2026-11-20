@@ -81,6 +81,49 @@ class Trash extends BaseController
         return redirect()->back()->with('error', 'Item yang dipilih tidak ditemukan di sampah.');
     }
 
+    public function bulkRestore()
+    {
+        $uid = (int) session()->get('user_id');
+        $fileIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')), static fn($id) => $id > 0)));
+        $folderIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('folder_ids')), static fn($id) => $id > 0)));
+        if (!$fileIds && !$folderIds) return redirect()->back()->with('error', 'Pilih minimal satu item dari sampah.');
+
+        $folderModel = new DriveFolderModel();
+        $fileModel = new DriveFileModel();
+        $restoredFolders = 0;
+        $restoredFiles = 0;
+
+        // Restore folders first so selected files inside those folders can be restored too.
+        foreach ($folderIds as $id) {
+            $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
+            if (!$folder) continue;
+            if (!empty($folder['parent_id'])) {
+                $parent = (new DriveFolderModel())->where('id', (int) $folder['parent_id'])->where('user_id', $uid)->where('is_trashed', 0)->first();
+                if (!$parent) continue;
+            }
+            $folderModel->update($id, ['is_trashed' => 0]);
+            $this->log($uid, 'folder.restore', 'Memulihkan folder: ' . $folder['name']);
+            $restoredFolders++;
+        }
+
+        foreach ($fileIds as $id) {
+            $file = $fileModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 1)->first();
+            if (!$file) continue;
+            if (!empty($file['parent_id'])) {
+                $parent = (new DriveFolderModel())->where('id', (int) $file['parent_id'])->where('user_id', $uid)->where('is_trashed', 0)->first();
+                if (!$parent) continue;
+            }
+            $fileModel->update($id, ['is_trashed' => 0]);
+            $this->log($uid, 'file.restore', 'Memulihkan file: ' . $file['original_name']);
+            $restoredFiles++;
+        }
+
+        if ($restoredFolders || $restoredFiles) {
+            return redirect()->back()->with('message', 'Berhasil memulihkan ' . $restoredFiles . ' file dan ' . $restoredFolders . ' folder.');
+        }
+        return redirect()->back()->with('error', 'Tidak ada item yang dapat dipulihkan. Pastikan folder induk sudah dipulihkan.');
+    }
+
     public function deleteFilePermanently(int $id)
     {
         $uid = (int) session()->get('user_id');
