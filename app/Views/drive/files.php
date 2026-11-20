@@ -1,16 +1,14 @@
 <?= $this->extend('layouts/app') ?>
 <?= $this->section('content') ?>
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4 file-toolbar">
-  <div>
-    <h1 class="h3 mb-1">File Saya</h1>
-    <p class="text-secondary mb-2">Kelola file dan folder pribadi Anda.</p>
-    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a href="/files">Drive Saya</a></li><?php foreach ($breadcrumbs as $crumb): ?><li class="breadcrumb-item active text-secondary"><?= esc($crumb['name']) ?></li><?php endforeach ?></ol></nav>
-  </div>
-  <div class="d-flex flex-wrap gap-2">
-    <form action="/files/folders/create" method="post" class="d-flex gap-2"><?= csrf_field() ?><input type="hidden" name="parent_id" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><input class="form-control" name="name" placeholder="Nama folder baru" maxlength="120" required><button class="btn btn-outline-primary text-nowrap">+ Folder</button></form>
-    <form action="/files/upload" method="post" enctype="multipart/form-data" class="d-flex gap-2"><?= csrf_field() ?><input type="hidden" name="parent_id" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><input class="form-control" type="file" name="files[]" multiple required><button class="btn btn-primary">Upload</button></form>
-  </div>
+  <div><h1 class="h3 mb-1">File Saya</h1><p class="text-secondary mb-2">Kelola file dan folder pribadi Anda.</p>
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a href="/files">Drive Saya</a></li><?php foreach ($breadcrumbs as $crumb): ?><li class="breadcrumb-item active text-secondary"><?= esc($crumb['name']) ?></li><?php endforeach ?></ol></nav></div>
+  <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createFolderModal">＋ Tambah Folder</button><button type="button" class="btn btn-primary" id="openUploadPicker">↑ Upload</button></div>
 </div>
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form action="/files/folders/create" method="post"><?= csrf_field() ?><input type="hidden" name="parent_id" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><div class="modal-header"><h5 class="modal-title">Tambah Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body"><label class="form-label" for="newFolderName">Nama folder</label><input class="form-control" id="newFolderName" name="name" placeholder="Masukkan nama folder" maxlength="120" required></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary">Buat Folder</button></div></form></div></div></div>
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form action="/files/upload" method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="parent_id" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><div class="modal-header"><h5 class="modal-title">Upload File</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body"><label class="form-label" for="modalUploadInput">Pilih file dari perangkat</label><input class="form-control" type="file" id="modalUploadInput" name="files[]" multiple required><div class="form-text" id="uploadSelectionInfo">Anda dapat memilih lebih dari satu file.</div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary" type="submit">Mulai Upload</button></div></form></div></div></div>
+<form method="get" action="/files" class="d-flex gap-2 mb-4" role="search"><input type="hidden" name="folder" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><input class="form-control" name="q" value="<?= esc($term ?? '') ?>" placeholder="Cari nama file atau folder..."><button class="btn btn-outline-secondary">Cari</button><?php if (!empty($term)): ?><a class="btn btn-outline-secondary" href="<?= !empty($currentFolder) ? '/files?folder=' . (int) $currentFolder['id'] : '/files' ?>">Reset</a><?php endif ?></form>
+<script>document.addEventListener('DOMContentLoaded',function(){const modalEl=document.getElementById('uploadModal');document.getElementById('openUploadPicker')?.addEventListener('click',function(){bootstrap.Modal.getOrCreateInstance(modalEl).show();});document.getElementById('modalUploadInput')?.addEventListener('change',function(){const n=this.files?this.files.length:0;document.getElementById('uploadSelectionInfo').textContent=n?n+' file dipilih. Klik “Mulai Upload” untuk mengunggah.':'Anda dapat memilih lebih dari satu file.';});});</script>
 
 <div class="row g-3 mb-4">
   <div class="col-md-4"><div class="admin-stat"><div class="muted-label">Penyimpanan digunakan</div><div class="fs-4 fw-semibold"><?= number_format(((int) ($user['used_bytes'] ?? 0)) / 1073741824, 2) ?> GB</div></div></div>
@@ -19,7 +17,7 @@
 </div>
 
 <?php if ($folders): ?>
-<div class="mb-4"><h2 class="h6 text-secondary mb-3">Folder</h2><div class="row g-2">
+<div class="mb-4"><h2 class="h6 text-secondary mb-3">Folder<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><div class="row g-2">
 <?php foreach ($folders as $folder): ?>
 <div class="col-sm-6 col-xl-4"><div class="folder-tile">
   <a class="flex-grow-1 text-decoration-none text-reset" href="/files?folder=<?= (int) $folder['id'] ?>">📁 <?= esc($folder['name']) ?></a>
@@ -31,7 +29,7 @@
 <?php endforeach ?></div></div>
 <?php endif ?>
 
-<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">File</h2><span class="small text-secondary"><?= count($files) ?> item</span></div>
+<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">File<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><span class="small text-secondary"><?= count($files) ?> item</span></div>
 <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Nama file</th><th>Tipe</th><th>Ukuran</th><th>Diunggah</th><th class="text-end">Aksi</th></tr></thead><tbody>
 <?php foreach ($files as $f): ?>
 <tr class="file-row"><td><div class="fw-medium"><?= !empty($f['is_starred']) ? '★ ' : '' ?><?= esc($f['original_name']) ?></div><small class="text-secondary"><?= esc($f['mime_type']) ?></small></td><td><?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end text-nowrap">
