@@ -140,6 +140,8 @@ class Files extends BaseController
         $row = (new DriveFileModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
         if (!$row || !is_file($row['storage_path'])) return $this->response->setStatusCode(404);
         $this->logActivity((int) session()->get('user_id'), 'file.download', 'Mengunduh file: ' . $row['original_name']);
+        $accelerated = \\App\\Libraries\\PrivateFileDelivery::response($this->response, $row['storage_path'], $row['mime_type'], $row['original_name'], 'attachment');
+        if ($accelerated !== null) return $accelerated;
         return $this->response->download($row['storage_path'], null)->setFileName($row['original_name']);
     }
 
@@ -277,6 +279,11 @@ class Files extends BaseController
             $sourcePath = \App\Libraries\OfficePreview::convert($file);
             if (!$sourcePath) return $this->response->setStatusCode(503)->setBody('Office preview is not available. Install LibreOffice.');
             $contentType = 'application/pdf';
+        }
+
+        $accelerated = \\App\\Libraries\\PrivateFileDelivery::response($this->response, $sourcePath, $contentType, $file['original_name'], 'inline');
+        if ($accelerated !== null) {
+            return $accelerated->setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
         }
 
         $name = str_replace(["\\r", "\\n", '"'], '', basename($file['original_name']));
