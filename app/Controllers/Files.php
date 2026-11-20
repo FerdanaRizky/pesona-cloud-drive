@@ -230,6 +230,92 @@ class Files extends BaseController
         return redirect()->back()->with($skippedFolders ? 'error' : 'message', $message);
     }
 
+    public function bulkMove()
+    {
+        $uid = (int) session()->get('user_id');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')))));
+        $parentId = (int) $this->request->getPost('parent_id');
+        if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu file untuk dipindahkan.');
+        if ($parentId > 0 && !(new DriveFolderModel())->where('id', $parentId)->where('user_id', $uid)->where('is_trashed', 0)->first()) {
+            return redirect()->back()->with('error', 'Folder tujuan tidak valid.');
+        }
+        $model = new DriveFileModel();
+        $moved = 0;
+        foreach ($ids as $id) {
+            $file = $model->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$file) continue;
+            $model->update($id, ['parent_id' => $parentId ?: null]);
+            $this->logActivity($uid, 'file.move', 'Memindahkan file: ' . $file['original_name']);
+            $moved++;
+        }
+        return redirect()->back()->with('message', $moved . ' file berhasil dipindahkan.');
+    }
+
+    public function bulkShare()
+    {
+        $uid = (int) session()->get('user_id');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')))));
+        if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu file untuk dibagikan.');
+        $expiry = (string) $this->request->getPost('expires_days');
+        $expiresAt = in_array($expiry, ['1', '7', '30'], true) ? date('Y-m-d H:i:s', strtotime('+' . (int) $expiry . ' days')) : null;
+        $db = db_connect();
+        $links = [];
+        foreach ($ids as $id) {
+            $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$file) continue;
+            $token = bin2hex(random_bytes(32));
+            $db->table('file_shares')->insert([
+                'file_id' => $id, 'owner_id' => $uid, 'shared_with_email' => null,
+                'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token),
+                'permission' => 'viewer', 'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            $links[] = ['name' => $file['original_name'], 'url' => site_url('s/' . $token)];
+            $this->logActivity($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
+        }
+        if (!$links) return redirect()->back()->with('error', 'Tidak ada file valid yang dapat dibagikan.');
+        return redirect()->to('/shares')->with('share_links', $links)->with('message', count($links) . ' tautan berbagi berhasil dibuat.');
+    }
+
+    public function bulkDownload()
+    {
+        $uid = (int) session()->get('user_id');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')))));
+        if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu file untuk diunduh.');
+        $files = [];
+        foreach ($ids as $id) {
+            $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if ($file && is_file($file['storage_path'])) $files[] = $file;
+        }
+        if (!$files) return redirect()->back()->with('error', 'File terpilih tidak ditemukan.');
+        if (count($files) === 1) {
+            $file = $files[0];
+            $this->logActivity($uid, 'file.download', 'Mengunduh file: ' . $file['original_name']);
+            return $this->response->download($file['storage_path'], null)->setFileName(basename($file['original_name']));
+        }
+        if (!class_exists(\ZipArchive::class)) return redirect()->back()->with('error', 'Fitur unduh banyak file membutuhkan ekstensi PHP ZipArchive.');
+        $zipName = 'pesona-cloud-' . date('Ymd-His') . '-' . bin2hex(random_bytes(3)) . '.zip';
+        $zipPath = WRITEPATH . 'cache/' . $zipName;
+        if (!is_dir(dirname($zipPath))) mkdir(dirname($zipPath), 0770, true);
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) return redirect()->back()->with('error', 'Arsip ZIP tidak dapat dibuat.');
+        $usedNames = [];
+        foreach ($files as $file) {
+            $name = basename($file['original_name']);
+            $candidate = $name;
+            $n = 1;
+            while (isset($usedNames[strtolower($candidate)])) {
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                $base = pathinfo($name, PATHINFO_FILENAME);
+                $candidate = $base . ' (' . $n++ . ')' . ($ext !== '' ? '.' . $ext : '');
+            }
+            $usedNames[strtolower($candidate)] = true;
+            $zip->addFile($file['storage_path'], $candidate);
+            $this->logActivity($uid, 'file.download', 'Mengunduh melalui arsip: ' . $file['original_name']);
+        }
+        $zip->close();
+        return $this->response->download($zipPath, null)->setFileName('Pesona-Cloud-Drive-' . date('Ymd-His') . '.zip')->setContentType('application/zip');
+    }
+
     public function renameFolder(int $id)
     {
         $name = trim((string) $this->request->getPost('name'));
