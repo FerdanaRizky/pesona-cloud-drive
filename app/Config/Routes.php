@@ -15,8 +15,8 @@ $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
 $routes->get('forgot-password', 'PasswordReset::requestForm');
 $routes->post('forgot-password', 'PasswordReset::sendLink');
-$routes->get('reset-password/(:segment)', 'PasswordReset::resetForm/$1');
-$routes->post('reset-password/(:segment)', 'PasswordReset::updatePassword/$1');
+$routes->get('reset-password', 'PasswordReset::resetForm');
+$routes->post('reset-password', 'PasswordReset::updatePassword');
 $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 
 $routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
@@ -60,5 +60,7 @@ $routes->post('admin/users/create', 'Admin\\Users::create', ['filter' => 'admin'
 $routes->post('admin/users/update/(:num)', 'Admin\\Users::update/$1', ['filter' => 'admin']);
 $routes->post('admin/users/reset-password/(:num)', 'Admin\\Users::resetPassword/$1', ['filter' => 'admin']);
 
+$routes->get('account/profile', 'Account::profile', ['filter' => 'auth']);
+$routes->post('account/profile', 'Account::updateProfile', ['filter' => 'auth']);
 $routes->get('account/password', 'Account::password', ['filter' => 'auth']);
 $routes->post('account/password', 'Account::updatePassword', ['filter' => 'auth']);
