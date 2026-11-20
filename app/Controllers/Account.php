@@ -9,19 +9,26 @@ class Account extends BaseController
   return view('account/profile',['title'=>'Profil Pengguna','user'=>$user]);
  }
  public function updateProfile(){
-  $uid=(int)session()->get('user_id');
-  $name=trim((string)$this->request->getPost('name'));
-  $phone=preg_replace('/[\s+().-]/','',(string)$this->request->getPost('phone'));
-  if($name===''||mb_strlen($name)>100)return redirect()->back()->withInput()->with('error','Nama lengkap wajib diisi dan maksimal 100 karakter.');
-  if(!preg_match('/^[1-9][0-9]{8,14}$/',$phone))return redirect()->back()->withInput()->with('error','Nomor WhatsApp harus menggunakan format internasional, contoh 6281234567890.');
-  $users=new UserModel(); $user=$users->find($uid);
+  $uid=(int)session()->get('user_id'); $users=new UserModel(); $user=$users->find($uid);
   if(!$user)return redirect()->to('/login');
-  $exists=$users->where('phone',$phone)->where('id !=',$uid)->first();
-  if($exists)return redirect()->back()->withInput()->with('error','Nomor WhatsApp sudah digunakan akun lain.');
-  $users->update($uid,['name'=>$name,'phone'=>$phone]);
-  session()->set('name',$name);
-  db_connect()->table('activity_logs')->insert(['user_id'=>$uid,'action'=>'account.profile_update','details'=>'Memperbarui nama lengkap dan nomor WhatsApp profil.','ip_address'=>$this->request->getIPAddress(),'created_at'=>date('Y-m-d H:i:s')]);
-  return redirect()->to('/account/profile')->with('message','Profil berhasil diperbarui.');
+  $changes=[]; $details=[];
+  if($this->request->getPost('name')!==null){
+   $name=trim((string)$this->request->getPost('name'));
+   if($name===''||mb_strlen($name)>100)return redirect()->to('/account/profile')->with('error','Nama lengkap wajib diisi dan maksimal 100 karakter.');
+   $changes['name']=$name; $details[]='nama lengkap';
+  }
+  if($this->request->getPost('phone')!==null){
+   $phone=preg_replace('/[\s+().-]/','',(string)$this->request->getPost('phone'));
+   if(!preg_match('/^[1-9][0-9]{8,14}$/',$phone))return redirect()->to('/account/profile')->with('error','Nomor WhatsApp harus menggunakan format internasional, contoh 6281234567890.');
+   $exists=(new UserModel())->where('phone',$phone)->where('id !=',$uid)->first();
+   if($exists)return redirect()->to('/account/profile')->with('error','Nomor WhatsApp sudah digunakan akun lain.');
+   $changes['phone']=$phone; $details[]='nomor WhatsApp';
+  }
+  if(!$changes)return redirect()->to('/account/profile');
+  $users->update($uid,$changes);
+  if(isset($changes['name']))session()->set('name',$changes['name']);
+  db_connect()->table('activity_logs')->insert(['user_id'=>$uid,'action'=>'account.profile_update','details'=>'Memperbarui '.implode(' dan ',$details).' melalui profil.','ip_address'=>$this->request->getIPAddress(),'created_at'=>date('Y-m-d H:i:s')]);
+  return redirect()->to('/account/profile')->with('message','Perubahan '.implode(' dan ',$details).' berhasil disimpan.');
  }
  public function password(){return redirect()->to('/account/profile#ubah-password');}
  public function updatePassword(){
