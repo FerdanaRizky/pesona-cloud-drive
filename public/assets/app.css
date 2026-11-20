@@ -26,3 +26,9 @@
 .file-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
 .file-thumbnail span{padding:2px}
 html[data-bs-theme=light] .file-thumbnail{background:#edf3ff;border-color:#d8e3f5;color:#315b9a}
+
+
+.file-thumbnail{width:48px;height:48px;border-radius:10px;overflow:hidden;background:#1b2c45;border:1px solid #344761;display:flex;align-items:center;justify-content:center;color:#a9c7f5;font-size:10px;font-weight:800;letter-spacing:.04em}
+.file-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
+.file-thumbnail span{padding:2px}
+html[data-bs-theme=light] .file-thumbnail{background:#edf3ff;border-color:#d8e3f5;color:#315b9a}
