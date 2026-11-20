@@ -74,6 +74,13 @@ class Share extends BaseController
             ->setBody($body);
     }
 
+    public function download(string $token)
+    {
+        $share = $this->findShare($token);
+        if (!$share) return $this->response->setStatusCode(404);
+        return $this->response->download($share['storage_path'], null)->setFileName($share['original_name']);
+    }
+
     private function findShare(string $token): ?array
     {
         if (!preg_match('/^[a-f0-9]{64}$/', $token)) return null;
