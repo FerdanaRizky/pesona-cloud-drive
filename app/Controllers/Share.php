@@ -21,6 +21,11 @@ class Share extends BaseController
         foreach ($rows as &$row) {
             $row['expired'] = !empty($row['expires_at']) && strtotime($row['expires_at']) < time();
             $row['active'] = !$row['expired'];
+            $row['expiry_option'] = empty($row['expires_at']) ? 'never' : '7';
+            if (!empty($row['expires_at'])) {
+                $remaining = strtotime($row['expires_at']) - time();
+                $row['expiry_option'] = $remaining <= 86400 ? '1' : ($remaining <= 7 * 86400 ? '7' : '30');
+            }
             $row['share_url'] = null;
             if (!empty($row['token_ciphertext'])) {
                 try { $row['share_url'] = site_url('s/' . service('encrypter')->decrypt($row['token_ciphertext'])); } catch (\Throwable $e) { $row['share_url'] = null; }
