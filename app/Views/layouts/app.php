@@ -20,8 +20,6 @@
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
 <a class="nav-link" href="/admin/users">♙ Manajemen Pengguna</a>
 <?php endif ?>
-<a class="nav-link" href="/account/profile">♙ Profil Pengguna</a>
-<a class="nav-link" href="/account/password">⚙ Ubah Password</a>
 </nav>
 </aside>
 <main class="main-content">
@@ -37,6 +35,9 @@
 </button>
 <div class="dropdown-menu dropdown-menu-end account-menu">
 <div class="account-menu-heading"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><small><?= esc(ucfirst((string)session()->get('role'))) ?> · <span class="user-presence"><i></i>Online</span></small></div>
+<div class="dropdown-divider"></div>
+<a class="dropdown-item" href="/account/profile"><span class="logout-icon">♙</span><span>Profil Pengguna</span></a>
+<a class="dropdown-item" href="/account/password"><span class="logout-icon">⚙</span><span>Ubah Password</span></a>
 <div class="dropdown-divider"></div>
 <a class="dropdown-item account-logout-item" href="/logout"><span class="logout-icon">↪</span><span>Keluar dari akun</span></a>
 </div>
