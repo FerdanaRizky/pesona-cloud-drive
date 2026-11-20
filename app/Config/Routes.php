@@ -18,3 +18,5 @@ $routes->get('files', 'Files::index', ['filter' => 'auth']);
 $routes->post('files/upload', 'Files::upload', ['filter' => 'auth']);
 $routes->get('files/download/(:num)', 'Files::download/$1', ['filter' => 'auth']);
 $routes->post('files/delete/(:num)', 'Files::delete/$1', ['filter' => 'auth']);
+$routes->get('account/password', 'Account::password', ['filter' => 'auth']);
+$routes->post('account/password', 'Account::updatePassword', ['filter' => 'auth']);
