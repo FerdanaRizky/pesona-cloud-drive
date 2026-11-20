@@ -12,7 +12,7 @@ body{min-height:100vh;background:#0b1220;color:#e7edf7}.share-shell{max-width:11
 <main class="share-shell">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
     <div><div class="small text-secondary mb-1">PESONA CLOUD DRIVE · FILE DIBAGIKAN</div><h1 class="h4 mb-1"><?= esc($share['original_name']) ?></h1><div class="small text-secondary"><?= esc($share['mime_type']) ?> · <?= number_format($share['size_bytes']/1048576,2) ?> MB</div></div>
-    <a class="btn btn-primary" href="/s/<?= esc($token) ?>/content" download="<?= esc($share['original_name']) ?>">Unduh file</a>
+    <a class="btn btn-primary" href="/s/<?= esc($token) ?>/download" download="<?= esc($share['original_name']) ?>">Unduh file</a>
   </div>
   <section class="share-card p-3">
     <?php if ($canPreview && str_starts_with($share['mime_type'], 'image/')): ?>
@@ -22,7 +22,7 @@ body{min-height:100vh;background:#0b1220;color:#e7edf7}.share-shell{max-width:11
     <?php elseif (str_starts_with($share['mime_type'], 'video/')): ?>
       <video class="preview" style="height:76vh" controls playsinline preload="metadata"><source src="/s/<?= esc($token) ?>/content" type="<?= esc($share['mime_type']) ?>"></video>
     <?php else: ?>
-      <div class="text-center py-5"><div class="display-5 mb-3">📄</div><p class="text-secondary">Preview tidak tersedia untuk tipe file ini.</p><a class="btn btn-primary" href="/s/<?= esc($token) ?>/content" download>Unduh file</a></div>
+      <div class="text-center py-5"><div class="display-5 mb-3">📄</div><p class="text-secondary">Preview tidak tersedia untuk tipe file ini.</p><a class="btn btn-primary" href="/s/<?= esc($token) ?>/download" download>Unduh file</a></div>
     <?php endif ?>
   </section>
   <p class="text-center text-secondary small mt-4">Tautan ini dibuat oleh pemilik file. Akses dapat dicabut atau kedaluwarsa kapan saja.</p>
