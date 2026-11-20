@@ -8,7 +8,7 @@
 /* Folder and file action menus share one responsive, non-sticky behavior. */
 .folder-actions,.file-actions-dropdown{position:relative;flex:0 0 auto;align-self:center}
 .action-menu-trigger{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;padding:0;border-radius:10px}
-.file-action-menu{position:absolute!important;inset:auto 0 auto auto!important;transform:none!important;z-index:1080;min-width:210px;max-width:min(280px,calc(100vw - 32px));max-height:min(65vh,420px);overflow-y:auto;overscroll-behavior:contain}
+.file-action-menu{position:absolute;inset:auto 0 auto auto;transform:none;z-index:1080;min-width:210px;max-width:min(280px,calc(100vw - 32px));max-height:min(65vh,420px);overflow-y:auto;overscroll-behavior:contain}
 .folder-tile{position:relative;overflow:visible}
 .folder-tile>a{min-width:0;overflow-wrap:anywhere}
 .folder-tile .dropdown-menu{margin-top:6px!important}
