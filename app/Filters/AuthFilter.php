@@ -24,6 +24,10 @@ class AuthFilter implements FilterInterface
         if (session()->get('role') !== $user['role']) {
             session()->set('role', $user['role']);
         }
+
+        if ((int) $user['must_change_password'] === 1 && $request->getUri()->getPath() !== 'account/password') {
+            return redirect()->to('/account/password')->with('error', 'Demi keamanan, silakan ganti password sementara terlebih dahulu.');
+        }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
