@@ -396,3 +396,19 @@ html[data-bs-theme="light"] #driveViewRoot .bulk-selection-bar{background:#f7f9f
  #driveViewRoot .bulk-selection-info strong{font-size:.76rem}
  #driveViewRoot .bulk-action-controls .btn{padding:5px 8px}
 }
+
+/* Compact multi-select controls for Trash */
+#trashViewRoot .trash-selection-column{width:38px;text-align:center}
+#trashViewRoot .trash-selection-column .form-check-input{margin:0;width:17px;height:17px;cursor:pointer;accent-color:#528ff0}
+#trashViewRoot .trash-bulk-selection{display:none;min-height:48px;padding:7px 10px;margin:0 0 12px!important}
+#trashViewRoot .trash-bulk-selection.is-selection-active{display:flex}
+#trashViewRoot .trash-bulk-selection .bulk-selection-info{flex:1 1 auto;min-width:0}
+#trashViewRoot .trash-bulk-selection .bulk-selection-icon{width:25px;height:25px;flex-basis:25px;border-radius:8px;font-size:.78rem}
+#trashViewRoot .trash-bulk-selection .bulk-selection-info strong{font-size:.82rem}
+#trashViewRoot .trash-bulk-selection .bulk-action-controls{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+#trashViewRoot .trash-bulk-selection .btn{min-height:34px;padding:5px 10px;font-size:.78rem}
+#trashViewRoot .trash-bulk-selection .btn:disabled{opacity:.4}
+#trashViewRoot[data-trash-view="grid"] .trash-selection-column{display:block!important;position:absolute;top:9px;right:9px;width:auto!important;padding:0!important;z-index:2}
+#trashViewRoot[data-trash-view="grid"] tbody tr{position:relative;padding-top:32px}
+html[data-bs-theme="light"] #trashViewRoot .trash-bulk-selection{background:#f7f9fc;border-color:#dce5f1}
+@media(max-width:575px){#trashViewRoot .trash-bulk-selection{gap:7px;padding:6px 8px}#trashViewRoot .trash-bulk-selection .bulk-action-controls{margin-left:auto}#trashViewRoot .trash-bulk-selection .btn{padding:5px 8px}}
