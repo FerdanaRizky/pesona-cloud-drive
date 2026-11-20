@@ -114,11 +114,17 @@ class Share extends BaseController
     {
         $share = $this->findShare($token);
         if (!$share) return $this->response->setStatusCode(404);
+        $accelerated = \App\Libraries\PrivateFileDelivery::response($this->response, $share['storage_path'], $share['mime_type'], $share['original_name'], 'attachment');
+        if ($accelerated !== null) return $accelerated;
         return $this->response->download($share['storage_path'], null)->setFileName($share['original_name']);
     }
 
     private function inlineFile(array $file)
     {
+        $accelerated = \App\Libraries\PrivateFileDelivery::response($this->response, $file['storage_path'], $file['mime_type'], $file['original_name'], 'inline');
+        if ($accelerated !== null) {
+            return $accelerated->setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+        }
         $name = str_replace(["\r", "\n", '"'], '', basename($file['original_name']));
         $body = file_get_contents($file['storage_path']);
         if ($body === false) return $this->response->setStatusCode(404);
