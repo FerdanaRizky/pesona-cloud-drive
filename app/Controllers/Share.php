@@ -61,6 +61,7 @@ class Share extends BaseController
     {
         $share = $this->findShare($token);
         if (!$share || !is_file($share['storage_path'])) return $this->response->setStatusCode(404);
+        if (!in_array($share['mime_type'], self::PREVIEW_TYPES, true)) return $this->response->setStatusCode(415);
         $name = str_replace(["\r", "\n", '"'], '', basename($share['original_name']));
         $body = file_get_contents($share['storage_path']);
         if ($body === false) return $this->response->setStatusCode(404);
