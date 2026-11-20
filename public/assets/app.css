@@ -421,3 +421,106 @@ html[data-bs-theme="light"] #trashViewRoot .trash-bulk-selection{background:#f7f
 #trashViewRoot .trash-bulk-selection .bulk-action-controls .btn{flex:0 0 auto}
 #trashViewRoot .trash-bulk-selection .bulk-action-menu{min-width:210px}
 html[data-bs-theme="light"] #trashViewRoot .trash-bulk-selection .bulk-menu-trigger{background:#fff;color:#40536e;border-color:#d5dfec}
+
+
+/* Trash grid cards match the File Saya grid presentation */
+#trashViewRoot[data-trash-view="grid"] .trash-files-card,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card{padding:16px!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card .table-responsive,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card .table-responsive{overflow:visible}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card table,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card table{display:block;width:100%}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card thead,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card thead{display:none}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+ gap:12px;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr{
+ position:relative;
+ display:flex;
+ flex-direction:column;
+ justify-content:space-between;
+ min-width:0;
+ min-height:155px;
+ padding:42px 14px 12px;
+ overflow:hidden;
+ border:1px solid #2b3d58;
+ border-radius:14px;
+ background:linear-gradient(145deg,#172943,#111d30);
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td{
+ display:block!important;
+ width:100%;
+ min-width:0;
+ padding:5px 0;
+ border:0;
+ text-align:left!important;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td.trash-selection-column,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td.trash-selection-column{
+ position:absolute;
+ top:9px;
+ right:10px;
+ z-index:2;
+ width:auto!important;
+ padding:0!important;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2),
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2){
+ display:block!important;
+ min-height:62px;
+ padding:3px 28px 8px 0!important;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2)>.d-flex,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2)>.d-flex{
+ align-items:flex-start!important;
+ gap:10px!important;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-item-icon{
+ display:grid;
+ place-items:center;
+ flex:0 0 48px;
+ width:48px;
+ height:48px;
+ border-radius:12px;
+ background:rgba(75,132,211,.15);
+ font-size:23px;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(3),
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(4),
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(3){display:none!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:last-child,
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:last-child{
+ margin-top:auto;
+ padding-top:8px;
+ text-align:right!important;
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td[colspan],
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td[colspan]{
+ min-height:120px;
+ padding:22px!important;
+ text-align:center!important;
+}
+html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr,
+html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr{
+ background:linear-gradient(145deg,#fff,#f5f8fd);
+ border-color:#dce5f1;
+}
+@media(max-width:575px){
+ #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody,
+ #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+ }
+ #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr,
+ #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr{
+  min-height:140px;
+  padding:40px 10px 10px;
+ }
+ #trashViewRoot[data-trash-view="grid"] .trash-item-icon{width:40px;height:40px;flex-basis:40px}
+}
