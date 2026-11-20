@@ -31,6 +31,7 @@ $routes->post('files/share/(:num)', 'Share::create/$1', ['filter' => 'auth']);
 $routes->post('files/share/revoke/(:num)', 'Share::revoke/$1', ['filter' => 'auth']);
 $routes->get('s/(:segment)', 'Share::open/$1');
 $routes->get('s/(:segment)/content', 'Share::content/$1');
+$routes->get('s/(:segment)/download', 'Share::download/$1');
 $routes->post('files/upload', 'Files::upload', ['filter' => 'auth']);
 $routes->post('files/folders/create', 'Files::createFolder', ['filter' => 'auth']);
 $routes->post('files/folders/rename/(:num)', 'Files::renameFolder/$1', ['filter' => 'auth']);
