@@ -247,11 +247,18 @@ class Files extends BaseController
         }
 
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        $officePreview = false;
         if (!in_array($file['mime_type'], $allowed, true)) {
-            return redirect()->to('/files')->with('error', 'Preview tidak tersedia untuk tipe file ini.');
+            if (!\\App\\Libraries\\OfficePreview::supports($file)) {
+                return redirect()->to('/files')->with('error', 'Preview tidak tersedia untuk tipe file ini.');
+            }
+            $officePreview = true;
+            if (!\\App\\Libraries\\OfficePreview::convert($file)) {
+                return redirect()->to('/files')->with('error', 'Preview Office gagal dibuat. Pastikan LibreOffice terpasang di server.');
+            }
         }
 
-        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file]);
+        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview]);
     }
 
     public function previewContent(int $id)
@@ -261,14 +268,21 @@ class Files extends BaseController
         if (!$file || !is_file($file['storage_path'])) return $this->response->setStatusCode(404);
 
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
-        if (!in_array($file['mime_type'], $allowed, true)) return $this->response->setStatusCode(415);
+        $sourcePath = $file['storage_path'];
+        $contentType = $file['mime_type'];
+        if (!in_array($contentType, $allowed, true)) {
+            if (!\\App\\Libraries\\OfficePreview::supports($file)) return $this->response->setStatusCode(415);
+            $sourcePath = \\App\\Libraries\\OfficePreview::convert($file);
+            if (!$sourcePath) return $this->response->setStatusCode(503)->setBody('Office preview is not available. Install LibreOffice.');
+            $contentType = 'application/pdf';
+        }
 
         $name = str_replace(["\\r", "\\n", '"'], '', basename($file['original_name']));
-        $body = file_get_contents($file['storage_path']);
+        $body = file_get_contents($sourcePath);
         if ($body === false) return $this->response->setStatusCode(404);
 
         return $this->response
-            ->setHeader('Content-Type', $file['mime_type'])
+            ->setHeader('Content-Type', $contentType)
             ->setHeader('Content-Disposition', 'inline; filename="' . addslashes($name) . '"')
             ->setHeader('X-Content-Type-Options', 'nosniff')
             ->setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
