@@ -29,11 +29,17 @@
 <span class="text-secondary topbar-caption">Personal cloud workspace</span>
 <div class="topbar-actions ms-auto">
 <button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema">◐ <span class="d-none d-sm-inline">Tema</span></button>
-<div class="user-top-card">
+<div class="dropdown account-dropdown">
+<button class="user-top-card account-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Buka menu akun">
 <div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
-<div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span><small class="user-presence"><i></i>Online</small></div>
+<div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span><small class="user-presence"><i></i>Online</small></div><span class="account-chevron">⌄</span>
+</button>
+<div class="dropdown-menu dropdown-menu-end account-menu">
+<div class="account-menu-heading"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><small><?= esc(ucfirst((string)session()->get('role'))) ?> · <span class="user-presence"><i></i>Online</span></small></div>
+<div class="dropdown-divider"></div>
+<a class="dropdown-item account-logout-item" href="/logout"><span class="logout-icon">↪</span><span>Keluar dari akun</span></a>
 </div>
-<a class="logout-top-btn" href="/logout"><span class="logout-icon">↪</span><span>Keluar</span></a>
+</div>
 </div>
 </header>
 <div class="content-wrap">
