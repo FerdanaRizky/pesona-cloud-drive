@@ -14,12 +14,7 @@ class Users extends BaseController
             'active' => count(array_filter($users, static fn ($u) => $u['status'] === 'active')),
             'storage' => array_sum(array_map(static fn ($u) => (int) $u['used_bytes'], $users)),
         ];
-
-        return view('admin/users', [
-            'title' => 'Manajemen Pengguna',
-            'users' => $users,
-            'stats' => $stats,
-        ]);
+        return view('admin/users', ['title' => 'Manajemen Pengguna', 'users' => $users, 'stats' => $stats]);
     }
 
     public function create()
@@ -30,23 +25,18 @@ class Users extends BaseController
             'password' => 'required|min_length[12]|max_length[200]',
             'quota_gb' => 'required|is_natural_no_zero|less_than_equal_to[10000]',
         ];
+        if (!$this->validate($rules)) return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $quota = (int) $this->request->getPost('quota_gb') * 1073741824;
         (new UserModel())->insert([
             'name' => trim((string) $this->request->getPost('name')),
             'email' => strtolower(trim((string) $this->request->getPost('email'))),
             'password_hash' => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
             'role' => 'user',
             'status' => 'active',
-            'quota_bytes' => $quota,
+            'quota_bytes' => (int) $this->request->getPost('quota_gb') * 1073741824,
             'used_bytes' => 0,
             'must_change_password' => true,
         ]);
-
         return redirect()->to('/admin/users')->with('message', 'Pengguna berhasil dibuat. Minta pengguna mengganti password saat pertama kali masuk.');
     }
 
@@ -54,22 +44,23 @@ class Users extends BaseController
     {
         $users = new UserModel();
         $target = $users->find($id);
-        if (!$target) {
-            return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
-        }
+        if (!$target) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
 
         $status = (string) $this->request->getPost('status');
         $quotaGb = (int) $this->request->getPost('quota_gb');
         if (!in_array($status, ['active', 'suspended'], true) || $quotaGb < 1 || $quotaGb > 10000) {
             return redirect()->back()->with('error', 'Status atau kuota tidak valid.');
         }
-
         $quotaBytes = $quotaGb * 1073741824;
         if ($quotaBytes < (int) $target['used_bytes']) {
             return redirect()->back()->with('error', 'Kuota tidak boleh lebih kecil daripada penyimpanan yang sudah digunakan.');
         }
         if ($id === (int) session()->get('user_id') && $status !== 'active') {
             return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun sendiri.');
+        }
+        if ($target['role'] === 'admin' && $target['status'] === 'active' && $status === 'suspended') {
+            $activeAdmins = $users->where('role', 'admin')->where('status', 'active')->countAllResults();
+            if ($activeAdmins <= 1) return redirect()->back()->with('error', 'Tidak dapat menonaktifkan administrator aktif terakhir.');
         }
 
         $users->update($id, ['status' => $status, 'quota_bytes' => $quotaBytes]);
@@ -79,21 +70,12 @@ class Users extends BaseController
     public function resetPassword(int $id)
     {
         $users = new UserModel();
-        $target = $users->find($id);
-        if (!$target) {
-            return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
-        }
-
+        if (!$users->find($id)) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
         $password = (string) $this->request->getPost('new_password');
         if (strlen($password) < 12 || strlen($password) > 200) {
             return redirect()->back()->with('error', 'Password sementara harus terdiri dari 12 sampai 200 karakter.');
         }
-
-        $users->update($id, [
-            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-            'must_change_password' => true,
-        ]);
-
+        $users->update($id, ['password_hash' => password_hash($password, PASSWORD_DEFAULT), 'must_change_password' => true]);
         return redirect()->to('/admin/users')->with('message', 'Password direset. Sampaikan password sementara secara aman kepada pengguna.');
     }
 }
