@@ -20,6 +20,7 @@
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
 <a class="nav-link" href="/admin/users">♙ Manajemen Pengguna</a>
 <?php endif ?>
+<a class="nav-link" href="/account/profile">♙ Profil Pengguna</a>
 <a class="nav-link" href="/account/password">⚙ Ubah Password</a>
 </nav>
 </aside>
