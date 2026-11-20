@@ -48,7 +48,7 @@ class PasswordReset extends BaseController
    return redirect()->to('/reset-password')->with('reset_email',$email)->with('error','Kode OTP salah. Periksa kembali kode Anda.');
   }
   $db->transStart();
-  (new UserModel())->update((int)$user['id'],['password_hash'=>password_hash($password,PASSWORD_DEFAULT),'must_change_password'=>false]);
+  (new UserModel())->update((int)$user['id'],['password_hash'=>password_hash($password,PASSWORD_DEFAULT),'password_changed_at'=>date('Y-m-d H:i:s'),'must_change_password'=>false]);
   $db->table('password_reset_tokens')->where('user_id',(int)$user['id'])->where('used_at',null)->update(['used_at'=>date('Y-m-d H:i:s')]);
   $db->table('activity_logs')->insert(['user_id'=>(int)$user['id'],'action'=>'auth.password_reset','details'=>'Password direset melalui OTP WhatsApp.','ip_address'=>$this->request->getIPAddress(),'created_at'=>date('Y-m-d H:i:s')]);
   $db->transComplete();
