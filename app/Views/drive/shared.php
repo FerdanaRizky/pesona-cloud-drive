@@ -15,7 +15,9 @@ body{min-height:100vh;background:#0b1220;color:#e7edf7}.share-shell{max-width:11
     <a class="btn btn-primary" href="/s/<?= esc($token) ?>/download" download="<?= esc($share['original_name']) ?>">Unduh file</a>
   </div>
   <section class="share-card p-3">
-    <?php if ($canPreview && str_starts_with($share['mime_type'], 'image/')): ?>
+    <?php if (!empty($officePreview)): ?>
+      <iframe class="preview" style="height:76vh;border:0;background:#fff" src="/s/<?= esc($token) ?>/content" title="<?= esc($share['original_name']) ?>"></iframe>
+    <?php elseif ($canPreview && str_starts_with($share['mime_type'], 'image/')): ?>
       <img class="preview d-block mx-auto" src="/s/<?= esc($token) ?>/content" alt="<?= esc($share['original_name']) ?>">
     <?php elseif ($share['mime_type'] === 'application/pdf'): ?>
       <iframe class="preview" style="height:76vh;border:0" src="/s/<?= esc($token) ?>/content" title="<?= esc($share['original_name']) ?>"></iframe>
