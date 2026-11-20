@@ -282,3 +282,12 @@ html[data-bs-theme="light"] .toggle-password:hover{background:#eaf1ff!important;
 .login-card .alert{border-radius:11px;font-size:.85rem}
 @media(max-width:850px){.login-stage{width:min(540px,calc(100% - 32px));min-height:0;margin:24px auto;display:block}.login-showcase{display:none}.login-panel-wrap{padding:44px 34px}.login-mobile-mark{display:grid;margin:0 auto 22px;width:52px;height:52px;border-radius:17px}.login-panel-heading{text-align:center;margin-bottom:28px}}
 @media(max-width:480px){.login-stage{width:calc(100% - 22px);margin:11px auto;border-radius:20px}.login-panel-wrap{padding:35px 22px}.login-panel-heading h2{font-size:1.55rem}.login-card .form-control{min-height:49px}}
+
+
+/* Active theme indicator */
+.theme-toggle-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:7px 13px;border-radius:999px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.theme-toggle-icon{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:50%;background:rgba(128,157,205,.15);font-size:15px}
+.theme-toggle-caption{color:inherit}
+.theme-toggle-caption strong{color:#8eb8ff;font-weight:800}
+html[data-bs-theme="light"] .theme-toggle-caption strong{color:#315fba}
+@media(max-width:575px){.theme-toggle-btn{min-height:35px;padding:6px 10px;gap:6px}.theme-toggle-caption{display:inline!important;font-size:.72rem}}
