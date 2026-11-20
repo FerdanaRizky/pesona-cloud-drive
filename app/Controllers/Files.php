@@ -249,11 +249,11 @@ class Files extends BaseController
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
         $officePreview = false;
         if (!in_array($file['mime_type'], $allowed, true)) {
-            if (!\\App\\Libraries\\OfficePreview::supports($file)) {
+            if (!\App\Libraries\OfficePreview::supports($file)) {
                 return redirect()->to('/files')->with('error', 'Preview tidak tersedia untuk tipe file ini.');
             }
             $officePreview = true;
-            if (!\\App\\Libraries\\OfficePreview::convert($file)) {
+            if (!\App\Libraries\OfficePreview::convert($file)) {
                 return redirect()->to('/files')->with('error', 'Preview Office gagal dibuat. Pastikan LibreOffice terpasang di server.');
             }
         }
@@ -271,8 +271,8 @@ class Files extends BaseController
         $sourcePath = $file['storage_path'];
         $contentType = $file['mime_type'];
         if (!in_array($contentType, $allowed, true)) {
-            if (!\\App\\Libraries\\OfficePreview::supports($file)) return $this->response->setStatusCode(415);
-            $sourcePath = \\App\\Libraries\\OfficePreview::convert($file);
+            if (!\App\Libraries\OfficePreview::supports($file)) return $this->response->setStatusCode(415);
+            $sourcePath = \App\Libraries\OfficePreview::convert($file);
             if (!$sourcePath) return $this->response->setStatusCode(503)->setBody('Office preview is not available. Install LibreOffice.');
             $contentType = 'application/pdf';
         }
