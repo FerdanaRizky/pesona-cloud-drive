@@ -23,7 +23,7 @@ class Share extends BaseController
             $row['active'] = !$row['expired'];
             $row['share_url'] = null;
             if (!empty($row['token_ciphertext'])) {
-                try { $row['share_url'] = site_url('s/' . service('encrypter')->decrypt($row['token_ciphertext'])); } catch (\\Throwable $e) { $row['share_url'] = null; }
+                try { $row['share_url'] = site_url('s/' . service('encrypter')->decrypt($row['token_ciphertext'])); } catch (\Throwable $e) { $row['share_url'] = null; }
             }
         }
         unset($row);
@@ -89,7 +89,7 @@ class Share extends BaseController
     {
         $share = $this->findShare($token);
         if (!$share) return $this->response->setStatusCode(404)->setBody('Tautan tidak tersedia atau sudah kedaluwarsa.');
-        $officePreview = \\App\\Libraries\\OfficePreview::supports($share);
+        $officePreview = \App\Libraries\OfficePreview::supports($share);
         $canPreview = in_array($share['mime_type'], self::PREVIEW_TYPES, true) || $officePreview;
         return view('drive/shared', ['title' => 'File dibagikan - ' . $share['original_name'], 'share' => $share, 'canPreview' => $canPreview, 'officePreview' => $officePreview, 'token' => $token]);
     }
@@ -99,8 +99,8 @@ class Share extends BaseController
         $share = $this->findShare($token);
         if (!$share) return $this->response->setStatusCode(404);
         if (in_array($share['mime_type'], self::PREVIEW_TYPES, true)) return $this->inlineFile($share);
-        if (!\\App\\Libraries\\OfficePreview::supports($share)) return $this->response->setStatusCode(404);
-        $pdf = \\App\\Libraries\\OfficePreview::convert($share);
+        if (!\App\Libraries\OfficePreview::supports($share)) return $this->response->setStatusCode(404);
+        $pdf = \App\Libraries\OfficePreview::convert($share);
         if (!$pdf) return $this->response->setStatusCode(503)->setBody('Office preview is not available.');
         return $this->inlineFile(['storage_path'=>$pdf, 'original_name'=>$share['original_name'] . '.pdf', 'mime_type'=>'application/pdf']);
     }
