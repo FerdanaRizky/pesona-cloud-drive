@@ -22,9 +22,9 @@
 <?php foreach ($folders as $folder): ?>
 <div class="col-sm-6 col-xl-4"><div class="folder-tile">
   <a class="flex-grow-1 text-decoration-none text-reset" href="/files?folder=<?= (int) $folder['id'] ?>">📁 <?= esc($folder['name']) ?></a>
-  <div class="dropdown"><button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">⋮</button><div class="dropdown-menu dropdown-menu-end p-3" style="min-width:230px">
-    <button type="button" class="btn btn-sm btn-outline-primary w-100 mb-2" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
-    <form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="btn btn-sm btn-outline-danger w-100">Hapus folder kosong</button></form>
+  <div class="dropdown folder-actions"><button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi folder">⋮</button><div class="dropdown-menu dropdown-menu-end file-action-menu">
+    <button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
+    <form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
   </div></div>
 </div></div>
 <?php endforeach ?></div></div>
