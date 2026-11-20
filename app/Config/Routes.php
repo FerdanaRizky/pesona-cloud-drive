@@ -26,6 +26,7 @@ $routes->post('trash/file/restore/(:num)', 'Trash::restoreFile/$1', ['filter' =>
 $routes->post('trash/folder/restore/(:num)', 'Trash::restoreFolder/$1', ['filter' => 'auth']);
 $routes->post('trash/file/purge/(:num)', 'Trash::deleteFilePermanently/$1', ['filter' => 'auth']);
 $routes->post('trash/folder/purge/(:num)', 'Trash::deleteFolderPermanently/$1', ['filter' => 'auth']);
+$routes->post('trash/bulk-purge', 'Trash::bulkDeletePermanently', ['filter' => 'auth']);
 $routes->get('activity', 'Activity::index', ['filter' => 'auth']);
 $routes->get('shares', 'Share::index', ['filter' => 'auth']);
 $routes->post('shares/update/(:num)', 'Share::update/$1', ['filter' => 'auth']);
