@@ -346,3 +346,22 @@ html[data-bs-theme="light"] .bulk-inline-field>span{color:#687b95}
 #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column{display:block!important;position:absolute;top:8px;right:9px;width:auto!important;padding:0!important;z-index:2}
 #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column .form-check-input{margin:0;width:18px;height:18px}
 #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:first-child:not(.selection-column){padding-right:28px!important}
+
+/* Bulk selection toolbar uses the same three-dot action menu as individual items */
+.bulk-selection-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:13px 15px;border:1px solid #30435f;border-radius:14px;background:linear-gradient(110deg,#172943,#111d30)}
+.bulk-selection-info{display:flex;align-items:center;gap:11px;min-width:0}
+.bulk-selection-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:rgba(67,136,255,.16);color:#8bb9ff;font-weight:800}
+.bulk-selection-info strong{font-size:.9rem}
+.bulk-action-controls{display:flex;align-items:center;gap:8px}
+.bulk-menu-trigger{background:#17263c;color:#d8e3f3;border:1px solid #344761}
+.bulk-menu-trigger:hover:not(:disabled){background:#29466d;color:#fff;border-color:#5b8fe0}
+.bulk-menu-trigger:disabled{opacity:.45;cursor:not-allowed}
+.bulk-action-menu{min-width:220px}
+.bulk-action-menu .dropdown-item{display:flex;align-items:center;gap:9px}
+.multi-select-control{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;cursor:pointer}
+.multi-select-control input,.selection-column .form-check-input{width:17px;height:17px;cursor:pointer}
+.folder-tile .multi-select-control{margin-right:1px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column{display:block!important;width:auto!important;position:absolute;top:10px;right:10px;padding:0}
+html[data-bs-theme="light"] .bulk-selection-bar{background:linear-gradient(110deg,#fff,#f5f8fd);border-color:#dce5f1;color:#17243a}
+html[data-bs-theme="light"] .bulk-menu-trigger{background:#fff;color:#40536e;border-color:#d5dfec}
+@media(max-width:575px){.bulk-selection-bar{align-items:flex-start;padding:11px}.bulk-action-controls{margin-left:auto}.bulk-selection-info{width:100%}}
