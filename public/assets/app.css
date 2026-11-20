@@ -553,3 +553,17 @@ html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folder
 .profile-inline-form .form-control{font-size:.88rem}
 html[data-bs-theme="light"] .profile-inline-edit>summary{background:#fff;color:#315fba;border-color:#d5dfec}
 html[data-bs-theme="light"] .profile-inline-form{background:#fff;border-color:#dce5f1}
+
+/* Profile edits are opened on demand in compact dialogs */
+.profile-value-with-edit{display:flex;align-items:center;gap:8px;min-width:0}
+.profile-value-with-edit strong{min-width:0;overflow-wrap:anywhere}
+.profile-edit-icon{display:inline-grid;place-items:center;flex:0 0 27px;width:27px;height:27px;padding:5px;border:1px solid #405675;border-radius:8px;background:#192b45;color:#91baff;cursor:pointer}
+.profile-edit-icon:hover{background:#29466d;border-color:#6c9ce8;color:#fff}
+.profile-edit-icon svg,.profile-action-inline-icon{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.profile-password-action{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:16px;border-top:1px solid var(--bs-border-color)}
+.profile-password-action .btn{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.profile-action-inline-icon{width:14px;height:14px}
+.profile-info-card .modal-content{background:#111d30;color:#e7edf7}
+html[data-bs-theme=light] .profile-edit-icon{background:#f2f6fd;color:#315fba;border-color:#d5dfec}
+html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;color:#17243a}
+@media(max-width:575px){.profile-account-summary{grid-template-columns:1fr 1fr}.profile-password-action{align-items:flex-start;flex-direction:column}.profile-password-action .btn{width:100%;justify-content:center}}
