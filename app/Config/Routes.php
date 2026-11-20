@@ -13,6 +13,10 @@ $routes->get('/setup', 'Setup::index');
 $routes->post('/setup', 'Setup::create');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attempt');
+$routes->get('forgot-password', 'PasswordReset::requestForm');
+$routes->post('forgot-password', 'PasswordReset::sendLink');
+$routes->get('reset-password/(:segment)', 'PasswordReset::resetForm/$1');
+$routes->post('reset-password/(:segment)', 'PasswordReset::updatePassword/$1');
 $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 
 $routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
