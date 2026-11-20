@@ -6,7 +6,7 @@
 </div>
 <div class="trash-notice mb-4"><span class="trash-notice-icon">♲</span><div><strong>Item di sampah</strong><div class="small text-secondary">File masih menggunakan kuota sampai dihapus permanen. Penghapusan permanen tidak dapat dibatalkan.</div></div></div>
 <div id="trashViewRoot" data-trash-view="list">
-<form id="bulkPurgeForm" method="post" action="/trash/bulk-purge" class="bulk-selection-bar trash-bulk-selection mb-3" aria-hidden="true"><?= csrf_field() ?><div id="trashSelectedIds"></div><div class="bulk-selection-info"><span class="bulk-selection-icon">✓</span><div><strong id="trashSelectionCount">0 item dipilih</strong></div></div><div class="bulk-action-controls"><button type="submit" class="btn btn-sm btn-outline-danger" id="trashBulkPurge" disabled>⌫ Hapus permanen</button><button type="button" class="btn btn-sm btn-outline-secondary" id="clearTrashSelection">Batal pilih</button></div></form>
+<form id="bulkPurgeForm" method="post" action="/trash/bulk-purge" class="bulk-selection-bar trash-bulk-selection mb-3" aria-hidden="true"><?= csrf_field() ?><div id="trashSelectedIds"></div><div class="bulk-selection-info"><span class="bulk-selection-icon">✓</span><div><strong id="trashSelectionCount">0 item dipilih</strong></div></div><div class="bulk-action-controls"><div class="dropdown floating-action-dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="trashBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button><div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu"><button type="button" class="dropdown-item" data-trash-bulk-action="restore">↶ Pulihkan</button><div class="dropdown-divider"></div><button type="button" class="dropdown-item text-danger" data-trash-bulk-action="purge">⌫ Hapus permanen</button></div></div><button type="button" class="btn btn-sm btn-outline-secondary" id="clearTrashSelection">Batal pilih</button></div></form>
 <div class="card p-3 p-lg-4 mb-4 trash-files-card">
   <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">File</h2><span class="small text-secondary"><?= count($files) ?> file</span></div><span class="trash-section-icon">▤</span></div>
   <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Ukuran</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
@@ -47,7 +47,7 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
- const bulkForm=document.getElementById('bulkPurgeForm'),bulkCount=document.getElementById('trashSelectionCount'),bulkIds=document.getElementById('trashSelectedIds'),bulkButton=document.getElementById('trashBulkPurge');
+ const bulkForm=document.getElementById('bulkPurgeForm'),bulkCount=document.getElementById('trashSelectionCount'),bulkIds=document.getElementById('trashSelectedIds'),bulkButton=document.getElementById('trashBulkMenu');
  function refreshTrashSelection(){
   const selected=[...document.querySelectorAll('.trash-item-select:checked')],files=selected.filter(x=>x.dataset.itemType==='file'),folders=selected.filter(x=>x.dataset.itemType==='folder');
   bulkCount.textContent=selected.length+' item dipilih ('+files.length+' file, '+folders.length+' folder)';
@@ -60,7 +60,18 @@ document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('selectAllTrashFiles')?.addEventListener('change',function(){document.querySelectorAll('.trash-item-select[data-item-type="file"]').forEach(x=>x.checked=this.checked);refreshTrashSelection();});
  document.getElementById('selectAllTrashFolders')?.addEventListener('change',function(){document.querySelectorAll('.trash-item-select[data-item-type="folder"]').forEach(x=>x.checked=this.checked);refreshTrashSelection();});
  document.getElementById('clearTrashSelection')?.addEventListener('click',()=>{document.querySelectorAll('.trash-item-select').forEach(x=>x.checked=false);refreshTrashSelection();});
- bulkForm?.addEventListener('submit',function(e){if(!document.querySelector('.trash-item-select:checked')||!confirm('Hapus permanen semua item yang dipilih? Isi folder terpilih juga akan dihapus. Tindakan ini tidak dapat dibatalkan.'))e.preventDefault();});
+ document.querySelectorAll('[data-trash-bulk-action]').forEach(button=>button.addEventListener('click',function(){
+  const action=this.dataset.trashBulkAction,count=document.querySelectorAll('.trash-item-select:checked').length;
+  if(!count)return;
+  if(action==='restore'){
+   if(!confirm('Pulihkan semua item yang dipilih? File di dalam folder hanya dapat dipulihkan jika folder induknya sudah dipulihkan.'))return;
+   bulkForm.action='/trash/bulk-restore';bulkForm.submit();return;
+  }
+  if(action==='purge'){
+   if(!confirm('Hapus permanen semua item yang dipilih? Isi folder terpilih juga akan dihapus. Tindakan ini tidak dapat dibatalkan.'))return;
+   bulkForm.action='/trash/bulk-purge';bulkForm.submit();
+  }
+ }));
  refreshTrashSelection();
  const root=document.getElementById('trashViewRoot'),buttons=document.querySelectorAll('[data-trash-view]');const saved=localStorage.getItem('pcd-trash-view')||'list';function setView(view){if(!root)return;root.dataset.trashView=view;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.trashView===view)));localStorage.setItem('pcd-trash-view',view);}buttons.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.trashView)));setView(saved);
  document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown){
