@@ -342,3 +342,7 @@ html[data-bs-theme="light"] .bulk-inline-field>span{color:#687b95}
  .bulk-inline-field{flex:1 1 130px}
  .bulk-action-controls .btn{flex:1 1 auto}
 }
+
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column{display:block!important;position:absolute;top:8px;right:9px;width:auto!important;padding:0!important;z-index:2}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td.selection-column .form-check-input{margin:0;width:18px;height:18px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:first-child:not(.selection-column){padding-right:28px!important}
