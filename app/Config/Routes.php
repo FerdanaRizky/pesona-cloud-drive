@@ -44,6 +44,7 @@ $routes->post('files/move/(:num)', 'Files::move/$1', ['filter' => 'auth']);
 $routes->post('files/star/(:num)', 'Files::toggleStar/$1', ['filter' => 'auth']);
 $routes->get('files/download/(:num)', 'Files::download/$1', ['filter' => 'auth']);
 $routes->post('files/delete/(:num)', 'Files::delete/$1', ['filter' => 'auth']);
+$routes->post('files/bulk-trash', 'Files::bulkTrash', ['filter' => 'auth']);
 
 $routes->get('admin/users', 'Admin\\Users::index', ['filter' => 'admin']);
 $routes->post('admin/users/create', 'Admin\\Users::create', ['filter' => 'admin']);
