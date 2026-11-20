@@ -1,63 +1,67 @@
 # Pesona Cloud Drive
 
-Aplikasi cloud storage multi-user mandiri berbasis CodeIgniter 4, PHP, dan MySQL. Tidak menggunakan database atau kode dari proyek lain.
+Aplikasi cloud storage multi-user mandiri berbasis CodeIgniter 4, PHP, dan MySQL. Penyimpanan file menggunakan filesystem lokal privat di luar document root.
 
 ## Stack
 - PHP 8.2+
 - CodeIgniter 4.7
 - MySQL 8 / MariaDB kompatibel
-- Private local storage di luar web root
 - Bootstrap 5 responsive UI
+- Private local storage
 
-## Fitur yang sudah tersedia
-- Login, logout, setup administrator pertama, dan ubah password.
-- Role administrator dan pengguna biasa dengan pemeriksaan akses di server.
-- Admin dapat membuat pengguna, mengatur kuota, menangguhkan akun, dan mereset password sementara.
-- File manager pribadi dengan folder/subfolder, upload multi-file, download, rename, move, favorit, dan soft-delete file.
-- Penyimpanan privat di luar document root; file tidak diakses langsung melalui URL publik.
-- Dashboard penggunaan kuota per akun.
-- Script update aaPanel yang mengambil commit terbaru dan mempertahankan .env, database, serta private storage.
+## Fitur
+- Login, logout, setup administrator pertama, ubah password.
+- Role Admin/User dengan pemeriksaan akses di server.
+- Manajemen pengguna: buat akun, kuota, suspend/aktifkan, reset password.
+- File manager: folder/subfolder, upload multi-file, download, rename, move, favorit.
+- Trash: restore file/folder dan hapus permanen; penghapusan folder permanen menghapus isi turunannya.
+- Pencarian nama file dan folder di seluruh drive milik akun.
+- Preview gambar JPEG/PNG/GIF/WebP, PDF, dan video MP4/WebM/OGG.
+- Link berbagi file viewer dengan token acak, hash token di database, expiry 1/7/30 hari atau tanpa expiry, dan pencabutan link.
+- Riwayat aktivitas login/logout, upload, rename, move, favorit, trash/restore, purge, share, dan revoke. Admin dapat melihat aktivitas semua akun; user hanya miliknya.
+- Private storage, pemeriksaan kepemilikan, kuota akun, CSRF, dan migration database.
+- Update in-place aaPanel tanpa menghapus file .env, database, dan file pengguna.
 
 ## Update instalasi aaPanel yang sudah ada
-Jalankan sebagai root di server:
+Buat backup database dan private storage sebelum update. Jalankan sebagai root:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/update-aapanel.sh | bash
-```
+Perintah: curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/update-aapanel.sh | bash
 
-Script menggunakan source checkout di `/opt/pesona-cloud-drive-source` dan instalasi di `/www/wwwroot/test-cloud.pesonawifi.my.id/app-src`. Jika lokasi Anda berbeda, jalankan dengan variabel lingkungan:
+Default source checkout: /opt/pesona-cloud-drive-source
+Default app: /www/wwwroot/test-cloud.pesonawifi.my.id/app-src
 
-```bash
-SOURCE_DIR=/path/source APP_DIR=/path/app bash update-aapanel.sh
-```
+Path khusus: SOURCE_DIR=/path/source APP_DIR=/path/app bash update-aapanel.sh
 
-Update menyalin folder `app/` dan `public/assets/`, memasang dependency, lalu menjalankan migration baru. File `.env`, database, dan private storage tidak dihapus.
+Updater menjalankan git pull, menyalin app/ dan public/assets/, Composer install, lalu php spark migrate. File .env, database, private storage, dan data pengguna tidak dihapus.
+
+## Setelah update
+- File Manager: /files
+- Cari: /search
+- Sampah: /trash
+- Riwayat: /activity
+- Buat link share dari menu aksi setiap file.
+- Preview tersedia untuk gambar, PDF, dan video yang didukung browser.
 
 ## Migration
-Setelah update, script menjalankan:
+Migration tambahan:
+- 2026-11-20-000002_CreateDriveFolders.php
+- 2026-11-20-000003_AddDriveSearchAndActivityIndexes.php
 
-```bash
-php spark migrate
-```
-
-Migration baru menambahkan tabel `drive_folders`; migration lama tidak perlu diulang.
+Updater menjalankan migration otomatis. Untuk manual: php spark migrate
 
 ## Instalasi baru aaPanel
 1. Buat website dan database MySQL di aaPanel.
-2. Clone repository.
-3. Jalankan `bash install-aapanel.sh` sebagai root.
-4. Atur document root domain ke folder `public`.
-5. Pastikan PHP-FPM open_basedir mengizinkan direktori aplikasi CodeIgniter (`app-src`) dan private storage di luar `public`.
-6. Aktifkan SSL, jalankan migration, lalu buka `/setup`.
+2. Jalankan bash install-aapanel.sh sebagai root.
+3. Atur document root ke app-src/public.
+4. Pastikan PHP-FPM open_basedir mengizinkan direktori aplikasi dan private storage.
+5. Aktifkan SSL, jalankan migration, lalu buka /setup.
 
-Lihat [docs/INSTALL-AA-PANEL.md](docs/INSTALL-AA-PANEL.md).
+Panduan: docs/INSTALL-AA-PANEL.md.
 
-## Batasan tahap ini
-Trash/restore dan penghapusan permanen, sharing/link publik, preview dokumen, pencarian global, versioning, audit log UI, antivirus scanning, object storage, dan automated integration tests belum selesai. Folder yang memiliki isi belum dapat dihapus. Belum dinyatakan siap produksi untuk data penting sebelum uji integrasi, backup/restore, batas ukuran upload, dan security review.
-
-## Keamanan
-- Gunakan HTTPS.
-- Gunakan password kuat dan akun database khusus dengan hak minimum.
-- Simpan private storage di luar document root.
-- Jangan pernah commit `.env`, password, atau file pengguna.
-- Backup database dan private storage secara terpisah dan uji proses restore.
+## Batasan dan keamanan
+- Preview video saat ini mengirim file melalui response PHP biasa; untuk video besar sebaiknya memakai internal redirect (Nginx X-Accel-Redirect) agar hemat memori dan mendukung range request.
+- Pencarian saat ini berbasis nama file/folder, bukan isi dokumen.
+- Folder restore dilakukan bertahap dari parent ke child.
+- Link share adalah bearer link: siapa pun yang memiliki URL dapat mengakses sampai dicabut/kedaluwarsa. Jangan bagikan file sensitif menggunakan link publik.
+- Belum ada antivirus scanning, file versioning, kolaborasi editor, pencarian isi, thumbnail generator, object storage, atau automated integration tests.
+- Jangan gunakan untuk data penting sebelum uji integrasi, backup/restore, batas upload PHP/Nginx, dan security review.
