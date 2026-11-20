@@ -10,7 +10,7 @@ Aplikasi cloud storage multi-user mandiri berbasis CodeIgniter 4, PHP, dan MySQL
 - Private local storage
 
 ## Fitur
-- Login, logout, setup administrator pertama, ubah password.
+- Login, logout, setup administrator pertama, ubah password, dan reset password mandiri melalui email (tautan sekali pakai, berlaku 60 menit).
 - Role Admin/User dengan pemeriksaan akses di server.
 - Manajemen pengguna: buat akun, kuota, suspend/aktifkan, reset password.
 - File manager: folder/subfolder, upload multi-file, download, rename, move, favorit.
@@ -46,11 +46,25 @@ Updater menjalankan git pull, menyalin app/ dan public/assets/, Composer install
 - Office preview membutuhkan LibreOffice di server (opsional): `apt install libreoffice`.
 - Preview tersedia untuk gambar, PDF, dan video yang didukung browser.
 
+## Konfigurasi email reset password
+Atur parameter SMTP berikut di file .env pada root aplikasi. Gunakan password aplikasi/provider SMTP jika diwajibkan provider.
+
+email.fromEmail = 'no-reply@domain-anda.com'
+email.fromName = 'Pesona Cloud Drive'
+email.SMTPHost = 'smtp.domain-anda.com'
+email.SMTPUser = 'no-reply@domain-anda.com'
+email.SMTPPass = 'PASSWORD_SMTP'
+email.SMTPPort = 587
+email.SMTPCrypto = 'tls'
+
+Pastikan DNS domain pengirim memiliki SPF/DKIM/DMARC yang sesuai dan koneksi SMTP keluar diizinkan server. Reset memakai respons generik untuk mencegah enumerasi akun, membatasi 3 permintaan per jam per email/IP, menyimpan hash token saja, dan membatalkan token setelah digunakan. Tautan berlaku 60 menit.
+
 ## Migration
 Migration tambahan:
 - 2026-11-20-000002_CreateDriveFolders.php
 - 2026-11-20-000003_AddDriveSearchAndActivityIndexes.php
 - 2026-11-20-000004_AddEncryptedShareTokens.php
+- 2026-11-21-000005_CreatePasswordResetTokens.php
 
 Updater menjalankan migration otomatis. Untuk manual: php spark migrate
 
