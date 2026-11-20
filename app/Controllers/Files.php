@@ -55,6 +55,7 @@ class Files extends BaseController
         }
 
         (new DriveFolderModel())->insert(['user_id' => $uid, 'parent_id' => $parentId ?: null, 'name' => $name, 'is_trashed' => 0]);
+        $this->logActivity($uid, 'folder.create', 'Membuat folder: ' . $name);
         return redirect()->to($parentId > 0 ? '/files?folder=' . $parentId : '/files')->with('message', 'Folder berhasil dibuat.');
     }
 
@@ -154,7 +155,10 @@ class Files extends BaseController
         if ($parentId > 0 && !(new DriveFolderModel())->where('id', $parentId)->where('user_id', $uid)->where('is_trashed', 0)->first()) {
             return redirect()->back()->with('error', 'Folder tujuan tidak valid.');
         }
-        (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->set(['parent_id' => $parentId ?: null])->update();
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        if (!$file) return redirect()->back()->with('error', 'File tidak ditemukan.');
+        (new DriveFileModel())->update($id, ['parent_id' => $parentId ?: null]);
+        $this->logActivity($uid, 'file.move', 'Memindahkan file: ' . $file['original_name']);
         return redirect()->back()->with('message', 'File dipindahkan.');
     }
 
@@ -164,6 +168,7 @@ class Files extends BaseController
         $file = $model->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
         if (!$file) return redirect()->back()->with('error', 'File tidak ditemukan.');
         $model->update($id, ['is_starred' => empty($file['is_starred']) ? 1 : 0]);
+        $this->logActivity((int) session()->get('user_id'), 'file.star', 'Mengubah favorit: ' . $file['original_name']);
         return redirect()->back()->with('message', 'Status favorit diperbarui.');
     }
 
@@ -187,6 +192,7 @@ class Files extends BaseController
         $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
         if (!$folder) return redirect()->back()->with('error', 'Folder tidak ditemukan.');
         (new DriveFolderModel())->update($id, ['name' => $name]);
+        $this->logActivity((int) session()->get('user_id'), 'folder.rename', 'Mengubah nama folder menjadi: ' . $name);
         return redirect()->back()->with('message', 'Nama folder diperbarui.');
     }
 
@@ -202,4 +208,78 @@ class Files extends BaseController
         $this->logActivity($uid, 'folder.trash', 'Memindahkan folder ke sampah: ' . $folder['name']);
         return redirect()->to('/files')->with('message', 'Folder dipindahkan ke sampah.');
     }
+
+    public function search()
+    {
+        $uid = (int) session()->get('user_id');
+        $term = trim((string) $this->request->getGet('q'));
+        $files = [];
+        $folders = [];
+
+        if ($term !== '' && mb_strlen($term) <= 120) {
+            $files = (new DriveFileModel())
+                ->where('user_id', $uid)->where('is_trashed', 0)
+                ->like('original_name', $term)->orderBy('original_name', 'ASC')->findAll(200);
+            $folders = (new DriveFolderModel())
+                ->where('user_id', $uid)->where('is_trashed', 0)
+                ->like('name', $term)->orderBy('name', 'ASC')->findAll(200);
+        }
+
+        return view('drive/search', [
+            'title' => 'Cari File',
+            'term' => mb_substr($term, 0, 120),
+            'files' => $files,
+            'folders' => $folders,
+        ]);
+    }
+
+    public function preview(int $id)
+    {
+        $uid = (int) session()->get('user_id');
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        if (!$file || !is_file($file['storage_path'])) {
+            return $this->response->setStatusCode(404);
+        }
+
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        if (!in_array($file['mime_type'], $allowed, true)) {
+            return redirect()->to('/files')->with('error', 'Preview tidak tersedia untuk tipe file ini.');
+        }
+
+        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file]);
+    }
+
+    public function previewContent(int $id)
+    {
+        $uid = (int) session()->get('user_id');
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        if (!$file || !is_file($file['storage_path'])) return $this->response->setStatusCode(404);
+
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        if (!in_array($file['mime_type'], $allowed, true)) return $this->response->setStatusCode(415);
+
+        $name = str_replace(["\\r", "\\n", '"'], '', basename($file['original_name']));
+        $body = file_get_contents($file['storage_path']);
+        if ($body === false) return $this->response->setStatusCode(404);
+
+        return $this->response
+            ->setHeader('Content-Type', $file['mime_type'])
+            ->setHeader('Content-Disposition', 'inline; filename="' . addslashes($name) . '"')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+            ->setHeader('Cache-Control', 'private, no-store')
+            ->setBody($body);
+    }
+
+    protected function logActivity(int $uid, string $action, string $details): void
+    {
+        db_connect()->table('activity_logs')->insert([
+            'user_id' => $uid,
+            'action' => $action,
+            'details' => mb_substr($details, 0, 2000),
+            'ip_address' => $this->request->getIPAddress(),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
 }
