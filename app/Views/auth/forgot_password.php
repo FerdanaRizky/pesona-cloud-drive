@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="id" data-bs-theme="dark">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css" rel="stylesheet"></head>
+<body class="login-bg login-page">
+<main class="login-stage">
+<section class="login-showcase"><div class="login-brand"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></div><div class="login-showcase-copy"><span class="login-kicker">PEMULIHAN AKUN</span><h1>Akses kembali<br><span>ke ruang digital Anda.</span></h1><p>Kami akan mengirim tautan aman ke email akun Anda untuk membuat password baru.</p></div><div class="login-showcase-footer">PESONA CLOUD DRIVE <span>•</span> PERSONAL WORKSPACE</div></section>
+<section class="login-panel-wrap"><div class="login-card">
+<div class="login-panel-heading"><div class="login-mobile-mark brand-mark">P</div><span class="login-kicker">BANTUAN AKUN</span><h2>Lupa password?</h2><p>Masukkan email yang terdaftar di Pesona Cloud Drive.</p></div>
+<?php if(session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
+<?php if(session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
+<form method="post" action="/forgot-password"><?= csrf_field() ?><div class="mb-4"><label class="form-label" for="reset_email">Alamat email</label><div class="login-input-wrap"><span class="login-input-icon">✉</span><input class="form-control form-control-lg" id="reset_email" type="email" name="email" placeholder="nama@email.com" required maxlength="190" autocomplete="email"></div></div><button class="btn btn-primary btn-lg w-100 login-submit" type="submit"><span>Kirim tautan reset</span><span aria-hidden="true">→</span></button></form>
+<div class="text-center mt-4"><a href="/login" class="small text-decoration-none">← Kembali ke halaman masuk</a></div>
+</div></section></main></body></html>
