@@ -114,6 +114,7 @@ class Files extends BaseController
                 $db->table('users')->where('id', $uid)->set('used_bytes', 'used_bytes+' . $size, false)->update();
                 $db->transCommit();
                 $success++;
+                $this->logActivity($uid, 'file.upload', 'Mengunggah file: ' . basename($file->getClientName()));
             } catch (\Throwable $e) {
                 $db->transRollback();
                 if ($path && is_file($path)) @unlink($path);
@@ -142,6 +143,7 @@ class Files extends BaseController
             return redirect()->back()->with('error', 'Nama file tidak valid.');
         }
         (new DriveFileModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->set(['original_name' => $name])->update();
+        $this->logActivity((int) session()->get('user_id'), 'file.rename', 'Mengubah nama file menjadi: ' . $name);
         return redirect()->back()->with('message', 'Nama file diperbarui.');
     }
 
@@ -169,7 +171,10 @@ class Files extends BaseController
     {
         $model = new DriveFileModel();
         $file = $model->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
-        if ($file) $model->update($id, ['is_trashed' => 1]);
+        if ($file) {
+            $model->update($id, ['is_trashed' => 1]);
+            $this->logActivity((int) session()->get('user_id'), 'file.trash', 'Memindahkan ke sampah: ' . $file['original_name']);
+        }
         return redirect()->back()->with('message', 'File dipindahkan ke sampah.');
     }
 
@@ -194,6 +199,7 @@ class Files extends BaseController
         $hasFiles = (new DriveFileModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
         if ($hasFolders || $hasFiles) return redirect()->back()->with('error', 'Folder harus kosong sebelum dihapus. Pindahkan atau hapus isinya terlebih dahulu.');
         (new DriveFolderModel())->update($id, ['is_trashed' => 1]);
+        $this->logActivity($uid, 'folder.trash', 'Memindahkan folder ke sampah: ' . $folder['name']);
         return redirect()->to('/files')->with('message', 'Folder dipindahkan ke sampah.');
     }
 }
