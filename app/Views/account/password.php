@@ -9,14 +9,14 @@
       <label class="form-label" for="current_password">Password saat ini</label>
       <div class="input-group">
         <input class="form-control" id="current_password" type="password" name="current_password" autocomplete="current-password" required>
-        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password" aria-label="Tampilkan password saat ini" aria-pressed="false">Intip</button>
+        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password" aria-label="Tampilkan password saat ini" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <div class="mb-3">
       <label class="form-label" for="new_password">Password baru</label>
       <div class="input-group">
         <input class="form-control" id="new_password" type="password" name="password" minlength="12" autocomplete="new-password" required>
-        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password" aria-label="Tampilkan password baru" aria-pressed="false">Intip</button>
+        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <div class="form-text">Minimal 12 karakter.</div>
     </div>
@@ -24,7 +24,7 @@
       <label class="form-label" for="password_confirm">Konfirmasi password baru</label>
       <div class="input-group">
         <input class="form-control" id="password_confirm" type="password" name="password_confirm" minlength="12" autocomplete="new-password" required>
-        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirm" aria-label="Tampilkan konfirmasi password" aria-pressed="false">Intip</button>
+        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirm" aria-label="Tampilkan konfirmasi password" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <button class="btn btn-primary">Simpan Password</button>
