@@ -1,0 +1,18 @@
+<?php
+namespace Config;
+$routes = Services::routes();
+$routes->setDefaultNamespace('App\\Controllers');
+$routes->setDefaultController('Auth');
+$routes->setDefaultMethod('login');
+$routes->setTranslateURIDashes(false);
+$routes->set404Override();
+$routes->setAutoRoute(false);
+$routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
+$routes->get('login', 'Auth::login');
+$routes->post('login', 'Auth::attempt');
+$routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
+$routes->get('dashboard', 'Dashboard::index', ['filter' => 'auth']);
+$routes->get('files', 'Files::index', ['filter' => 'auth']);
+$routes->post('files/upload', 'Files::upload', ['filter' => 'auth']);
+$routes->get('files/download/(:num)', 'Files::download/$1', ['filter' => 'auth']);
+$routes->post('files/delete/(:num)', 'Files::delete/$1', ['filter' => 'auth']);
