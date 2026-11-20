@@ -161,3 +161,54 @@ html[data-bs-theme="light"] .user-management-card:before{opacity:.9}
 #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(4){display:none!important}
 #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2){display:block!important;color:#91a6c2;font-size:.78rem}
 #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2){display:block!important;color:#91a6c2;font-size:.78rem}
+
+
+/* Account dropdown: keep profile compact and reveal logout on click */
+.account-dropdown{position:relative}
+.account-trigger{font:inherit;color:inherit;text-align:left;cursor:pointer}
+.account-trigger:hover,.account-trigger:focus-visible{border-color:#5a83bd;background:rgba(38,61,93,.9);color:#fff}
+.account-trigger:after{display:none}
+.account-chevron{margin-left:3px;color:#91a2bb;font-size:15px;transition:transform .16s ease}
+.account-dropdown.show .account-chevron{transform:rotate(180deg)}
+.account-menu{min-width:225px;margin-top:10px!important;padding:8px;background:#142238;border:1px solid #344761;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+.account-menu-heading{display:flex;flex-direction:column;gap:3px;padding:9px 10px}
+.account-menu-heading strong{font-size:.84rem;overflow-wrap:anywhere}
+.account-menu-heading small{font-size:.72rem;color:#91a2bb}
+.account-menu .dropdown-divider{border-color:#344761}
+.account-logout-item{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;color:#ff9ba5;font-size:.85rem;font-weight:700}
+.account-logout-item:hover{background:rgba(214,75,96,.15);color:#ffb4bc}
+.account-logout-item .logout-icon{width:25px;height:25px}
+html[data-bs-theme="light"] .account-menu{background:#fff;border-color:#e1e7f0;box-shadow:0 14px 34px rgba(24,45,78,.16)}
+html[data-bs-theme="light"] .account-menu-heading small{color:#738198}
+html[data-bs-theme="light"] .account-menu .dropdown-divider{border-color:#e1e7f0}
+html[data-bs-theme="light"] .account-logout-item{color:#c83f61}
+html[data-bs-theme="light"] .account-logout-item:hover{background:#fff0f2;color:#a92e4c}
+
+/* More compact, balanced grid cards for files, folders and trash */
+#driveViewRoot[data-drive-view="grid"] .drive-folders-section>.row{grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:9px!important}
+#driveViewRoot[data-drive-view="grid"] .folder-tile{min-height:70px;padding:11px 12px;border-radius:12px;font-size:.88rem}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:9px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr{min-height:122px;padding:11px;border-radius:12px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td{padding:3px 0}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:first-child .file-thumbnail{width:42px;height:42px;border-radius:10px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:first-child .fw-medium{font-size:.84rem;line-height:1.35;overflow-wrap:anywhere}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(2),#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:nth-child(3){font-size:.7rem}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr td:last-child{padding-top:4px}
+#driveViewRoot[data-drive-view="grid"] .action-menu-trigger{min-width:31px;min-height:31px;width:31px;height:31px}
+#trashViewRoot[data-trash-view="grid"] tbody{grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:9px}
+#trashViewRoot[data-trash-view="grid"] tbody tr{min-height:112px;padding:11px;border-radius:12px}
+#trashViewRoot[data-trash-view="grid"] tbody tr td{padding:3px 0}
+#trashViewRoot[data-trash-view="grid"] tbody tr td:first-child{font-size:.84rem}
+#trashViewRoot[data-trash-view="grid"] .trash-item-icon{width:32px;height:32px;flex-basis:32px;font-size:15px;border-radius:9px}
+#trashViewRoot[data-trash-view="grid"] .action-menu-trigger{min-width:31px;min-height:31px;width:31px;height:31px}
+@media(max-width:575px){
+ #driveViewRoot[data-drive-view="grid"] .drive-folders-section>.row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody,#trashViewRoot[data-trash-view="grid"] tbody{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr,#trashViewRoot[data-trash-view="grid"] tbody tr{min-height:108px;padding:9px}
+ .account-menu{min-width:210px}
+}
+
+/* Password visibility icon button */
+.toggle-password{display:inline-flex;align-items:center;justify-content:center;min-width:40px;padding:6px 10px}
+.password-eye-icon{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.toggle-password:focus-visible{outline:2px solid #8bb9ff;outline-offset:2px}
