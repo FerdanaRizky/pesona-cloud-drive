@@ -199,12 +199,10 @@ class Files extends BaseController
         $folderIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('folder_ids')))));
         if (!$fileIds && !$folderIds) return redirect()->back()->with('error', 'Pilih minimal satu file atau folder.');
 
-        $db = db_connect();
         $fileModel = new DriveFileModel();
         $folderModel = new DriveFolderModel();
         $movedFiles = 0;
         $movedFolders = 0;
-        $skippedFolders = 0;
 
         foreach ($fileIds as $id) {
             $file = $fileModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
@@ -217,17 +215,25 @@ class Files extends BaseController
         foreach ($folderIds as $id) {
             $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
             if (!$folder) continue;
-            $hasFolders = $folderModel->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
-            $hasFiles = (new DriveFileModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
-            if ($hasFolders || $hasFiles) { $skippedFolders++; continue; }
-            $folderModel->update($id, ['is_trashed' => 1]);
-            $this->logActivity($uid, 'folder.trash', 'Memindahkan folder ke sampah: ' . $folder['name']);
+            $this->trashFolderTree($id, $uid);
+            $this->logActivity($uid, 'folder.trash', 'Memindahkan folder beserta isinya ke sampah: ' . $folder['name']);
             $movedFolders++;
         }
 
-        $message = $movedFiles . ' file dan ' . $movedFolders . ' folder dipindahkan ke Sampah.';
-        if ($skippedFolders) $message .= ' ' . $skippedFolders . ' folder dilewati karena belum kosong.';
-        return redirect()->back()->with($skippedFolders ? 'error' : 'message', $message);
+        return redirect()->back()->with('message', $movedFiles . ' file dan ' . $movedFolders . ' folder (termasuk seluruh isi folder) dipindahkan ke Sampah.');
+    }
+
+    private function trashFolderTree(int $folderId, int $uid): void
+    {
+        $folderModel = new DriveFolderModel();
+        $fileModel = new DriveFileModel();
+
+        foreach ($folderModel->where('user_id', $uid)->where('parent_id', $folderId)->where('is_trashed', 0)->findAll() as $childFolder) {
+            $this->trashFolderTree((int) $childFolder['id'], $uid);
+        }
+
+        $fileModel->where('user_id', $uid)->where('parent_id', $folderId)->where('is_trashed', 0)->set(['is_trashed' => 1])->update();
+        $folderModel->update($folderId, ['is_trashed' => 1]);
     }
 
     public function bulkMove()
