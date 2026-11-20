@@ -31,7 +31,7 @@
 <button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema">◐ <span class="d-none d-sm-inline">Tema</span></button>
 <div class="user-top-card">
 <div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
-<div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span></div>
+<div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span><small class="user-presence"><i></i>Online</small></div>
 </div>
 <a class="logout-top-btn" href="/logout"><span class="logout-icon">↪</span><span>Keluar</span></a>
 </div>
