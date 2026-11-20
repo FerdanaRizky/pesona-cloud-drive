@@ -45,6 +45,9 @@ Sebelum setiap update pada server produksi, tetap disarankan membuat backup data
 - File disimpan di private storage dan setiap operasi memeriksa kepemilikan user.
 - Upload memperhitungkan kuota akun dengan penguncian transaksi.
 - Pengguna baru dan pengguna yang password-nya direset diwajibkan mengganti password sementara.
-- File yang dipindahkan ke sampah masih dihitung dalam kuota; fitur restore dan penghapusan permanen akan ditambahkan pada tahap berikutnya.
-- Folder hanya dapat dihapus jika kosong.
+- File di sampah masih dihitung dalam kuota sampai dihapus permanen. Restore tidak mengubah pemakaian kuota; penghapusan permanen mengurangi kuota dan menghapus file fisik.
+- Folder dapat dipulihkan bertahap dari parent ke child. Penghapusan permanen folder menghapus seluruh isi turunannya.
+- Link berbagi menggunakan token acak yang disimpan dalam bentuk hash; siapa pun yang memiliki link dapat mengakses file sampai link dicabut atau kedaluwarsa.
+- Preview dibatasi pada gambar raster, PDF, dan video MP4/WebM/OGG. File disajikan melalui PHP response; untuk file video besar disarankan optimasi Nginx X-Accel-Redirect sebelum pemakaian berat.
+- Pencarian hanya berdasarkan nama file/folder. Riwayat aktivitas dibatasi 250 catatan terbaru pada tampilan.
 - Fitur ini belum dinyatakan siap produksi sebelum pengujian integrasi, backup/restore, batas ukuran upload PHP/Nginx, dan security review selesai.
