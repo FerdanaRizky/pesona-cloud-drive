@@ -26,6 +26,9 @@ class AdminFilter implements FilterInterface
         }
 
         session()->set('role', $user['role']);
+        if ((int) $user['must_change_password'] === 1) {
+            return redirect()->to('/account/password')->with('error', 'Demi keamanan, silakan ganti password sementara terlebih dahulu.');
+        }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
