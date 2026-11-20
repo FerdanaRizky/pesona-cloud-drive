@@ -191,6 +191,45 @@ class Files extends BaseController
         return redirect()->back()->with('message', 'File dipindahkan ke sampah.');
     }
 
+
+    public function bulkTrash()
+    {
+        $uid = (int) session()->get('user_id');
+        $fileIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')))));
+        $folderIds = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('folder_ids')))));
+        if (!$fileIds && !$folderIds) return redirect()->back()->with('error', 'Pilih minimal satu file atau folder.');
+
+        $db = db_connect();
+        $fileModel = new DriveFileModel();
+        $folderModel = new DriveFolderModel();
+        $movedFiles = 0;
+        $movedFolders = 0;
+        $skippedFolders = 0;
+
+        foreach ($fileIds as $id) {
+            $file = $fileModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$file) continue;
+            $fileModel->update($id, ['is_trashed' => 1]);
+            $this->logActivity($uid, 'file.trash', 'Memindahkan ke sampah: ' . $file['original_name']);
+            $movedFiles++;
+        }
+
+        foreach ($folderIds as $id) {
+            $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+            if (!$folder) continue;
+            $hasFolders = $folderModel->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
+            $hasFiles = (new DriveFileModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
+            if ($hasFolders || $hasFiles) { $skippedFolders++; continue; }
+            $folderModel->update($id, ['is_trashed' => 1]);
+            $this->logActivity($uid, 'folder.trash', 'Memindahkan folder ke sampah: ' . $folder['name']);
+            $movedFolders++;
+        }
+
+        $message = $movedFiles . ' file dan ' . $movedFolders . ' folder dipindahkan ke Sampah.';
+        if ($skippedFolders) $message .= ' ' . $skippedFolders . ' folder dilewati karena belum kosong.';
+        return redirect()->back()->with($skippedFolders ? 'error' : 'message', $message);
+    }
+
     public function renameFolder(int $id)
     {
         $name = trim((string) $this->request->getPost('name'));
