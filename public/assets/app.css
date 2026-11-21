@@ -2322,3 +2322,19 @@ html[data-bs-theme="light"] .sidebar .nav-link.active{
 }
 html[data-bs-theme="light"] .sidebar .nav-link.active span{color:#174b9b!important}
 html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gradient(105deg,#d7e7ff,#e7ecff)!important}
+
+
+/* Google Drive-style selected navigation pill: clearly identifies the open section. */
+.sidebar .nav-link.active{
+  background:#c2e7ff!important;
+  border-color:transparent!important;
+  color:#073b63!important;
+  font-weight:650!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+.sidebar .nav-link.active::before{display:none!important;content:none!important}
+.sidebar .nav-link.active span{color:#073b63!important}
+.sidebar .nav-link.active:hover{background:#b4ddfa!important;color:#073b63!important}
+.sidebar .nav-link:not(.active){background:transparent}
+.sidebar .nav-link:not(.active):hover{background:rgba(120,160,210,.13);color:var(--bs-body-color)}
