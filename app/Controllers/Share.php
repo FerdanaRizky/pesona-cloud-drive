@@ -50,6 +50,33 @@ class Share extends BaseController
         return redirect()->to('/shares')->with('message', 'Masa berlaku link berhasil diperbarui.');
     }
 
+
+    public function restore(int $id)
+    {
+        $uid = (int) session()->get('user_id');
+        $db = db_connect();
+        $share = $db->table('file_shares s')
+            ->select('s.id, s.token_ciphertext, f.id AS file_id, f.original_name, f.is_trashed')
+            ->join('drive_files f', 'f.id = s.file_id')
+            ->where('s.id', $id)->where('s.owner_id', $uid)->get()->getRowArray();
+        if (!$share || (int) $share['is_trashed'] === 1) {
+            return redirect()->to('/shares')->with('error', 'Link berbagi tidak ditemukan atau file sudah di Sampah.');
+        }
+        if (!empty($share['token_ciphertext'])) {
+            return redirect()->to('/shares')->with('message', 'URL tautan ini sudah tersimpan. Gunakan menu Tampilkan link kembali.');
+        }
+
+        // Legacy rows stored only token_hash. The original URL cannot be derived from a hash,
+        // so rotate the token and persist its encrypted form for future display.
+        $token = bin2hex(random_bytes(32));
+        $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->update([
+            'token_hash' => hash('sha256', $token),
+            'token_ciphertext' => service('encrypter')->encrypt($token),
+        ]);
+        $this->log($uid, 'file.share_restore', 'Membuat ulang URL tautan berbagi: ' . $share['original_name']);
+        return redirect()->to('/shares')->with('share_link', site_url('s/' . $token))->with('message', 'URL baru berhasil dibuat dan disimpan.');
+    }
+
     public function revokeOne(int $id)
     {
         $uid = (int) session()->get('user_id');
