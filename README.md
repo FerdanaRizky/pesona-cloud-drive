@@ -35,6 +35,22 @@ Path khusus: SOURCE_DIR=/path/source APP_DIR=/path/app bash update-aapanel.sh
 
 Updater menjalankan git pull, menyalin app/ dan public/assets/, Composer install, lalu php spark migrate. File .env, database, private storage, dan data pengguna tidak dihapus.
 
+
+## Upload file berukuran besar (aaPanel)
+
+Aplikasi menyediakan batas PHP hingga 2 GB melalui file `.user.ini`. Updater akan memasang file ini ke root aplikasi. Untuk mengatasi HTTP **413 Request Entity Too Large**, batas Nginx website juga harus dinaikkan karena Nginx menolak request sebelum mencapai PHP.
+
+1. Buka aaPanel → Website → website Pesona Cloud Drive → Config.
+2. Di dalam blok `server { ... }`, tambahkan:
+   ```nginx
+   client_max_body_size 2100m;
+   ```
+3. Simpan konfigurasi lalu lakukan Reload Nginx dari aaPanel.
+4. Buka aaPanel → App Store → PHP yang dipakai website → Config → upload settings. Pastikan `upload_max_filesize = 2048M` dan `post_max_size = 2100M`, lalu restart PHP-FPM.
+5. Periksa ruang disk direktori temporary PHP dan private storage. File upload sementara membutuhkan ruang tambahan.
+
+Batas bawaan aplikasi adalah 2 GB per file. Untuk batas lebih besar, naikkan ketiga nilai `upload_max_filesize`, `post_max_size`, dan `client_max_body_size` secara konsisten (nilai post/Nginx sedikit lebih besar daripada ukuran file). Pengaturan Nginx wajib dilakukan di konfigurasi website aaPanel; file PHP `.user.ini` tidak dapat mengubah batas Nginx.
+
 ## Setelah update
 - File Manager: /files
 - Cari: /search
