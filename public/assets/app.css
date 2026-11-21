@@ -1292,3 +1292,28 @@ html[data-bs-theme="light"] #driveViewRoot .drive-files-card{box-shadow:0 8px 28
 html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row{box-shadow:0 3px 12px rgba(40,60,90,.035)}
 html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(6) .action-menu-trigger{background:rgba(255,255,255,.94);border-color:#e2e8f1}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Small-screen list mode: prioritize filename and actions without horizontal overflow */
+@media(max-width:767px){
+ #driveViewRoot[data-drive-view="list"] .drive-files-card .table-responsive{overflow-x:hidden!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card table{min-width:0!important;table-layout:fixed!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th,
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td{padding-left:6px!important;padding-right:6px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(5),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(5){display:none!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(1),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(1){width:30px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(6),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(6){width:42px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td:nth-child(2){width:auto!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-cell{gap:8px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-visual{width:42px!important;height:48px!important;flex-basis:42px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-name{font-size:.78rem!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-mime{font-size:.62rem!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media(max-width:480px){
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(4),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(4){display:none!important}
+}
