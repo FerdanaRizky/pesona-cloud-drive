@@ -176,7 +176,7 @@ PUBLIC_INI="$APP_DIR/public/.user.ini"
 USER_INI_FILES+=("$PUBLIC_INI")
 for ini in "${USER_INI_FILES[@]}"; do
     tmp="$(mktemp)"
-    awk -v required="$ALLOWED_REQUIRED" '
+    if ! awk -v required="$ALLOWED_REQUIRED" '
       BEGIN { updated=0 }
       /^[[:space:]]*open_basedir[[:space:]]*=/ {
         line=$0
@@ -196,12 +196,22 @@ for ini in "${USER_INI_FILES[@]}"; do
       END {
         if (!updated) print "open_basedir=" required
       }
-    ' "$ini" > "$tmp"
-    cat "$tmp" > "$ini"
+    ' "$ini" > "$tmp"; then
+        echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
+        rm -f "$tmp"
+        continue
+    fi
+    # aaPanel may protect its website-level .user.ini (immutable/ACL). Do not
+    # abort the installation: try the document-root ini and report any skip.
+    if ! cat "$tmp" > "$ini"; then
+        echo "[WARN] Tidak dapat mengubah $ini (izin/immutable). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS di aaPanel."
+        rm -f "$tmp"
+        continue
+    fi
     rm -f "$tmp"
-    chmod 644 "$ini"
-    if id www >/dev/null 2>&1; then chown www:www "$ini"
-    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini"
+    chmod 644 "$ini" 2>/dev/null || true
+    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
+    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
     fi
     echo "[OK] open_basedir disesuaikan: $ini"
 done
