@@ -92,9 +92,7 @@ const modalEl=document.getElementById('uploadModal');document.getElementById('op
 </form>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-4"><div class="admin-stat"><div class="muted-label">Penyimpanan digunakan</div><div class="fs-4 fw-semibold"><?= number_format(((int) ($user['used_bytes'] ?? 0)) / 1073741824, 2) ?> GB</div></div></div>
-  <div class="col-md-4"><div class="admin-stat"><div class="muted-label">Kuota akun</div><div class="fs-4 fw-semibold"><?= number_format(((int) ($user['quota_bytes'] ?? 0)) / 1073741824, 1) ?> GB</div></div></div>
-  <div class="col-md-4"><div class="admin-stat"><div class="muted-label">File dan folder di lokasi ini</div><div class="fs-4 fw-semibold"><?= count($folders) + count($files) ?></div></div></div>
+  <div class="col-12 col-sm-6 col-lg-4"><div class="admin-stat file-count-stat"><div class="muted-label">Jumlah file</div><div class="fs-4 fw-semibold"><?= count($files) ?></div></div></div>
 </div>
 
 <?php if ($folders): ?>
