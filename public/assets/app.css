@@ -2254,3 +2254,12 @@ html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-
 html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .bulk-menu-trigger{color:#dce8f8!important}
 html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-btn:hover{background:rgba(112,157,218,.16)}
 html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-btn.danger{color:#ff8d98!important}
+
+
+/* Trash table: show deletion time and original folder path without squeezing names. */
+#trashViewRoot .trash-files-card .table{min-width:920px}
+#trashViewRoot .trash-folders-card .table{min-width:820px}
+#trashViewRoot .trash-original-location{display:flex;align-items:center;gap:8px;max-width:360px;min-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#trashViewRoot .trash-original-location .menu-action-icon{width:17px;height:17px;flex:0 0 17px;margin:0;opacity:.8}
+#trashViewRoot .trash-original-location span:last-child{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:767px){#trashViewRoot .trash-files-card .table,#trashViewRoot .trash-folders-card .table{min-width:760px}}
