@@ -123,7 +123,56 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 <div class="card p-3 drive-files-card"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">File<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><span class="small text-secondary"><?= count($files) ?> item</span></div>
 <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="selection-column"><input type="checkbox" class="form-check-input" id="selectAllFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Tipe</th><th>Ukuran</th><th>Diunggah</th><th class="text-end">Aksi</th></tr></thead><tbody>
 <?php foreach ($files as $f): ?>
-<tr class="file-row"><td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="file" value="<?= (int) $f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><div class="file-thumbnail file-thumbnail--document flex-shrink-0"><?php $visualPreview = in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf'], true) || in_array($f['extension'], ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true); ?><?php if ($visualPreview): ?><img src="/files/thumbnail/<?= (int)$f['id'] ?>" alt="Pratinjau <?= esc($f['original_name'], 'attr') ?>" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false"><span class="file-thumbnail-fallback" hidden><?= in_array($f['extension'], ['doc','docx','odt']) ? 'DOC' : (in_array($f['extension'], ['xls','xlsx','ods']) ? 'XLS' : (in_array($f['extension'], ['ppt','pptx','odp']) ? 'PPT' : ($f['mime_type'] === 'application/pdf' ? 'PDF' : 'FILE'))) ?></span><?php else: ?><span><?= in_array($f['extension'], ['doc','docx','odt']) ? 'DOC' : (in_array($f['extension'], ['xls','xlsx','ods']) ? 'XLS' : (in_array($f['extension'], ['ppt','pptx','odp']) ? 'PPT' : ($f['mime_type'] === 'application/pdf' ? 'PDF' : 'FILE'))) ?></span><?php endif ?></div><div class="min-width-0"><div class="fw-medium"><?= !empty($f['is_starred']) ? '★ ' : '' ?><?php if (in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf','video/mp4','video/webm','video/ogg'], true) || in_array($f['extension'], ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true)): ?><a class="text-reset text-decoration-none" href="/files/preview/<?= (int) $f['id'] ?>"><?= esc($f['original_name']) ?></a><?php else: ?><a class="text-reset text-decoration-none" href="/files/download/<?= (int) $f['id'] ?>"><?= esc($f['original_name']) ?></a><?php endif ?></div><small class="text-secondary"><?= esc($f['mime_type']) ?></small></div></div></td><td><?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
+<tr class="file-row"><td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="file" value="<?= (int) $f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td>
+<div class="drive-file-cell">
+<?php
+$fileExt = strtolower((string) ($f['extension'] ?? ''));
+$fileMime = strtolower((string) ($f['mime_type'] ?? ''));
+$isImage = str_starts_with($fileMime, 'image/') && in_array($fileExt, ['jpg','jpeg','png','gif','webp'], true);
+$isPdf = $fileMime === 'application/pdf' || $fileExt === 'pdf';
+$isOffice = in_array($fileExt, ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true);
+$previewable = $isImage || $isPdf || $isOffice;
+$kind = 'file';
+$kindLabel = strtoupper($fileExt ?: 'FILE');
+if (in_array($fileExt, ['doc','docx','odt'], true)) { $kind='word'; $kindLabel='DOC'; }
+elseif (in_array($fileExt, ['xls','xlsx','ods','csv'], true)) { $kind='sheet'; $kindLabel='XLS'; }
+elseif (in_array($fileExt, ['ppt','pptx','odp'], true)) { $kind='slides'; $kindLabel='PPT'; }
+elseif ($isPdf) { $kind='pdf'; $kindLabel='PDF'; }
+elseif ($isImage) { $kind='image'; $kindLabel='IMG'; }
+elseif (in_array($fileExt, ['mp4','m4v','mov','webm','ogv','avi','mkv'], true)) { $kind='video'; $kindLabel='VIDEO'; }
+elseif (in_array($fileExt, ['mp3','wav','ogg','m4a','flac','aac'], true)) { $kind='audio'; $kindLabel='AUDIO'; }
+elseif (in_array($fileExt, ['zip','rar','7z','tar','gz','bz2'], true)) { $kind='archive'; $kindLabel='ZIP'; }
+elseif (in_array($fileExt, ['txt','md','rtf'], true)) { $kind='text'; $kindLabel='TEXT'; }
+elseif (in_array($fileExt, ['php','js','ts','html','css','json','xml','py','sh','sql'], true)) { $kind='code'; $kindLabel='CODE'; }
+$previewUrl = '/files/preview/' . (int) $f['id'];
+?>
+<div class="drive-file-visual drive-file-visual--<?= esc($kind, 'attr') ?>">
+<?php if ($previewable): ?>
+<a class="drive-file-preview-link" href="<?= $previewUrl ?>" aria-label="Buka preview <?= esc($f['original_name'], 'attr') ?>">
+<img src="/files/thumbnail/<?= (int) $f['id'] ?>" alt="Preview <?= esc($f['original_name'], 'attr') ?>" loading="lazy" onerror="this.closest('.drive-file-visual').classList.add('preview-failed');this.remove()">
+</a>
+<?php else: ?>
+<div class="drive-file-type-art" aria-hidden="true">
+<?php if ($kind==='video'): ?><svg viewBox="0 0 48 48"><rect x="5" y="10" width="38" height="28" rx="6"/><path d="m20 17 12 7-12 7z"/></svg>
+<?php elseif ($kind==='audio'): ?><svg viewBox="0 0 48 48"><path d="M27 9v23a7 7 0 1 1-4-6.3V15l16-4v17a7 7 0 1 1-4-6.3V9z"/></svg>
+<?php elseif ($kind==='archive'): ?><svg viewBox="0 0 48 48"><path d="M9 8h30v32H9zM9 15h30M20 8v7m8-7v7m-8 8h8v5h-8z"/></svg>
+<?php elseif ($kind==='code'): ?><svg viewBox="0 0 48 48"><path d="m18 15-10 9 10 9m12-18 10 9-10 9M27 11l-6 26"/></svg>
+<?php elseif ($kind==='word'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8"/><path d="m17 23 3 12 4-9 4 9 3-12"/></svg>
+<?php elseif ($kind==='sheet'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M17 21h16M17 27h16M17 33h16M25 21v17"/></svg>
+<?php elseif ($kind==='slides'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M18 22h14v10H18zM25 32v5"/></svg>
+<?php elseif ($kind==='pdf'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8"/><path d="M17 30h14M17 25h14"/></svg>
+<?php else: ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M18 24h14M18 30h14"/></svg><?php endif ?>
+<span><?= esc($kindLabel) ?></span>
+</div>
+<?php endif ?>
+</div>
+<div class="drive-file-meta min-width-0">
+<div class="drive-file-name fw-medium"><?php if (!empty($f['is_starred'])): ?><span class="text-warning" aria-label="Favorit">★ </span><?php endif ?>
+<a class="text-reset text-decoration-none" href="<?= $previewable ? $previewUrl : '/files/download/' . (int) $f['id'] ?>"><?= esc($f['original_name']) ?></a></div>
+<small class="text-secondary drive-file-mime"><?= esc($f['mime_type']) ?></small>
+</div>
+</div>
+</td><td>?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
 <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan aksi file">⋮</button>
 <div class="dropdown-menu dropdown-menu-end file-action-menu">
 <?php if (in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf','video/mp4','video/webm','video/ogg'], true)): ?><a class="dropdown-item" href="/files/preview/<?= (int) $f['id'] ?>">◉ Preview</a><?php endif ?>
