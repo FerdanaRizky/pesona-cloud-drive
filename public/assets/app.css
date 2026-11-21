@@ -2088,3 +2088,33 @@ html[data-bs-theme="light"] .dashboard-folder-card .dashboard-more-btn.action-me
 html[data-bs-theme="light"] .dashboard-folder-card .dashboard-more-btn.action-menu-trigger:focus{
  background:#eaf1ff!important;color:#2456b4!important;border-color:#9bb8ed!important;
 }
+
+
+/* Detailed List columns: file type, latest change and containing folder location. */
+#driveViewRoot[data-drive-view="list"] .drive-files-card .table-responsive{overflow-x:auto!important;overflow-y:visible!important}
+#driveViewRoot[data-drive-view="list"] .drive-files-card table{min-width:1180px!important;table-layout:auto!important}
+#driveViewRoot[data-drive-view="list"] .drive-files-card thead th{white-space:nowrap}
+#driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(2){min-width:260px}
+#driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(3){min-width:130px}
+#driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(5){min-width:175px}
+#driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(6){min-width:220px}
+#driveViewRoot[data-drive-view="list"] .drive-type-label,
+#driveViewRoot[data-drive-view="list"] .drive-history-label,
+#driveViewRoot[data-drive-view="list"] .drive-location-label{display:inline-block;max-width:100%;line-height:1.45;vertical-align:middle}
+#driveViewRoot[data-drive-view="list"] .drive-location-label{max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#driveViewRoot[data-drive-view="list"] .drive-type-label small,
+#driveViewRoot[data-drive-view="list"] .drive-history-label small{font-size:.72rem;white-space:nowrap}
+@media(max-width:767px){
+ #driveViewRoot[data-drive-view="list"] .drive-files-card .table-responsive{overflow-x:auto!important;overscroll-behavior-x:contain}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card table{min-width:1120px!important;table-layout:auto!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th,
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td{display:table-cell!important;padding:10px 9px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(5),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(5){display:table-cell!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(1),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(1){width:42px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(8),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(8){width:64px!important}
+}
