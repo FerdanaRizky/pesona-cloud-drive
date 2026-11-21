@@ -15,7 +15,7 @@ $formatActivityDate = static function ($value) {
         <a class="dashboard-info-link" href="/files" title="Kelola semua file" aria-label="Kelola semua file">ⓘ</a>
     </div>
 
-    <form id="dashboardBulkForm" method="post" action="/files/bulk-download" class="dashboard-selection-bar" id="dashboardSelectionBar" aria-hidden="true">
+    <form id="dashboardBulkForm" method="post" action="/files/bulk-download" class="dashboard-selection-bar" aria-hidden="true">
         <?= csrf_field() ?><div id="dashboardBulkIds"></div>
         <button type="button" class="dashboard-selection-clear" id="dashboardClearSelection" aria-label="Batalkan pilihan">×</button>
         <strong id="dashboardSelectionCount">0 item dipilih</strong>
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     buttons.forEach(button => button.addEventListener('click', () => setView(button.dataset.dashboardViewButton)));
 
-    const bar = document.getElementById('dashboardSelectionBar');
+    const bar = root.querySelector('.dashboard-selection-bar');
     const count = document.getElementById('dashboardSelectionCount');
     const clear = document.getElementById('dashboardClearSelection');
     const bulkForm = document.getElementById('dashboardBulkForm');
