@@ -74,7 +74,7 @@ class Share extends BaseController
             'token_ciphertext' => service('encrypter')->encrypt($token),
         ]);
         $this->log($uid, 'file.share_restore', 'Membuat ulang URL tautan berbagi: ' . $share['original_name']);
-        return redirect()->to('/shares')->with('share_link', site_url('s/' . $token))->with('message', 'URL baru berhasil dibuat dan disimpan.');
+        return redirect()->to('/shares')->with('share_link', site_url('s/' . $token))->with('share_id', $id)->with('message', 'URL baru berhasil dibuat dan disimpan.');
     }
 
     public function revokeOne(int $id)
