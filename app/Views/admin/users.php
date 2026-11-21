@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="min-width-0"><div class="d-flex align-items-center flex-wrap gap-2"><strong class="user-card-name"><?= esc($u['name']) ?></strong><?php if ((int)$u['id']===(int)session()->get('user_id')): ?><span class="badge text-bg-primary">Anda</span><?php endif ?></div><div class="small text-secondary text-break"><?= esc($u['email']) ?></div></div>
       </div>
       <div class="user-card-status-area">
-        <span class="role-pill <?= $u['role']==='admin'?'role-admin':'role-user' ?>"><?= esc(ucfirst($u['role'])) ?></span>
+        <span class="role-pill <?= $u['role']==='admin'?'role-admin':'role-user' ?>"><?= $u['role']==='admin'?'Superadmin':'User' ?></span>
         <div class="user-status-inline">
           <span class="status-pill <?= $u['status']==='active'?'status-active':'status-suspended' ?>"><i></i><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></span>
           <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
@@ -82,13 +82,26 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
     </div>
-    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= esc(ucfirst($u['role'])) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
+    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     
     <div class="user-storage-block">
       <div class="d-flex justify-content-between align-items-center mb-2"><span class="small text-secondary">Penyimpanan terpakai</span><strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong></div>
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
     </div>
     <div class="user-card-controls">
+      <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
+      <form method="post" action="/admin/users/update-role/<?= (int)$u['id'] ?>" class="user-role-form" onsubmit="return confirm('Ubah peran <?= esc($u['name'], 'js') ?> menjadi '+(this.elements.role.value==='superadmin'?'Superadmin':'User')+'?')">
+        <?= csrf_field() ?>
+        <div class="user-role-form-copy"><strong>Peran & hak akses</strong><span class="small text-secondary">Tentukan tingkat akses akun ini.</span></div>
+        <div class="user-role-form-actions">
+          <select class="form-select form-select-sm" name="role" aria-label="Pilih peran pengguna">
+            <option value="user" <?= $u['role']==='user'?'selected':'' ?>>User</option>
+            <option value="superadmin" <?= $u['role']==='admin'?'selected':'' ?>>Superadmin</option>
+          </select>
+          <button class="btn btn-sm user-role-save-button" type="submit">Ubah peran</button>
+        </div>
+      </form>
+      <?php else: ?><div class="user-role-self-note small text-secondary">Peran akun Anda: <strong>Superadmin</strong>. Perubahan peran sendiri dinonaktifkan.</div><?php endif ?>
       <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
         <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
         <div class="mb-3"><label class="form-label small" for="user_phone_<?= (int)$u['id'] ?>">Nomor WhatsApp profil</label><input class="form-control form-control-sm" id="user_phone_<?= (int)$u['id'] ?>" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>"><div class="form-text">Format internasional, contoh 6281234567890.</div></div><div class="quota-edit-group"><label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label><div class="quota-edit-row"><input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required><button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button></div><div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div></div>
