@@ -154,6 +154,7 @@ Buka aaPanel:
 3. Klik Config.
 4. Cari blok location /.
 5. Pastikan isinya seperti berikut.
+
 location / {
     try_files $uri $uri/ /index.php?$query_string;
 }
