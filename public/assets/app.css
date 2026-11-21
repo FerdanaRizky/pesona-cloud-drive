@@ -1707,3 +1707,7 @@ html[data-bs-theme="dark"] .share-bulk-toolbar.is-selection-active{
  .selection-clear-icon{width:30px;height:32px}
  .share-bulk-actions select{width:92px}
 }
+
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(1){display:none!important}
+#driveViewRoot[data-drive-view="grid"] .folder-tile .multi-select-control,
+#driveViewRoot[data-drive-view="grid"] .folder-tile .drive-item-select{display:none!important}
