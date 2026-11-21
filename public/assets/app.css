@@ -2338,3 +2338,10 @@ html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gr
 .sidebar .nav-link.active:hover{background:#b4ddfa!important;color:#073b63!important}
 .sidebar .nav-link:not(.active){background:transparent}
 .sidebar .nav-link:not(.active):hover{background:rgba(120,160,210,.13);color:var(--bs-body-color)}
+
+
+/* Ensure the theme switch remains above header decoration and receives clicks. */
+.topbar{position:sticky;isolation:isolate}
+.topbar-actions{position:relative;z-index:20;pointer-events:auto}
+.theme-toggle-btn{position:relative;z-index:21;pointer-events:auto!important;cursor:pointer;touch-action:manipulation}
+.theme-toggle-btn *{pointer-events:none}
