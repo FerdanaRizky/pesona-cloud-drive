@@ -567,3 +567,8 @@ html[data-bs-theme="light"] .profile-inline-form{background:#fff;border-color:#d
 html[data-bs-theme=light] .profile-edit-icon{background:#f2f6fd;color:#315fba;border-color:#d5dfec}
 html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;color:#17243a}
 @media(max-width:575px){.profile-account-summary{grid-template-columns:1fr 1fr}.profile-password-action{align-items:flex-start;flex-direction:column}.profile-password-action .btn{width:100%;justify-content:center}}
+
+.user-account-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--bs-border-color)}
+.user-account-actions form{margin:0}
+.user-account-actions .btn{white-space:nowrap}
+@media(max-width:575px){.user-account-actions form{flex:1}.user-account-actions .btn{width:100%}}
