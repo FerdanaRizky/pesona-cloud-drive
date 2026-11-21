@@ -1582,3 +1582,35 @@ html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-size-l
  #driveViewRoot[data-drive-view="list"] .drive-date-label,
  #driveViewRoot[data-drive-view="list"] .drive-size-label{font-size:.68rem}
 }
+
+
+/* Google Drive interaction feedback: click selects, double click opens */
+#driveViewRoot .drive-files-card tbody tr.file-row,
+#driveViewRoot .folder-tile{cursor:pointer}
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row.is-drive-selected{
+ background:rgba(83,158,220,.23)!important;
+ box-shadow:inset 3px 0 0 #63a9e8
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row.is-drive-selected{
+ background:rgba(65,133,207,.2)!important;
+ border-color:#579be3!important;
+ box-shadow:0 0 0 1px rgba(87,155,227,.25)!important
+}
+#driveViewRoot .folder-tile.is-drive-selected{
+ background:rgba(65,133,207,.2)!important;
+ border-color:#579be3!important;
+ box-shadow:inset 3px 0 0 #63a9e8!important
+}
+#driveViewRoot .drive-files-card tbody tr.file-row:not(.is-drive-selected):hover{
+ background:rgba(91,141,239,.09)!important
+}
+#driveViewRoot .drive-files-card tbody tr.file-row.is-drive-selected .drive-file-name a,
+#driveViewRoot .folder-tile.is-drive-selected>a{color:#b9dcff!important}
+#driveViewRoot .drive-files-card tbody tr.file-row .drive-item-select,
+#driveViewRoot .folder-tile .drive-item-select{cursor:pointer}
+#driveViewRoot .drive-file-preview-link,
+#driveViewRoot .drive-file-type-art{cursor:pointer}
+@media(prefers-reduced-motion:no-preference){
+ #driveViewRoot .drive-files-card tbody tr.file-row,
+ #driveViewRoot .folder-tile{transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
+}
