@@ -1962,3 +1962,6 @@ html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folder
  #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2) .trash-item-icon{height:112px}
  #shareViewRoot[data-share-view="grid"] .share-management-card tbody tr.share-row{min-height:210px!important;padding:44px 9px 10px!important}
 }
+
+/* Grid cards keep hidden selection inputs in the DOM for click / Shift-click behavior. */
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td:first-child{display:none!important}
