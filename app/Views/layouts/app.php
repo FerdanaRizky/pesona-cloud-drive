@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/app.css?v=20261121-account-menu-polish-v1" rel="stylesheet">
+<link href="/assets/app.css?v=20261121-mobile-theme-checkbox-v1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -64,6 +64,6 @@ $currentPath = trim($currentPath, '/');
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/app.js?v=20261121-mobile-single-tap-open-v1"></script>
+<script src="/assets/app.js?v=20261121-mobile-theme-checkbox-v1"></script>
 </body>
 </html>
