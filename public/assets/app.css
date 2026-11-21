@@ -1711,3 +1711,21 @@ html[data-bs-theme="dark"] .share-bulk-toolbar.is-selection-active{
 #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(1){display:none!important}
 #driveViewRoot[data-drive-view="grid"] .folder-tile .multi-select-control,
 #driveViewRoot[data-drive-view="grid"] .folder-tile .drive-item-select{display:none!important}
+
+
+/* Bulk action toolbar must sit above file previews and receive its own clicks */
+#driveViewRoot .bulk-selection-bar{position:relative;z-index:30;isolation:isolate;pointer-events:auto}
+#driveViewRoot .bulk-selection-bar .bulk-action-controls,
+#driveViewRoot .bulk-selection-bar .selection-action-btn,
+#driveViewRoot .bulk-selection-bar .selection-clear-icon{position:relative;z-index:31;pointer-events:auto}
+#driveViewRoot .bulk-selection-bar .selection-action-btn svg{
+ display:block;width:21px;height:21px;fill:none;stroke:currentColor;
+ stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round
+}
+#driveViewRoot .bulk-selection-bar .selection-action-btn{flex:0 0 38px}
+#driveViewRoot .bulk-selection-bar .selection-action-btn.danger{color:#d34b58}
+#driveViewRoot .bulk-selection-bar .selection-action-btn.danger:hover{background:rgba(211,75,88,.12)}
+.file-action-menu .menu-action-icon{
+ display:inline-block;width:17px;height:17px;margin-right:9px;vertical-align:-3px;
+ fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round
+}
