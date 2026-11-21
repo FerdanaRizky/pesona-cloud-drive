@@ -2402,3 +2402,38 @@ html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gr
  }
  .user-create-modal-content .create-user-field .form-label{min-height:0}
 }
+
+
+/* Keep the password visibility control inside the password input row. */
+.user-create-modal-content .create-user-field .input-group{
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  align-items:stretch!important;
+  gap:0!important;
+  height:48px!important;
+  min-height:48px!important;
+}
+.user-create-modal-content .create-user-field .input-group>.form-control{
+  display:block!important;
+  flex:1 1 0%!important;
+  width:1%!important;
+  min-width:0!important;
+  height:48px!important;
+  min-height:48px!important;
+  border-radius:10px 0 0 10px!important;
+}
+.user-create-modal-content .create-user-field .input-group>.toggle-password{
+  display:inline-flex!important;
+  flex:0 0 52px!important;
+  width:52px!important;
+  min-width:52px!important;
+  max-width:52px!important;
+  height:48px!important;
+  min-height:48px!important;
+  align-self:stretch!important;
+  margin:0!important;
+  border-radius:0 10px 10px 0!important;
+}
+.user-create-modal-content .create-user-field .input-group>.toggle-password svg{
+  width:19px!important;height:19px!important;display:block!important;
+}
