@@ -59,7 +59,11 @@ class Users extends BaseController
         if (!in_array($status, ['active', 'suspended'], true) || $quotaGb < 1 || $quotaGb > 10000) {
             return redirect()->back()->with('error', 'Status atau kuota tidak valid.');
         }
-        $phone = preg_replace('/[\\s+().-]/', '', (string) $this->request->getPost('phone'));
+        // Preserve the existing WhatsApp number when an update form does not submit phone.
+        $postedPhone = $this->request->getPost('phone');
+        $phone = $postedPhone === null
+            ? (string) ($target['phone'] ?? '')
+            : preg_replace('/[\\s+().-]/', '', (string) $postedPhone);
         if ($phone !== '' && !preg_match('/^[1-9][0-9]{8,14}$/', $phone)) {
             return redirect()->back()->with('error', 'Nomor WhatsApp pengguna tidak valid. Gunakan format internasional, contoh 6281234567890.');
         }
@@ -79,7 +83,10 @@ class Users extends BaseController
             if ($activeAdmins <= 1) return redirect()->back()->with('error', 'Tidak dapat menonaktifkan administrator aktif terakhir.');
         }
 
-        $users->update($id, ['status' => $status, 'quota_bytes' => $quotaBytes, 'phone' => $phone !== '' ? $phone : null]);
+        $updateData = ['status' => $status, 'quota_bytes' => $quotaBytes];
+        // An explicitly submitted empty value clears the number; an omitted field leaves it unchanged.
+        if ($postedPhone !== null) $updateData['phone'] = $phone !== '' ? $phone : null;
+        $users->update($id, $updateData);
         $this->logAdmin('admin.user_update', 'Mengubah status/kuota pengguna #' . $id . ' menjadi ' . $status . ', kuota ' . $quotaGb . ' GB');
         return redirect()->to('/admin/users')->with('message', 'Pengaturan pengguna berhasil diperbarui.');
     }
