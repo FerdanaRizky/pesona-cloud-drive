@@ -12,7 +12,7 @@
   <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Ukuran</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
   <?php foreach ($files as $f): ?>
   <tr class="file-row">
-    <td class="trash-selection-column"><input type="checkbox" class="form-check-input trash-item-select" data-item-type="file" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><span class="trash-item-icon">▧</span><div class="min-width-0"><div class="fw-semibold text-break"><?= esc($f['original_name']) ?></div><small class="text-secondary">File</small></div></div></td>
+    <td class="trash-selection-column"><input type="checkbox" class="form-check-input trash-item-select" data-item-type="file" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><span class="trash-item-icon">▧</span><div class="min-width-0"><div class="fw-semibold text-break"><a class="text-reset text-decoration-none" href="/files/preview/<?= (int)$f['id'] ?>"><?= esc($f['original_name']) ?></a></div><small class="text-secondary">File · klik dua kali untuk membuka</small></div></div></td>
     <td class="text-nowrap"><?= number_format($f['size_bytes']/1048576,2) ?> MB</td><td class="text-nowrap"><?= esc($f['updated_at']) ?></td>
     <td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
       <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi file">⋮</button>
@@ -56,6 +56,14 @@ document.addEventListener('DOMContentLoaded',function(){
   bulkForm.classList.toggle('is-selection-active',selected.length>0);bulkForm.setAttribute('aria-hidden',selected.length?'false':'true');bulkButton.disabled=!selected.length;
   [['selectAllTrashFiles','file'],['selectAllTrashFolders','folder']].forEach(([id,type])=>{const all=[...document.querySelectorAll('.trash-item-select[data-item-type="'+type+'"]')],el=document.getElementById(id);if(el){el.checked=all.length>0&&all.every(x=>x.checked);el.indeterminate=all.some(x=>x.checked)&&!el.checked;}});
  }
+
+ const trashRoot=document.getElementById('trashViewRoot');
+ const trashIsControl=target=>!!target.closest('button,input,select,textarea,form,.dropdown-menu,[data-bs-toggle],.file-action-menu,label');
+ const trashSelectRow=row=>{const box=row?.querySelector('.trash-item-select');if(!box)return;box.checked=true;row.classList.add('is-drive-selected');box.dispatchEvent(new Event('change',{bubbles:true}));};
+ trashRoot?.addEventListener('click',event=>{const row=event.target.closest('tr.file-row');if(!row||trashIsControl(event.target))return;const link=event.target.closest('a');if(link){event.preventDefault();}trashSelectRow(row);});
+ trashRoot?.addEventListener('dblclick',event=>{const row=event.target.closest('tr.file-row');if(!row||trashIsControl(event.target))return;const link=row.querySelector('td:nth-child(2) a[href]');if(link){event.preventDefault();window.location.assign(link.href);}});
+ trashRoot?.addEventListener('change',event=>{const box=event.target.closest('.trash-item-select');if(!box)return;box.closest('tr.file-row')?.classList.toggle('is-drive-selected',box.checked);});
+
  document.querySelectorAll('.trash-item-select').forEach(el=>el.addEventListener('change',refreshTrashSelection));
  document.getElementById('selectAllTrashFiles')?.addEventListener('change',function(){document.querySelectorAll('.trash-item-select[data-item-type="file"]').forEach(x=>x.checked=this.checked);refreshTrashSelection();});
  document.getElementById('selectAllTrashFolders')?.addEventListener('change',function(){document.querySelectorAll('.trash-item-select[data-item-type="folder"]').forEach(x=>x.checked=this.checked);refreshTrashSelection();});
