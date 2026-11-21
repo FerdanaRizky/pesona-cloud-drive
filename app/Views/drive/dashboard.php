@@ -15,11 +15,32 @@ $formatActivityDate = static function ($value) {
         <a class="dashboard-info-link" href="/files" title="Kelola semua file" aria-label="Kelola semua file">ⓘ</a>
     </div>
 
-    <div class="dashboard-selection-bar" id="dashboardSelectionBar" aria-live="polite" aria-hidden="true">
-    <span class="dashboard-selection-check" aria-hidden="true">✓</span>
-    <strong id="dashboardSelectionCount">0 item dipilih</strong>
-    <button type="button" id="dashboardClearSelection" class="dashboard-selection-clear">Batal pilih</button>
-</div>
+    <form id="dashboardBulkForm" method="post" action="/files/bulk-download" class="dashboard-selection-bar" aria-hidden="true">
+        <?= csrf_field() ?><div id="dashboardBulkIds"></div>
+        <button type="button" class="dashboard-selection-clear" id="dashboardClearSelection" aria-label="Batalkan pilihan">×</button>
+        <strong id="dashboardSelectionCount">0 item dipilih</strong>
+        <div class="dashboard-selection-actions">
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="share" title="Bagikan" aria-label="Bagikan">↗</button>
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="download" title="Download" aria-label="Download">↓</button>
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="move" title="Pindahkan" aria-label="Pindahkan">▣</button>
+            <div class="dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="dashboardBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" disabled>⋮</button>
+                <div class="dropdown-menu dropdown-menu-end file-action-menu">
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="share">Bagikan</button>
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="download">Download</button>
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="move">Pindah ke folder</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="modal fade" id="dashboardFileActionModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form id="dashboardFileActionForm" method="post"><?= csrf_field() ?><div class="modal-header"><h5 class="modal-title" id="dashboardFileActionTitle">Aksi File</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body">
+        <div id="dashboardRenameField"><label class="form-label" for="dashboardActionName">Nama baru</label><input class="form-control" id="dashboardActionName" name="name" maxlength="255"></div>
+        <div id="dashboardMoveField" class="d-none"><label class="form-label" for="dashboardActionFolder">Pilih folder tujuan</label><select class="form-select" id="dashboardActionFolder" name="parent_id"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $target): ?><option value="<?= (int) $target['id'] ?>"><?= esc($target['name']) ?></option><?php endforeach ?></select></div>
+        <div id="dashboardShareField" class="d-none"><label class="form-label" for="dashboardActionExpiry">Masa berlaku tautan</label><select class="form-select" id="dashboardActionExpiry" name="expires_days"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary" id="dashboardFileActionSubmit">Simpan</button></div></form></div></div></div>
+    <div class="modal fade" id="dashboardBulkModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="dashboardBulkTitle">Aksi item terpilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body">
+        <div id="dashboardBulkShareField" class="d-none"><label class="form-label" for="dashboardBulkExpiry">Masa berlaku tautan</label><select class="form-select" id="dashboardBulkExpiry" name="expires_days" form="dashboardBulkForm"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select></div>
+        <div id="dashboardBulkMoveField" class="d-none"><label class="form-label" for="dashboardBulkFolder">Pilih folder tujuan</label><select class="form-select" id="dashboardBulkFolder" name="parent_id" form="dashboardBulkForm"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $target): ?><option value="<?= (int) $target['id'] ?>"><?= esc($target['name']) ?></option><?php endforeach ?></select></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="button" class="btn btn-primary" id="dashboardBulkConfirm">Lanjutkan</button></div></div></div></div>
 <section class="dashboard-section dashboard-folder-section">
         <div class="dashboard-section-heading">
             <h2><span aria-hidden="true">⌄</span> Folder yang disarankan</h2>
@@ -37,7 +58,7 @@ $formatActivityDate = static function ($value) {
                     <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>">⋮</button>
                     <div class="dropdown-menu dropdown-menu-end file-action-menu">
                         <a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>">Buka folder</a>
-                        <a class="dropdown-item" href="/files">Kelola di File Saya</a>
+                        <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
                     </div>
                 </div>
             </article>
@@ -102,9 +123,13 @@ $formatActivityDate = static function ($value) {
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
                                 <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                                    <a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">Preview</a>
-                                    <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">Unduh</a>
-                                    <a class="dropdown-item" href="/files">Kelola di File Saya</a>
+                                    <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">◉ Preview</a><?php endif ?>
+                                    <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">↓ Unduh</a>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>">✎ Ganti nama</button>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>">↗ Pindah folder</button>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>">♧ Bagi tautan</button>
+                                    <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
+                                    <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
                                 </div>
                             </div>
                         </td>
@@ -143,9 +168,13 @@ $formatActivityDate = static function ($value) {
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
                         <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                            <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">Preview</a><?php endif ?>
-                            <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">Unduh</a>
-                            <a class="dropdown-item" href="/files">Kelola di File Saya</a>
+                            <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">◉ Preview</a><?php endif ?>
+                            <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">↓ Unduh</a>
+                            <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>">✎ Ganti nama</button>
+                            <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>">↗ Pindah folder</button>
+                            <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>">♧ Bagi tautan</button>
+                            <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
+                            <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
                         </div>
                     </div>
                 </div>
@@ -176,37 +205,49 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!root) return;
     const buttons = root.querySelectorAll('[data-dashboard-view-button]');
     const saved = localStorage.getItem('pcd-dashboard-view') || 'grid';
-    const setView = function (view) {
+    const setView = view => {
         root.dataset.dashboardView = view;
         buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dashboardViewButton === view)));
         localStorage.setItem('pcd-dashboard-view', view);
+        refreshSelection();
     };
-    buttons.forEach(button => button.addEventListener('click', () => { setView(button.dataset.dashboardViewButton); refresh(); }));
-    setView(saved);
+    buttons.forEach(button => button.addEventListener('click', () => setView(button.dataset.dashboardViewButton)));
 
-    // Same interaction as File Saya: click selects, double-click opens.
-    const getItem = target => target.closest('[data-dashboard-selectable]');
-    const isControl = target => !!target.closest('button,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu');
-    const itemKey = item => item.dataset.itemType + ':' + item.dataset.itemId;
-    const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')].filter(item => item.getClientRects().length > 0);
-    const selected = new Set();
-    let anchor = null;
     const bar = document.getElementById('dashboardSelectionBar');
     const count = document.getElementById('dashboardSelectionCount');
     const clear = document.getElementById('dashboardClearSelection');
-    const refresh = () => {
-        getItems().forEach(item => {
+    const bulkForm = document.getElementById('dashboardBulkForm');
+    const bulkIds = document.getElementById('dashboardBulkIds');
+    const bulkMenu = document.getElementById('dashboardBulkMenu');
+    const selected = new Set();
+    let anchor = null;
+    const itemKey = item => item.dataset.itemType + ':' + item.dataset.itemId;
+    const getItem = target => target.closest('[data-dashboard-selectable]');
+    const isControl = target => !!target.closest('button,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu,a');
+    const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')].filter(item => item.getClientRects().length > 0);
+    function refreshSelection() {
+        const items = getItems();
+        items.forEach(item => {
             const active = selected.has(itemKey(item));
             item.classList.toggle('is-dashboard-selected', active);
             item.setAttribute('aria-selected', String(active));
         });
         const total = selected.size;
-        const files = [...selected].filter(key => key.startsWith('file:')).length;
-        count.textContent = total + ' item dipilih (' + files + ' file, ' + (total - files) + ' folder)';
+        const fileCount = [...selected].filter(key => key.startsWith('file:')).length;
+        const folderCount = total - fileCount;
+        count.textContent = total + ' item dipilih (' + fileCount + ' file, ' + folderCount + ' folder)';
         bar.classList.toggle('is-active', total > 0);
         bar.setAttribute('aria-hidden', String(total === 0));
-    };
-    const choose = (item, event) => {
+        bulkIds.innerHTML = '';
+        selected.forEach(key => {
+            const [type, id] = key.split(':');
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = type === 'folder' ? 'folder_ids[]' : 'file_ids[]'; input.value = id;
+            bulkIds.appendChild(input);
+        });
+        if (bulkMenu) bulkMenu.disabled = total === 0;
+    }
+    function choose(item, event) {
         const items = getItems();
         if (event.shiftKey && anchor && items.includes(anchor)) {
             if (!event.ctrlKey && !event.metaKey) selected.clear();
@@ -217,34 +258,91 @@ document.addEventListener('DOMContentLoaded', function () {
             selected.has(key) ? selected.delete(key) : selected.add(key);
             anchor = item;
         } else {
-            selected.clear();
-            selected.add(itemKey(item));
-            anchor = item;
+            selected.clear(); selected.add(itemKey(item)); anchor = item;
         }
-        refresh();
-    };
+        refreshSelection();
+    }
     root.addEventListener('click', event => {
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
-        event.preventDefault();
-        choose(item, event);
+        event.preventDefault(); choose(item, event);
     });
     root.addEventListener('dblclick', event => {
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
         const link = item.querySelector('.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-list-name[href]');
-        if (link) {
-            event.preventDefault();
-            window.location.assign(link.href);
-        }
+        if (link) { event.preventDefault(); window.location.assign(link.href); }
     });
     root.addEventListener('keydown', event => {
         if ((event.key === 'Enter' || event.key === ' ') && getItem(event.target) && !isControl(event.target)) {
-            event.preventDefault();
-            choose(getItem(event.target), event);
+            event.preventDefault(); choose(getItem(event.target), event);
         }
     });
-    clear?.addEventListener('click', () => { selected.clear(); anchor = null; refresh(); });
+    clear?.addEventListener('click', () => { selected.clear(); anchor = null; refreshSelection(); });
+
+    const actionModal = document.getElementById('dashboardFileActionModal');
+    const actionForm = document.getElementById('dashboardFileActionForm');
+    const actionTitle = document.getElementById('dashboardFileActionTitle');
+    const actionSubmit = document.getElementById('dashboardFileActionSubmit');
+    const renameField = document.getElementById('dashboardRenameField');
+    const moveField = document.getElementById('dashboardMoveField');
+    const shareField = document.getElementById('dashboardShareField');
+    root.addEventListener('click', event => {
+        const button = event.target.closest('[data-dashboard-action]');
+        if (!button) return;
+        event.preventDefault();
+        const kind = button.dataset.dashboardAction;
+        actionForm.action = button.dataset.url;
+        renameField.classList.toggle('d-none', kind !== 'rename');
+        moveField.classList.toggle('d-none', kind !== 'move');
+        shareField.classList.toggle('d-none', kind !== 'share');
+        if (kind === 'rename') {
+            actionTitle.textContent = 'Ganti Nama'; actionSubmit.textContent = 'Simpan';
+            const input = document.getElementById('dashboardActionName');
+            input.value = button.dataset.name || ''; input.maxLength = Number(button.dataset.maxlength || 255);
+        } else if (kind === 'move') {
+            actionTitle.textContent = 'Pindah Folder'; actionSubmit.textContent = 'Pindahkan';
+        } else {
+            actionTitle.textContent = 'Bagi Tautan'; actionSubmit.textContent = 'Buat Tautan';
+        }
+        bootstrap.Modal.getOrCreateInstance(actionModal).show();
+    });
+
+    const bulkModal = document.getElementById('dashboardBulkModal');
+    const bulkTitle = document.getElementById('dashboardBulkTitle');
+    const bulkShare = document.getElementById('dashboardBulkShareField');
+    const bulkMove = document.getElementById('dashboardBulkMoveField');
+    const bulkConfirm = document.getElementById('dashboardBulkConfirm');
+    let pendingBulk = '';
+    function runBulk(action) {
+        if (!selected.size) return;
+        const files = [...selected].filter(key => key.startsWith('file:'));
+        if (action === 'share' || action === 'move') {
+            if (!files.length) { alert(action === 'share' ? 'Pilih minimal satu file untuk dibagikan.' : 'Pilih minimal satu file untuk dipindahkan.'); return; }
+            pendingBulk = action;
+            bulkShare.classList.toggle('d-none', action !== 'share');
+            bulkMove.classList.toggle('d-none', action !== 'move');
+            bulkTitle.textContent = action === 'share' ? 'Bagikan file terpilih' : 'Pindahkan file terpilih';
+            bulkConfirm.textContent = action === 'share' ? 'Buat tautan' : 'Pindahkan file';
+            bootstrap.Modal.getOrCreateInstance(bulkModal, {backdrop:true, keyboard:true, focus:true}).show();
+            return;
+        }
+        if (action === 'download') {
+            if (!files.length) { alert('Pilih minimal satu file untuk diunduh.'); return; }
+            if (!confirm('Unduh file yang dipilih? Folder yang dipilih akan dilewati.')) return;
+            bulkForm.action = '/files/bulk-download'; bulkForm.requestSubmit();
+        }
+    }
+    document.querySelectorAll('[data-dashboard-bulk]').forEach(button => button.addEventListener('click', event => {
+        event.preventDefault(); event.stopPropagation(); runBulk(button.dataset.dashboardBulk);
+    }));
+    bulkConfirm.addEventListener('click', () => {
+        if (!pendingBulk) return;
+        bulkForm.action = pendingBulk === 'share' ? '/files/bulk-share' : '/files/bulk-move';
+        bulkForm.requestSubmit();
+    });
+    bulkModal.addEventListener('hidden.bs.modal', () => { pendingBulk = ''; document.body.classList.remove('modal-open'); });
+    setView(saved);
 });
 </script>
 <?= $this->endSection() ?>
