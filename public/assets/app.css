@@ -1470,3 +1470,115 @@ html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-
  #driveViewRoot[data-drive-view="grid"] .drive-file-name{font-size:.73rem!important}
  #driveViewRoot[data-drive-view="grid"] .drive-file-visual{aspect-ratio:1/1!important}
 }
+
+
+/* ===== Google Drive-style detailed list view ===== */
+#driveViewRoot[data-drive-view="list"] .drive-files-card{
+ padding:0!important;overflow:hidden!important;background:transparent!important;
+ border:1px solid var(--pcd-line)!important;border-radius:16px!important;
+ box-shadow:0 7px 26px rgba(0,0,0,.045)!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card>.d-flex{
+ min-height:62px;padding:15px 20px!important;margin:0!important;
+ border-bottom:1px solid var(--pcd-line)!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card>.table-responsive{
+ overflow-x:auto!important;border-radius:0 0 16px 16px
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card table{
+ width:100%;min-width:760px!important;table-layout:auto!important;margin:0!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card thead th{
+ padding:13px 14px!important;border-bottom:1px solid rgba(148,169,199,.24)!important;
+ color:#9eacc1!important;font-size:.72rem!important;font-weight:750!important;
+ letter-spacing:.045em!important;text-transform:uppercase!important;white-space:nowrap!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card thead th:first-child,
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:first-child{
+ width:48px!important;padding-left:20px!important;padding-right:5px!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row{
+ background:transparent!important;transition:background .14s ease!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row:hover{
+ background:rgba(91,141,239,.075)!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td{
+ padding:11px 14px!important;border-bottom:1px solid rgba(148,169,199,.16)!important;
+ vertical-align:middle!important;font-size:.86rem!important;white-space:nowrap
+}
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row:last-child>td{border-bottom:0!important}
+#driveViewRoot[data-drive-view="list"] .drive-file-cell{
+ display:flex!important;align-items:center!important;flex-direction:row!important;
+ gap:13px!important;min-width:230px!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-file-visual{
+ width:34px!important;height:38px!important;flex:0 0 34px!important;
+ border-radius:7px!important;overflow:hidden!important
+}
+#driveViewRoot[data-drive-view="list"] .drive-file-visual .drive-file-type-art svg{width:23px!important;height:23px!important}
+#driveViewRoot[data-drive-view="list"] .drive-file-visual .drive-file-type-art span{font-size:.48rem!important}
+#driveViewRoot[data-drive-view="list"] .drive-file-preview-link img{object-fit:cover!important}
+#driveViewRoot[data-drive-view="list"] .drive-file-meta{min-width:0!important;max-width:440px}
+#driveViewRoot[data-drive-view="list"] .drive-file-name{
+ font-size:.88rem!important;font-weight:560!important;line-height:1.35!important;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#driveViewRoot[data-drive-view="list"] .drive-file-mime{
+ display:block!important;font-size:.69rem!important;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;max-width:420px
+}
+#driveViewRoot[data-drive-view="list"] .folder-list-cell{gap:13px!important}
+#driveViewRoot[data-drive-view="list"] .folder-list-icon{
+ display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+ flex:0 0 34px;border-radius:8px;background:rgba(148,169,199,.09);font-size:21px
+}
+#driveViewRoot[data-drive-view="list"] .folder-list-row .drive-file-mime{display:none!important}
+#driveViewRoot[data-drive-view="list"] .drive-owner-label,
+#driveViewRoot[data-drive-view="list"] .drive-date-label,
+#driveViewRoot[data-drive-view="list"] .drive-size-label{
+ color:var(--pcd-muted);font-size:.82rem
+}
+#driveViewRoot[data-drive-view="list"] .drive-size-label{font-variant-numeric:tabular-nums}
+#driveViewRoot[data-drive-view="list"] .file-actions-dropdown .action-menu-trigger,
+#driveViewRoot[data-drive-view="list"] .folder-actions .action-menu-trigger{
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ min-width:34px!important;min-height:34px!important
+}
+#driveViewRoot[data-drive-view="list"] .file-actions-dropdown .action-menu-trigger:hover,
+#driveViewRoot[data-drive-view="list"] .folder-actions .action-menu-trigger:hover{
+ background:rgba(148,169,199,.12)!important
+}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-files-card{
+ background:#fff!important;border-color:#e2e8f1!important
+}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-files-card thead th{color:#66758a!important;border-color:#e5eaf1!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td{border-color:#e9edf3!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row:hover{background:#f5f8fd!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .folder-list-icon{background:#edf2f8}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-owner-label,
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-date-label,
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-size-label{color:#63738b}
+@media(max-width:767px){
+ #driveViewRoot[data-drive-view="list"] .drive-files-card table{min-width:0!important;table-layout:fixed!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th,
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row>td{padding:10px 7px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th:first-child,
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:first-child{width:34px!important;padding-left:10px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:nth-child(3),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th:nth-child(4),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:nth-child(4){display:none!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th:nth-child(5),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:nth-child(5){width:76px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-files-card thead th:nth-child(6),
+ #driveViewRoot[data-drive-view="list"] .drive-files-card tbody td:nth-child(6){width:40px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-cell{min-width:0!important;gap:8px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-visual,
+ #driveViewRoot[data-drive-view="list"] .folder-list-icon{width:30px!important;height:32px!important;flex-basis:30px!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-name{font-size:.76rem!important}
+ #driveViewRoot[data-drive-view="list"] .drive-file-mime{font-size:.61rem!important}
+ #driveViewRoot[data-drive-view="list"] .drive-owner-label,
+ #driveViewRoot[data-drive-view="list"] .drive-date-label,
+ #driveViewRoot[data-drive-view="list"] .drive-size-label{font-size:.68rem}
+}
