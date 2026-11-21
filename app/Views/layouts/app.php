@@ -8,23 +8,25 @@
 </head>
 <body>
 <div class="app-shell">
-<aside class="sidebar">
+<?php $currentPath = trim(service('uri')->getPath(), '/'); ?>
+<aside class="sidebar" id="appSidebar">
 <a class="brand" href="/dashboard"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></a>
 <nav class="nav flex-column mt-4">
-<a class="nav-link" href="/dashboard">⌂ Dashboard</a>
-<a class="nav-link" href="/files">▤ File Saya</a>
-<a class="nav-link" href="/trash">♲ Sampah</a>
-<a class="nav-link" href="/shares">⛓ Link Berbagi</a>
-<a class="nav-link" href="/activity">◷ Riwayat Aktivitas</a>
+<a class="nav-link <?= $currentPath === 'dashboard' ? 'active' : '' ?>" href="/dashboard">⌂ <span>Dashboard</span></a>
+<a class="nav-link <?= in_array($currentPath, ['files', 'files/search'], true) ? 'active' : '' ?>" href="/files">▤ <span>File Saya</span></a>
+<a class="nav-link <?= str_starts_with($currentPath, 'trash') ? 'active' : '' ?>" href="/trash">♲ <span>Sampah</span></a>
+<a class="nav-link <?= str_starts_with($currentPath, 'shares') ? 'active' : '' ?>" href="/shares">⛓ <span>Link Berbagi</span></a>
+<a class="nav-link <?= str_starts_with($currentPath, 'activity') ? 'active' : '' ?>" href="/activity">◷ <span>Riwayat Aktivitas</span></a>
 <?php if (session()->get('role') === 'admin'): ?>
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
-<a class="nav-link" href="/admin/users">♙ Manajemen Pengguna</a>
+<a class="nav-link <?= str_starts_with($currentPath, 'admin/users') ? 'active' : '' ?>" href="/admin/users">♙ <span>Manajemen Pengguna</span></a>
 <?php endif ?>
 </nav>
 </aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main-content">
 <header class="topbar">
-<button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
+<button class="btn btn-sm btn-outline-secondary d-lg-none sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="appSidebar">☰</button>
 <span class="text-secondary topbar-caption">Personal cloud workspace</span>
 <div class="topbar-actions ms-auto">
 <button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Klik untuk mengganti tema"><span class="theme-toggle-icon" aria-hidden="true">◐</span><span class="theme-toggle-caption">Tema: <strong id="themeModeLabel">Dark</strong></span></button>
