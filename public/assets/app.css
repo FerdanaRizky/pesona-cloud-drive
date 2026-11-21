@@ -2796,3 +2796,18 @@ html[data-bs-theme="light"] #userCardsGrid .user-action-disclosure[open]>summary
 @media(max-width:420px){
  #userCardsGrid .user-action-disclosure .user-role-form-actions{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Keep role selector collapsed until the user explicitly opens "Ubah peran".
+   Explicitly override the role form's grid display while its details panel is closed. */
+#userCardsGrid details.user-role-disclosure:not([open])> :not(summary){display:none!important}
+#userCardsGrid details.user-role-disclosure:not([open])>summary{border-bottom:0}
+#userCardsGrid details.user-role-disclosure[open]>.user-role-form{display:grid}
+#userCardsGrid details.user-role-disclosure[open] .user-role-form-actions select{
+ appearance:auto;
+ cursor:pointer;
+}
+#userCardsGrid details.user-role-disclosure[open] .user-role-form-actions select:focus{
+ border-color:#4388ff;
+ box-shadow:0 0 0 .2rem rgba(67,136,255,.16);
+}
