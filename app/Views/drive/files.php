@@ -20,11 +20,11 @@ function refreshSelection(){
  if(menuTrigger)menuTrigger.disabled=!selected.length;
  const selectionBar=document.querySelector(".bulk-selection-bar");
  if(selectionBar){selectionBar.classList.toggle("is-selection-active",selected.length>0);selectionBar.setAttribute("aria-hidden",selected.length===0?"true":"false");}
- if(selectAll){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="file"]')];selectAll.checked=all.length>0&&all.every(x=>x.checked);selectAll.indeterminate=all.some(x=>x.checked)&&!selectAll.checked;}
+ if(selectAll){const all=[...document.querySelectorAll('.drive-item-select')];selectAll.checked=all.length>0&&all.every(x=>x.checked);selectAll.indeterminate=all.some(x=>x.checked)&&!selectAll.checked;}
  if(selectAllFolders){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="folder"]')];selectAllFolders.checked=all.length>0&&all.every(x=>x.checked);selectAllFolders.indeterminate=all.some(x=>x.checked)&&!selectAllFolders.checked;}
 }
 document.querySelectorAll('.drive-item-select').forEach(box=>box.addEventListener('change',refreshSelection));
-selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="file"]').forEach(box=>box.checked=selectAll.checked);refreshSelection();});
+selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=selectAll.checked);refreshSelection();});
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
 document.getElementById('clearDriveSelection')?.addEventListener('click',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=false);refreshSelection();});
 const bulkModal=document.getElementById('bulkActionModal');
