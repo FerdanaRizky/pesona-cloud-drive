@@ -98,14 +98,13 @@ document.addEventListener('DOMContentLoaded',function(){
           </div>
         </form>
       </details>
-      <details class="user-action-disclosure user-status-disclosure">
-        <summary><span><strong>Ubah status</strong><small>Status saat ini: <?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary>
-        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-edit-form" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+      <div class="user-status-inline">
+        <div class="user-status-inline-copy"><strong>Ubah status</strong><small>Status saat ini: <?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></small></div>
+        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-edit-form user-status-inline-form" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
           <?= csrf_field() ?>
-          <p class="small text-secondary mb-2"><?= $u['status']==='active'?'Pengguna ini saat ini dapat masuk dan menggunakan Drive.':'Pengguna ini sedang tidak dapat mengakses Drive.' ?></p>
           <button class="btn btn-sm <?= $u['status']==='active'?'btn-outline-warning':'btn-outline-success' ?>" type="submit"><?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?></button>
         </form>
-      </details>
+      </div>
       <?php else: ?><div class="user-role-self-note small text-secondary">Peran akun Anda: <strong>Superadmin</strong>. Perubahan peran dan status akun sendiri dinonaktifkan.</div><?php endif ?>
       <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
         <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
