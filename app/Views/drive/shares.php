@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded',function(){
  update.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;form.action='/shares/bulk-update';form.submit()});
 
  document.getElementById('clearShareSelection')?.addEventListener('click',()=>{boxes().forEach(x=>x.checked=false);refresh();});
- document.getElementById('shareUpdateIcon')?.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;document.getElementById('bulkShareExpiry').focus();});
+ document.getElementById('shareUpdateIcon')?.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;form.action='/shares/bulk-update';form.submit();});
  document.getElementById('shareRevokeIcon')?.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;if(!confirm('Cabut semua link yang dipilih? Tautan tidak dapat digunakan lagi.'))return;form.action='/shares/bulk-revoke';form.submit();});
 
  revoke.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;if(!confirm('Cabut semua link yang dipilih? Tautan tidak dapat digunakan lagi.'))return;form.action='/shares/bulk-revoke';form.submit()});
