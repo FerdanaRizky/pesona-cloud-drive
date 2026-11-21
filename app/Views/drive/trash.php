@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
  const trashRoot=document.getElementById('trashViewRoot');
  const trashIsControl=target=>!!target.closest('button,input,select,textarea,form,.dropdown-menu,[data-bs-toggle],.file-action-menu,label');
- const trashSelectRow=(row,event)=>{const box=row?.querySelector('.trash-item-select');if(!box)return;const all=[...trashRoot.querySelectorAll('.trash-item-select')];if(event?.ctrlKey||event?.metaKey){box.checked=!box.checked;}else{all.forEach(item=>item.checked=item===box);}all.forEach(item=>item.dispatchEvent(new Event('change',{bubbles:true}));};
+ const trashSelectRow=(row,event)=>{const box=row?.querySelector('.trash-item-select');if(!box)return;const all=[...trashRoot.querySelectorAll('.trash-item-select')];if(event?.ctrlKey||event?.metaKey){box.checked=!box.checked;}else{all.forEach(item=>item.checked=item===box);}all.forEach(item=>item.dispatchEvent(new Event('change',{bubbles:true})));};
  trashRoot?.addEventListener('click',event=>{const row=event.target.closest('tr.file-row');if(!row||trashIsControl(event.target))return;const link=event.target.closest('a');if(link)event.preventDefault();trashSelectRow(row,event);});
  trashRoot?.addEventListener('dblclick',event=>{const row=event.target.closest('tr.file-row');if(!row||trashIsControl(event.target))return;const link=row.querySelector('td:nth-child(2) a[href]');if(link){event.preventDefault();window.location.assign(link.href);}});
  trashRoot?.addEventListener('change',event=>{const box=event.target.closest('.trash-item-select');if(!box)return;box.closest('tr.file-row')?.classList.toggle('is-drive-selected',box.checked);});
