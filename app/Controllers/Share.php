@@ -54,43 +54,31 @@ class Share extends BaseController
     public function restore(int $id)
     {
         $uid = (int) session()->get('user_id');
-        $db = db_connect();
-        $share = $db->table('file_shares s')
-            ->select('s.id, s.token_ciphertext, f.id AS file_id, f.original_name, f.is_trashed')
+        $share = db_connect()->table('file_shares s')
+            ->select('s.id, s.token_ciphertext, f.is_trashed')
             ->join('drive_files f', 'f.id = s.file_id')
             ->where('s.id', $id)->where('s.owner_id', $uid)->get()->getRowArray();
+
         if (!$share || (int) $share['is_trashed'] === 1) {
             return redirect()->to('/shares')->with('error', 'Link berbagi tidak ditemukan atau file sudah di Sampah.');
         }
-        // If a saved encrypted token exists, decrypt and show that exact URL again.
-        // Previously this branch only returned an informational message, leaving the URL hidden.
-        if (!empty($share['token_ciphertext'])) {
-            try {
-                $savedToken = service('encrypter')->decrypt($share['token_ciphertext']);
-                if (is_string($savedToken) && preg_match('/^[a-f0-9]{64}$/', $savedToken)) {
-                    return redirect()->to('/shares')
-                        ->with('share_link', site_url('s/' . $savedToken))
-                        ->with('share_id', $id)
-                        ->with('message', 'Link berbagi berhasil ditampilkan kembali.');
-                }
-            } catch (\Throwable $e) {
-                // If legacy ciphertext cannot be decrypted (for example, after an app-key change),
-                // rotate it below and persist a fresh encrypted token.
-            }
+
+        if (empty($share['token_ciphertext'])) {
+            return redirect()->to('/shares')->with('error', 'URL tautan ini belum tersimpan. Tautan lama tidak dapat dipulihkan; buat tautan baru dari menu File Saya.');
         }
 
-        // Legacy rows stored only a hash, or ciphertext that can no longer be decrypted.
-        // The old URL cannot be reconstructed; issue a replacement and save it securely.
-        $token = bin2hex(random_bytes(32));
-        $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->update([
-            'token_hash' => hash('sha256', $token),
-            'token_ciphertext' => service('encrypter')->encrypt($token),
-        ]);
-        $this->log($uid, 'file.share_restore', 'Membuat ulang URL tautan berbagi: ' . $share['original_name']);
+        try {
+            $token = service('encrypter')->decrypt($share['token_ciphertext']);
+            if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+                throw new \\RuntimeException('Invalid saved share token.');
+            }
+        } catch (\\Throwable $e) {
+            return redirect()->to('/shares')->with('error', 'URL tautan tidak dapat dibaca. Periksa konfigurasi encryption key aplikasi.');
+        }
+
         return redirect()->to('/shares')
-            ->with('share_link', site_url('s/' . $token))
             ->with('share_id', $id)
-            ->with('message', 'URL pengganti berhasil dibuat dan disimpan.');
+            ->with('message', 'Link berbagi ditampilkan pada baris file.');
     }
 
     public function revokeOne(int $id)
@@ -156,7 +144,7 @@ class Share extends BaseController
             'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
         ]);
         $this->log($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
-        return redirect()->to('/shares')->with('share_link', site_url('s/' . $token))->with('message', 'Tautan berbagi berhasil dibuat.');
+        return redirect()->to('/shares')->with('share_id', (int) db_connect()->insertID())->with('message', 'Tautan berbagi berhasil dibuat.');
     }
 
     public function revoke(int $id)
