@@ -18,28 +18,33 @@
 <?php foreach ($shares as $share): ?><tr class="share-row"><td class="share-select-column"><input type="checkbox" class="form-check-input share-row-select" value="<?= (int)$share['share_id'] ?>" aria-label="Pilih link <?= esc($share['original_name'], 'attr') ?>"></td><td><div class="share-file-name"><span class="share-file-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg></span><span class="fw-semibold"><?= esc($share['original_name']) ?></span></div><div class="share-link-panel mt-2" id="shareLinkPanel<?= (int)$share['share_id'] ?>" hidden><?php $rowShareUrl = !empty($share['share_url']) ? $share['share_url'] : (($generatedShareId === (int)$share['share_id'] && is_string($generatedShareLink)) ? $generatedShareLink : null); ?><?php if ($rowShareUrl): ?><div class="input-group input-group-sm"><input class="form-control" readonly value="<?= esc($rowShareUrl) ?>"><button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(this.previousElementSibling.value).then(()=>this.textContent='Tersalin')">Salin</button></div><?php else: ?><small class="text-warning">URL lama tidak tersimpan. Untuk file ini, buat tautan baru dari menu File Saya agar URL dapat disimpan dan ditampilkan.</small><?php endif ?></div><small class="text-secondary d-block mt-1"><?= esc($share['mime_type']) ?> · <?= number_format($share['size_bytes']/1048576,2) ?> MB</small></td><td class="text-nowrap"><?= esc($share['created_at']) ?></td><td><?= $share['expires_at'] ? esc($share['expires_at']) : 'Tidak kedaluwarsa' ?></td><td><?php if ($share['expired']): ?><span class="badge text-bg-secondary">Kedaluwarsa</span><?php else: ?><span class="badge text-bg-success">Aktif</span><?php endif ?></td><td class="text-end"><div class="dropdown share-actions-dropdown"><button class="btn btn-outline-secondary share-actions-trigger" id="shareActionsTrigger<?= (int)$share['share_id'] ?>" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi link berbagi" title="Aksi lainnya"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button><ul class="dropdown-menu dropdown-menu-end share-actions-menu" data-owner-trigger="shareActionsTrigger<?= (int)$share['share_id'] ?>"><li><?php if (!empty($share['share_url']) || $generatedShareId === (int)$share['share_id']): ?><button class="dropdown-item" type="button" data-toggle-share-link="#shareLinkPanel<?= (int)$share['share_id'] ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3A5 5 0 0 0 13 2.93l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3A5 5 0 0 0 11 21.07l1.72-1.72"/></svg><span>Tampilkan link kembali</span></button><?php else: ?><button class="dropdown-item" type="button" disabled title="URL lama tidak tersimpan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3A5 5 0 0 0 13 2.93l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3A5 5 0 0 0 11 21.07l1.72-1.72"/></svg><span>Link tidak tersedia</span></button><?php endif ?></li><li><button class="dropdown-item" type="button" data-bs-toggle="collapse" data-bs-target="#shareExpiry<?= (int)$share['share_id'] ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Perbarui masa berlaku</span></button></li><li><hr class="dropdown-divider"></li><li><form method="post" action="/shares/revoke/<?= (int)$share['share_id'] ?>" onsubmit="return confirm('Cabut link ini? Tautan tidak dapat digunakan lagi.')"><?= csrf_field() ?><button class="dropdown-item text-danger" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v5m4-5v5"/></svg><span>Cabut link</span></button></form></li></ul></div><div class="collapse share-expiry-panel mt-2" id="shareExpiry<?= (int)$share['share_id'] ?>"><form method="post" action="/shares/update/<?= (int)$share['share_id'] ?>" class="d-flex gap-1"><?= csrf_field() ?><select name="expires_days" class="form-select form-select-sm" aria-label="Ubah masa berlaku"><option value="1" <?= $share['expiry_option']==='1'?'selected':'' ?>>1 hari</option><option value="7" <?= $share['expiry_option']==='7'?'selected':'' ?>>7 hari</option><option value="30" <?= $share['expiry_option']==='30'?'selected':'' ?>>30 hari</option><option value="never" <?= $share['expiry_option']==='never'?'selected':'' ?>>Selamanya</option></select><button class="btn btn-sm btn-primary share-expiry-save"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Simpan</button></form></div></td></tr><?php endforeach ?>
 <?php if (!$shares): ?><tr><td colspan="6" class="text-center text-secondary py-5">Belum ada link berbagi. Buat dari menu aksi pada file.</td></tr><?php endif ?></tbody></table></div></div>
 <script>
-// URL visibility is maintained per share row. Opening/toggling one row never closes another.
+// Keep only one share URL expanded at a time, while remembering the last opened row.
 (function(){
  const storageKey='pesona-cloud-open-share-panels';
- function readOpenPanels(){
-  try { const value=JSON.parse(sessionStorage.getItem(storageKey)||'[]'); return new Set(Array.isArray(value)?value.map(String):[]); }
-  catch(e){ return new Set(); }
+ function readOpenPanel(){
+  try {
+   const value=JSON.parse(sessionStorage.getItem(storageKey)||'[]');
+   return Array.isArray(value)&&value.length ? String(value[value.length-1]) : '';
+  } catch(e){ return ''; }
  }
- function saveOpenPanels(openPanels){
-  try { sessionStorage.setItem(storageKey,JSON.stringify(Array.from(openPanels))); } catch(e) {}
+ function saveOpenPanel(panelId){
+  try { sessionStorage.setItem(storageKey,JSON.stringify(panelId?[panelId]:[])); } catch(e) {}
+ }
+ function setPanelState(panel,open){
+  panel.hidden=!open;
+  const button=document.querySelector('[data-toggle-share-link="#'+panel.id+'"]');
+  if(button){
+   button.setAttribute('aria-expanded',open?'true':'false');
+   const label=button.querySelector('span');
+   if(label)label.textContent=open?'Sembunyikan link':'Tampilkan link kembali';
+  }
  }
  document.addEventListener('DOMContentLoaded',function(){
-  const openPanels=readOpenPanels();
+  const remembered=readOpenPanel();
   document.querySelectorAll('.share-link-panel[id]').forEach(function(panel){
-   const isOpen=openPanels.has(panel.id);
-   panel.hidden=!isOpen;
-   const button=document.querySelector('[data-toggle-share-link="#'+panel.id+'"]');
-   if(button){
-    button.setAttribute('aria-expanded',isOpen?'true':'false');
-    const label=button.querySelector('span');
-    if(label)label.textContent=isOpen?'Sembunyikan link':'Tampilkan link kembali';
-   }
+   setPanelState(panel,panel.id===remembered);
   });
+  saveOpenPanel(remembered);
  });
  document.addEventListener('click',function(event){
   const button=event.target.closest('[data-toggle-share-link]');
@@ -49,14 +54,11 @@
   const panel=selector ? document.querySelector(selector) : null;
   if(!panel)return;
   const willShow=panel.hidden;
-  panel.hidden=!willShow;
-  button.setAttribute('aria-expanded',willShow?'true':'false');
-  const label=button.querySelector('span');
-  if(label)label.textContent=willShow?'Sembunyikan link':'Tampilkan link kembali';
-  const openPanels=readOpenPanels();
-  if(willShow)openPanels.add(panel.id); else openPanels.delete(panel.id);
-  saveOpenPanels(openPanels);
-  // Hide only this row's three-dot menu; other rows' open URLs remain untouched.
+  // Close every other row before opening the requested URL.
+  document.querySelectorAll('.share-link-panel[id]').forEach(function(other){
+   setPanelState(other,willShow && other.id===panel.id);
+  });
+  saveOpenPanel(willShow?panel.id:'');
   const menu=button.closest('.share-actions-menu');
   if(menu){
    const triggerId=menu.getAttribute('data-owner-trigger');
