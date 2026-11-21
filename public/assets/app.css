@@ -2985,3 +2985,9 @@ body.login-page{
 @media(prefers-reduced-motion:reduce){
  .login-page *{scroll-behavior:auto!important;transition:none!important}
 }
+
+
+/* Login showcase copyright notice */
+.login-showcase-footer-wrap{display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.login-copyright{color:#7186a5;font-size:.68rem;line-height:1.45;letter-spacing:.015em}
+@media(max-width:850px){.login-showcase-footer-wrap{display:none}}
