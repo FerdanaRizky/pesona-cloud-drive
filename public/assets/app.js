@@ -18,7 +18,7 @@ if(driveRoot){
   if(!checkbox)return;
   const all=[...driveRoot.querySelectorAll('.drive-item-select')];
   const index=all.indexOf(checkbox);
-  if(event?.shiftKey&&driveSelectionAnchor){
+  if(event?.shiftKey&&driveSelectionAnchor?.checked){
    const anchor=all.indexOf(driveSelectionAnchor);
    if(anchor>=0){
     if(!event.ctrlKey&&!event.metaKey)all.forEach(box=>box.checked=false);
