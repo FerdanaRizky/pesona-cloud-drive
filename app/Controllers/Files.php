@@ -117,6 +117,7 @@ class Files extends BaseController
         $uid = (int) session()->get('user_id');
         $folderId = (int) $this->request->getPost('parent_id');
         if ($folderId > 0 && !(new DriveFolderModel())->where('id', $folderId)->where('user_id', $uid)->where('is_trashed', 0)->first()) {
+            if ($this->request->isAJAX()) return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => 'Folder tujuan tidak valid.', 'csrf' => ['name' => csrf_token(), 'hash' => csrf_hash()]]);
             return redirect()->back()->with('error', 'Folder tujuan tidak valid.');
         }
 
@@ -125,11 +126,16 @@ class Files extends BaseController
             $single = $this->request->getFile('file');
             $uploads = $single ? [$single] : [];
         }
-        if (!$uploads) return redirect()->back()->with('error', 'Pilih minimal satu file.');
+        if (!$uploads) {
+            $message = 'File tidak diterima server. Periksa batas upload PHP/Nginx (upload_max_filesize, post_max_size, client_max_body_size) dan coba lagi.';
+            if ($this->request->isAJAX()) return $this->response->setStatusCode(422)->setJSON(['success' => false, 'message' => $message, 'csrf' => ['name' => csrf_token(), 'hash' => csrf_hash()]]);
+            return redirect()->back()->with('error', $message);
+        }
 
         $root = rtrim((string) env('storage.privatePath', WRITEPATH . 'private'), '/');
         $dir = $root . '/' . $uid . '/' . date('Y/m');
         if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
+            if ($this->request->isAJAX()) return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Direktori penyimpanan tidak dapat dibuat.', 'csrf' => ['name' => csrf_token(), 'hash' => csrf_hash()]]);
             return redirect()->back()->with('error', 'Direktori penyimpanan tidak dapat dibuat.');
         }
 
@@ -178,6 +184,18 @@ class Files extends BaseController
         }
 
         $target = $folderId > 0 ? '/files?folder=' . $folderId : '/files';
+        if ($this->request->isAJAX()) {
+            $ok = $success > 0 && !$errors;
+            return $this->response->setStatusCode($ok ? 200 : 422)->setJSON([
+                'success' => $ok,
+                'uploaded' => $success,
+                'errors' => $errors,
+                'message' => $ok
+                    ? $success . ' file berhasil diunggah.'
+                    : (implode(' ', $errors) ?: 'Tidak ada file yang berhasil diunggah.'),
+                'csrf' => ['name' => csrf_token(), 'hash' => csrf_hash()],
+            ]);
+        }
         if ($success > 0 && !$errors) return redirect()->to($target)->with('message', $success . ' file berhasil diunggah.');
         if ($success > 0) return redirect()->to($target)->with('error', $success . ' file berhasil diunggah. ' . implode(' ', $errors));
         return redirect()->to($target)->with('error', implode(' ', $errors) ?: 'Tidak ada file yang berhasil diunggah.');
