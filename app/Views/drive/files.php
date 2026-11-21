@@ -172,7 +172,7 @@ $previewUrl = '/files/preview/' . (int) $f['id'];
 <small class="text-secondary drive-file-mime"><?= esc($f['mime_type']) ?></small>
 </div>
 </div>
-</td><td>?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
+</td><td><?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
 <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan aksi file">⋮</button>
 <div class="dropdown-menu dropdown-menu-end file-action-menu">
 <?php if (in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf','video/mp4','video/webm','video/ogg'], true)): ?><a class="dropdown-item" href="/files/preview/<?= (int) $f['id'] ?>">◉ Preview</a><?php endif ?>
