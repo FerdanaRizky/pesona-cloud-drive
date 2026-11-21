@@ -146,7 +146,22 @@ Setelah installer selesai:
 5. Aktifkan SSL Let's Encrypt untuk domain dan pastikan website dapat dibuka melalui HTTPS.
 6. Pastikan direktori `writable` dan private storage dapat ditulis oleh user PHP/web server. Installer mencoba mengatur kepemilikan ke user `www` atau `www-data`; sesuaikan jika instalasi aaPanel menggunakan user lain.
 
-### 6. Jalankan database migration dan buat admin pertama
+### 6. Perbaiki URL Rewrite Nginx
+
+Buka aaPanel:
+1. Website.
+2. Pilih cloud.pesonawifi.my.id.
+3. Klik Config.
+4. Cari blok location /.
+5. Pastikan isinya seperti berikut.
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+
+
+Jika sudah ada location /, cukup ganti isinya. Jangan membuat blok duplikat.
+
+### 7. Jalankan database migration dan buat admin pertama
 Installer menyiapkan file aplikasi dan `.env`, tetapi database migration dijalankan setelah database tersedia. Melalui SSH:
 
 ```bash
