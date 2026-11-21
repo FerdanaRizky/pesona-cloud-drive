@@ -106,31 +106,43 @@ function submitBulkAction(action){
  if(typeof selectionForm.requestSubmit==='function')selectionForm.requestSubmit();
  else HTMLFormElement.prototype.submit.call(selectionForm);
 }
-document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventListener('click',function(event){
- event.preventDefault();event.stopPropagation();
- const action=this.dataset.bulkAction,selected=checkedBulkItems();
- if(!selected.length){alert('Pilih file atau folder terlebih dahulu.');return;}
+// Delegated handler: keeps bulk actions working even if the toolbar is re-rendered or its menu is moved.
+document.addEventListener('click',function(event){
+ const button=event.target.closest('[data-bulk-action]');
+ if(!button)return;
+ event.preventDefault();
+ event.stopPropagation();
+ const action=button.dataset.bulkAction;
+ const selected=checkedBulkItems();
+ if(!selected.length){window.alert('Pilih file atau folder terlebih dahulu.');return;}
  const files=selected.filter(box=>box.dataset.itemType==='file');
- if((action==='share'||action==='move')&&!files.length){alert('Pilih minimal satu file untuk '+(action==='share'?'dibagikan.':'dipindahkan.'));return;}
+ if((action==='share'||action==='move')&&!files.length){window.alert('Pilih minimal satu file untuk '+(action==='share'?'dibagikan.':'dipindahkan.'));return;}
  if(action==='share'||action==='move'){
-  document.getElementById('bulkShareField').classList.toggle('d-none',action!=='share');
-  document.getElementById('bulkMoveField').classList.toggle('d-none',action!=='move');
-  document.getElementById('bulkActionModalTitle').textContent=action==='share'?'Bagikan file terpilih':'Pindahkan file terpilih';
-  document.getElementById('bulkActionConfirm').textContent=action==='share'?'Buat tautan':'Pindahkan file';
+  const shareField=document.getElementById('bulkShareField');
+  const moveField=document.getElementById('bulkMoveField');
+  const title=document.getElementById('bulkActionModalTitle');
+  const confirmButton=document.getElementById('bulkActionConfirm');
+  if(!bulkModal||!shareField||!moveField||!title||!confirmButton){window.alert('Dialog aksi belum tersedia. Muat ulang halaman lalu coba lagi.');return;}
+  shareField.classList.toggle('d-none',action!=='share');
+  moveField.classList.toggle('d-none',action!=='move');
+  title.textContent=action==='share'?'Bagikan file terpilih':'Pindahkan file terpilih';
+  confirmButton.textContent=action==='share'?'Buat tautan':'Pindahkan file';
   selectionForm.dataset.pendingAction=action;
-  bootstrap.Modal.getOrCreateInstance(bulkModal).show();
+  if(!window.bootstrap?.Modal){window.alert('Komponen dialog belum termuat. Muat ulang halaman lalu coba lagi.');return;}
+  window.bootstrap.Modal.getOrCreateInstance(bulkModal).show();
   return;
  }
  if(action==='download'){
-  if(!files.length){alert('Pilihan Anda tidak berisi file yang dapat diunduh.');return;}
-  if(!confirm('Unduh '+files.length+' file terpilih?'))return;
-  submitBulkAction('download');return;
+  if(!files.length){window.alert('Pilihan Anda tidak berisi file yang dapat diunduh.');return;}
+  if(!window.confirm('Unduh '+files.length+' file terpilih?'))return;
+  submitBulkAction('download');
+  return;
  }
  if(action==='trash'){
-  if(!confirm('Pindahkan '+selected.length+' item terpilih ke Sampah?'))return;
+  if(!window.confirm('Pindahkan '+selected.length+' item terpilih ke Sampah?'))return;
   submitBulkAction('trash');
  }
-}));
+},true);
 document.getElementById('bulkActionConfirm')?.addEventListener('click',function(){
  const action=selectionForm?.dataset.pendingAction;
  if(!action)return;
