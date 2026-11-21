@@ -48,7 +48,7 @@ document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventL
  }
  if(action==='trash'){
   if(!confirm('Pindahkan semua file dan folder terpilih ke Sampah?'))return;
-  selectionForm.action='/files/bulk-trash';selectionForm.requestSubmit();
+  selectionForm.action=<?= json_encode(site_url('files/bulk-trash')) ?>;HTMLFormElement.prototype.submit.call(selectionForm);
  }
 }));
 selectionForm?.addEventListener('submit',function(event){
@@ -77,7 +77,7 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 
 <div id="driveViewRoot" data-drive-view="list">
 
-<form id="bulkActionForm" method="post" action="/files/bulk-trash" class="bulk-selection-bar mb-3" aria-hidden="true">
+<form id="bulkActionForm" method="post" action="<?= esc(site_url('files/bulk-trash'), 'attr') ?>" class="bulk-selection-bar mb-3" aria-hidden="true">
 <?= csrf_field() ?>
 <div id="bulkSelectedIds"></div>
 <div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearDriveSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="bulkSelectionCount">0 item dipilih</strong></div>
@@ -85,9 +85,9 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
   <div class="dropdown floating-action-dropdown">
     <button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="bulkActionsMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button>
     <div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
-      <button type="button" class="dropdown-item" data-bulk-action="share">♧ Bagikan</button>
-      <button type="button" class="dropdown-item" data-bulk-action="download">↓ Download</button>
-      <button type="button" class="dropdown-item" data-bulk-action="move">↗ Pindah ke folder</button>
+      <button type="button" class="dropdown-item" data-bulk-action="share"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg>Bagikan</button>
+      <button type="button" class="dropdown-item" data-bulk-action="download"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg>Download</button>
+      <button type="button" class="dropdown-item" data-bulk-action="move"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3z"/><path d="M12 12v5m-3-3 3 3 3-3"/></svg>Pindah ke folder</button>
       <div class="dropdown-divider"></div>
       <button type="button" class="dropdown-item text-danger" data-bulk-action="trash"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>Pindahkan ke Sampah</button>
     </div>
