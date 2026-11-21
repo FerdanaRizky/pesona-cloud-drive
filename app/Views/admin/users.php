@@ -67,13 +67,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="user-status-inline">
           <span class="status-pill <?= $u['status']==='active'?'status-active':'status-suspended' ?>"><i></i><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></span>
           <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-          <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form user-status-switch-inline">
-            <?= csrf_field() ?>
-            <label class="account-switch" title="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>" aria-label="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>">
-              <input type="checkbox" <?= $u['status']==='active'?'checked':'' ?> onchange="if(confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')) this.form.requestSubmit(); else this.checked=<?= $u['status']==='active'?'true':'false' ?>;">
-              <span class="account-switch-track"><span class="account-switch-thumb"></span></span>
-            </label>
-          </form>
+          <span class="user-action-hint">Pengaturan peran dan status tersedia di bawah</span>
           <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" class="user-delete-inline-form" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Penghapusan hanya tersedia jika pengguna belum memiliki file atau folder.')">
             <?= csrf_field() ?>
             <button class="user-delete-icon-btn" type="submit" title="Hapus pengguna" aria-label="Hapus pengguna"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M5.5 7l1 13h11l1-13M9 7V4h6v3"/></svg></button>
@@ -90,18 +84,29 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <div class="user-card-controls">
       <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-      <form method="post" action="/admin/users/update-role/<?= (int)$u['id'] ?>" class="user-role-form" onsubmit="return confirm('Ubah peran <?= esc($u['name'], 'js') ?> menjadi '+(this.elements.role.value==='superadmin'?'Superadmin':'User')+'?')">
-        <?= csrf_field() ?>
-        <div class="user-role-form-copy"><strong>Peran & hak akses</strong><span class="small text-secondary">Tentukan tingkat akses akun ini.</span></div>
-        <div class="user-role-form-actions">
-          <select class="form-select form-select-sm" name="role" aria-label="Pilih peran pengguna">
-            <option value="user" <?= $u['role']==='user'?'selected':'' ?>>User</option>
-            <option value="superadmin" <?= $u['role']==='admin'?'selected':'' ?>>Superadmin</option>
-          </select>
-          <button class="btn btn-sm user-role-save-button" type="submit">Ubah peran</button>
-        </div>
-      </form>
-      <?php else: ?><div class="user-role-self-note small text-secondary">Peran akun Anda: <strong>Superadmin</strong>. Perubahan peran sendiri dinonaktifkan.</div><?php endif ?>
+      <details class="user-action-disclosure user-role-disclosure">
+        <summary><span><strong>Ubah peran</strong><small>Peran saat ini: <?= $u['role']==='admin'?'Superadmin':'User' ?></small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary>
+        <form method="post" action="/admin/users/update-role/<?= (int)$u['id'] ?>" class="user-role-form" onsubmit="return confirm('Ubah peran <?= esc($u['name'], 'js') ?> menjadi '+(this.elements.role.value==='superadmin'?'Superadmin':'User')+'?')">
+          <?= csrf_field() ?>
+          <div class="user-role-form-copy"><strong>Peran & hak akses</strong><span class="small text-secondary">Pilih tingkat akses baru untuk akun ini.</span></div>
+          <div class="user-role-form-actions">
+            <select class="form-select form-select-sm" name="role" aria-label="Pilih peran pengguna">
+              <option value="user" <?= $u['role']==='user'?'selected':'' ?>>User</option>
+              <option value="superadmin" <?= $u['role']==='admin'?'selected':'' ?>>Superadmin</option>
+            </select>
+            <button class="btn btn-sm user-role-save-button" type="submit">Simpan peran</button>
+          </div>
+        </form>
+      </details>
+      <details class="user-action-disclosure user-status-disclosure">
+        <summary><span><strong>Ubah status</strong><small>Status saat ini: <?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary>
+        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-edit-form" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+          <?= csrf_field() ?>
+          <p class="small text-secondary mb-2"><?= $u['status']==='active'?'Pengguna ini saat ini dapat masuk dan menggunakan Drive.':'Pengguna ini sedang tidak dapat mengakses Drive.' ?></p>
+          <button class="btn btn-sm <?= $u['status']==='active'?'btn-outline-warning':'btn-outline-success' ?>" type="submit"><?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?></button>
+        </form>
+      </details>
+      <?php else: ?><div class="user-role-self-note small text-secondary">Peran akun Anda: <strong>Superadmin</strong>. Perubahan peran dan status akun sendiri dinonaktifkan.</div><?php endif ?>
       <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
         <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
         <div class="mb-3"><label class="form-label small" for="user_phone_<?= (int)$u['id'] ?>">Nomor WhatsApp profil</label><input class="form-control form-control-sm" id="user_phone_<?= (int)$u['id'] ?>" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>"><div class="form-text">Format internasional, contoh 6281234567890.</div></div><div class="quota-edit-group"><label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label><div class="quota-edit-row"><input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required><button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button></div><div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div></div>
