@@ -28,7 +28,7 @@ class Share extends BaseController
             }
             $row['share_url'] = null;
             if (!empty($row['token_ciphertext'])) {
-                try { $row['share_url'] = site_url('s/' . service('encrypter')->decrypt($row['token_ciphertext'])); } catch (\Throwable $e) { $row['share_url'] = null; }
+                try { $row['share_url'] = site_url('s/' . \\App\\Libraries\\ShareTokenCipher::decrypt($row['token_ciphertext'])); } catch (\Throwable $e) { $row['share_url'] = null; }
             }
         }
         unset($row);
@@ -68,7 +68,7 @@ class Share extends BaseController
         }
 
         try {
-            $token = service('encrypter')->decrypt($share['token_ciphertext']);
+            $token = \\App\\Libraries\\ShareTokenCipher::decrypt($share['token_ciphertext']);
             if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
                 throw new \RuntimeException('Invalid saved share token.');
             }
@@ -140,7 +140,7 @@ class Share extends BaseController
             ? date('Y-m-d H:i:s', strtotime('+' . (int) $expiry . ' days')) : null;
         db_connect()->table('file_shares')->insert([
             'file_id' => $id, 'owner_id' => $uid, 'shared_with_email' => null,
-            'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token), 'permission' => 'viewer',
+            'token_hash' => hash('sha256', $token), 'token_ciphertext' => \\App\\Libraries\\ShareTokenCipher::encrypt($token), 'permission' => 'viewer',
             'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
         ]);
         $shareId = (int) db_connect()->insertID();
