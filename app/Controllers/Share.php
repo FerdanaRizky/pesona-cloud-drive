@@ -145,7 +145,7 @@ class Share extends BaseController
         ]);
         $shareId = (int) db_connect()->insertID();
         $this->log($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
-        return redirect()->to('/shares')->with('share_id', $shareId)->with('message', 'Tautan berbagi berhasil dibuat.');
+        return redirect()->to('/shares')->with('share_id', $shareId)->with('share_link', site_url('s/' . $token))->with('message', 'Tautan berbagi berhasil dibuat.');
     }
 
     public function revoke(int $id)
