@@ -1,269 +1,244 @@
-# Pesona Cloud Drive
+Sudah di-push ke GitHub
 
-Aplikasi cloud storage multi-user mandiri berbasis CodeIgniter 4, PHP, dan MySQL. Penyimpanan file menggunakan filesystem lokal privat di luar document root.
+Saya sudah memperbaiki installer dan memperbarui dokumentasi agar kendala instalasi seperti yang terjadi pada `cloud.pesonawifi.my.id` dapat ditangani dengan lebih baik.
 
-## Stack
-- PHP 8.2+
-- CodeIgniter 4.7
-- MySQL 8 / MariaDB kompatibel
-- Bootstrap 5 responsive UI
-- Private local storage
+## **1. Perubahan yang sudah di-push**
 
-## Fitur
-- Login, logout, setup administrator pertama, ubah password, dan reset password mandiri melalui email (tautan sekali pakai, berlaku 60 menit).
-- Role Admin/User dengan pemeriksaan akses di server.
-- Manajemen pengguna: buat akun, kuota, suspend/aktifkan, reset password.
-- File manager: folder/subfolder, upload multi-file, download, rename, move, favorit.
-- Trash: restore file/folder dan hapus permanen; penghapusan folder permanen menghapus isi turunannya.
-- Pencarian nama file dan folder di seluruh drive milik akun.
-- Preview gambar JPEG/PNG/GIF/WebP, PDF, dan video MP4/WebM/OGG.
-- Thumbnail gambar di daftar file serta preview dokumen Office (DOC/DOCX, XLS/XLSX, PPT/PPTX, ODT/ODS/ODP) melalui konversi PDF menggunakan LibreOffice.
-- Manajemen link berbagi: daftar URL, ubah masa berlaku per link, cabut link satu per satu, atau cabut seluruh link file. Token diverifikasi dengan hash dan URL disimpan terenkripsi untuk dapat ditampilkan kembali.
-- Audit log login/logout, upload, rename, move, favorit, trash/restore, purge, share/revoke, serta tindakan administrasi pengguna. Filter tanggal, jenis aktivitas, dan pengguna (admin).
-- Private storage, pemeriksaan kepemilikan, kuota akun, CSRF, dan migration database.
-- Update in-place aaPanel tanpa menghapus file .env, database, dan file pengguna.
+**1. Installer aaPanel**
 
-## Update instalasi aaPanel yang sudah ada
-Buat backup database dan private storage sebelum update. Jalankan sebagai root:
+Updated
 
-Perintah: curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/update-aapanel.sh | bash
+File: `install-aapanel.sh`
 
-Default source checkout: /opt/pesona-cloud-drive-source
-Default app: /www/wwwroot/test-cloud.pesonawifi.my.id/app-src
+- Mendeteksi atribut immutable (`chattr +i`) pada `.user.ini`.
+- Melepaskan atribut immutable sementara ketika diperlukan.
+- Memperbarui konfigurasi `open_basedir`.
+- Mengembalikan atribut immutable jika sebelumnya memang aktif.
+- Mempertahankan direktori yang sebelumnya diizinkan.
+- Tidak mengubah `.user.ini` tingkat website aaPanel.
+- Tidak menghentikan instalasi hanya karena konfigurasi tertentu tidak dapat diubah; installer memberikan peringatan.
 
-Path khusus: SOURCE_DIR=/path/source APP_DIR=/path/app bash update-aapanel.sh
+  Commit: `2b27099`
 
-Updater menjalankan git pull, menyalin app/ dan public/assets/, Composer install, lalu php spark migrate. File .env, database, private storage, dan data pengguna tidak dihapus.
+  [Lihat perubahan installer](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/2b27099bdda2f0809eef01352df1c02af539caf9?utm_source=chatgpt.com)
 
+  **2. README**
 
-## Upload file berukuran besar (aaPanel)
+  Updated
 
-Aplikasi menyediakan batas PHP hingga 2 GB melalui file `.user.ini`. Updater akan memasang file ini ke root aplikasi. Untuk mengatasi HTTP **413 Request Entity Too Large**, batas Nginx website juga harus dinaikkan karena Nginx menolak request sebelum mencapai PHP.
+  Ditambahkan panduan instalasi, konfigurasi, dan troubleshooting.
 
-1. Buka aaPanel → Website → website Pesona Cloud Drive → Config.
-2. Di dalam blok `server { ... }`, tambahkan:
-   ```nginx
-   client_max_body_size 2100m;
-   ```
-3. Simpan konfigurasi lalu lakukan Reload Nginx dari aaPanel.
-4. Buka aaPanel → App Store → PHP yang dipakai website → Config → upload settings. Pastikan `upload_max_filesize = 2048M` dan `post_max_size = 2100M`, lalu restart PHP-FPM.
-5. Periksa ruang disk direktori temporary PHP dan private storage. File upload sementara membutuhkan ruang tambahan.
+  [Lihat perubahan README](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/eae870e4d1b78b2ba222dab144fe633dacbc7be0?utm_source=chatgpt.com)
 
-Batas bawaan aplikasi adalah 2 GB per file. Untuk batas lebih besar, naikkan ketiga nilai `upload_max_filesize`, `post_max_size`, dan `client_max_body_size` secara konsisten (nilai post/Nginx sedikit lebih besar daripada ukuran file). Pengaturan Nginx wajib dilakukan di konfigurasi website aaPanel; file PHP `.user.ini` tidak dapat mengubah batas Nginx.
+  **3. Dokumentasi aaPanel**
 
-## Setelah update
-- File Manager: /files
-- Cari: /search
-- Sampah: /trash
-- Riwayat: /activity
-- Manajemen link berbagi: /shares
-- Buat link share dari menu aksi setiap file.
-- Audit log dengan filter pengguna/tanggal: /activity
-- Office preview membutuhkan LibreOffice di server (opsional): `apt install libreoffice`.
-- Preview tersedia untuk gambar, PDF, dan video yang didukung browser.
+  Updated
 
-## Konfigurasi email reset password
-Atur parameter SMTP berikut di file .env pada root aplikasi. Gunakan password aplikasi/provider SMTP jika diwajibkan provider.
+  Ditambahkan panduan penyelesaian HTTP 500, `open_basedir`, permission, database, rewrite, Composer, dan upload.
 
-email.fromEmail = 'no-reply@domain-anda.com'
-email.fromName = 'Pesona Cloud Drive'
-email.SMTPHost = 'smtp.domain-anda.com'
-email.SMTPUser = 'no-reply@domain-anda.com'
-email.SMTPPass = 'PASSWORD_SMTP'
-email.SMTPPort = 587
-email.SMTPCrypto = 'tls'
+  [Lihat perubahan dokumentasi](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/e713252dbf87988f96fde879c9627d464b73afcd?utm_source=chatgpt.com)
 
-Pastikan DNS domain pengirim memiliki SPF/DKIM/DMARC yang sesuai dan koneksi SMTP keluar diizinkan server. Reset memakai respons generik untuk mencegah enumerasi akun, membatasi 3 permintaan per jam per email/IP, menyimpan hash token saja, dan membatalkan token setelah digunakan. Tautan berlaku 60 menit.
+## **2. Cara instalasi baru secara keseluruhan**
 
-## Migration
-Migration tambahan:
-- 2026-11-20-000002_CreateDriveFolders.php
-- 2026-11-20-000003_AddDriveSearchAndActivityIndexes.php
-- 2026-11-20-000004_AddEncryptedShareTokens.php
-- 2026-11-21-000005_CreatePasswordResetTokens.php
+Ikuti urutan ini saat memasang Pesona Cloud Drive pada VPS baru.
 
-Updater menjalankan migration otomatis. Untuk manual: php spark migrate
+### **Tahap 1 — Persiapkan server**
 
-## Instalasi baru pada server baru
+Rekomendasi:
 
-Panduan ini untuk memasang Pesona Cloud Drive dari awal pada VPS/server baru yang menggunakan Ubuntu dan aaPanel. Jalankan langkah-langkah berikut secara berurutan.
+- Ubuntu 22.04 atau 24.04.
+- aaPanel.
+- PHP 8.2 atau lebih baru (disarankan 8.3/8.4).
+- MySQL atau MariaDB.
+- Composer 2, Git, dan rsync.
 
-### 1. Siapkan server dan aaPanel
-- Gunakan Ubuntu 22.04 atau 24.04 dan pasang aaPanel.
-- Pastikan domain/subdomain sudah diarahkan ke IP publik server melalui DNS (record A).
-- Buka panel aaPanel, lalu siapkan website untuk domain yang akan digunakan. Folder website boleh mengikuti default aaPanel.
-- Pastikan port 80 dan 443 dapat diakses agar verifikasi domain dan SSL berjalan.
+Aktifkan ekstensi PHP:
 
-### 2. Siapkan PHP dan Composer
-Di aaPanel → App Store, pasang PHP 8.2 atau lebih baru (disarankan PHP 8.3/8.4) dan aktifkan ekstensi:
-- `intl`, `mbstring`, `mysqli`/MySQLnd
-- `fileinfo`, `curl`, `gd`
+`intl`, `mbstring`, `mysqli`, `fileinfo`, `curl`, dan `gd`.
 
-Pasang/siapkan Composer 2, Git, dan rsync. Pastikan perintah `php` dan `composer` bisa dijalankan dari terminal SSH. PHP CLI harus memakai versi 8.2+ yang sama atau kompatibel dengan PHP-FPM website. Periksa dengan:
+Pastikan domain sudah mengarah ke IP VPS.
 
-```bash
-php -v
-php -m
-composer --version
-git --version
-rsync --version
+### **Tahap 2 — Buat website dan database**
+
+Di aaPanel:
+
+1. Buat website menggunakan domain yang akan dipakai.
+2. Aktifkan PHP 8.2+.
+3. Buat database MySQL.
+4. Buat user database khusus aplikasi.
+5. Catat nama database, username, dan password.
+
+### **Tahap 3 — Jalankan installer**
+
+Login SSH sebagai `root`, kemudian jalankan:
+
+**Perintah instalasi baru**
+
 ```
-
-Installer tidak memasang aaPanel, PHP, Composer, atau database server secara otomatis; komponen tersebut harus disiapkan terlebih dahulu.
-
-### 3. Buat database
-Di aaPanel → Database → Add database:
-- Buat database MySQL/MariaDB untuk Pesona Cloud Drive.
-- Buat/ gunakan user database khusus aplikasi.
-- Simpan nama database, username, dan password. Data ini akan diminta oleh installer.
-- Host database default installer adalah `localhost` dan port `3306`.
-
-Jangan memakai password kosong.
-
-### 4. Jalankan installer
-Login ke server melalui SSH sebagai `root`, lalu jalankan:
-
-```bash
 curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/install-aapanel.sh | bash
 ```
 
-Installer akan meminta informasi berikut:
-- Domain aplikasi, misalnya `drive.domainanda.com`.
-- Direktori aplikasi (default: `/www/wwwroot/DOMAIN/app-src`).
-- Direktori source Git (default: `/opt/pesona-cloud-drive-source`).
-- Nama database, username, dan password database.
-- Direktori private storage (default: `/www/wwwroot/DOMAIN-private`).
+&#x20;Salin perintah
 
-Masukkan domain dan kredensial database yang sudah dibuat. Catat direktori aplikasi dan private storage yang ditampilkan installer. Private storage berada di luar document root agar file pengguna tidak dapat diakses langsung melalui URL.
+Installer akan meminta:
 
-### 5. Atur website aaPanel
-Setelah installer selesai:
-1. Buka Website → domain aplikasi → Site directory / Running directory.
-2. Atur document root menjadi direktori aplikasi ditambah `/public`, contoh:
-   `/www/wwwroot/drive.domainanda.com/app-src/public`.
-3. Pastikan website menggunakan versi PHP yang sudah disiapkan.
-4. Installer otomatis menyesuaikan `open_basedir` pada `app-src/public/.user.ini` agar CodeIgniter dapat membaca `app/`, `vendor/`, `.env`, dan private storage. Jika pengaturan Anti-XSS/Base directory limit aaPanel mengunci nilai tersebut di tingkat PHP-FPM, tambahkan direktori `app-src/`, private storage, dan `/tmp/` ke whitelist aaPanel. Jangan membatasi akses hanya ke folder `public`.
-5. Aktifkan SSL Let's Encrypt untuk domain dan pastikan website dapat dibuka melalui HTTPS.
-6. Pastikan direktori `writable` dan private storage dapat ditulis oleh user PHP/web server. Installer mencoba mengatur kepemilikan ke user `www` atau `www-data`; sesuaikan jika instalasi aaPanel menggunakan user lain.
+- Domain.
+- Direktori aplikasi.
+- Direktori source Git.
+- Nama database.
+- Username database.
+- Password database.
+- Direktori private storage.
 
-### 6. Perbaiki URL Rewrite Nginx
+Contoh struktur:
 
-Buka aaPanel:
-1. Website.
-2. Pilih cloud.pesonawifi.my.id.
-3. Klik Config.
-4. Cari blok location /.
-5. Pastikan isinya seperti berikut.
+```
+/www/wwwroot/cloud.domainanda.com/
+├── app-src/
+│   ├── app/
+│   ├── public/
+│   ├── vendor/
+│   ├── writable/
+│   ├── spark
+│   └── .env
 
+/www/wwwroot/cloud.domainanda.com-private/
+└── file pengguna
+```
+
+Private storage harus berada di luar document root website.
+
+### **Tahap 4 — Konfigurasi website aaPanel**
+
+Atur document root menjadi:
+
+```
+/www/wwwroot/cloud.domainanda.com/app-src/public
+```
+
+Pastikan Nginx memiliki konfigurasi rewrite berikut di dalam blok `server`:
+
+```
 location / {
     try_files $uri $uri/ /index.php?$query_string;
 }
+```
 
+Jika sudah ada blok `location /`, edit blok tersebut. Jangan membuat duplikat.
 
-Jika sudah ada location /, cukup ganti isinya. Jangan membuat blok duplikat.
-Kemudian simpan dan jalankan:
+Tes dan reload:
+
+```
 nginx -t && /etc/init.d/nginx reload
+```
 
-### 7. Jalankan database migration dan buat admin pertama
-Installer menyiapkan file aplikasi dan `.env`, tetapi database migration dijalankan setelah database tersedia. Melalui SSH:
+Aktifkan SSL Let's Encrypt.
 
-```bash
-cd /www/wwwroot/DOMAIN/app-src
+### **Tahap 5 — Periksa open_basedir**
+
+Installer versi terbaru akan mengatur `.user.ini` aplikasi secara otomatis.
+
+Konfigurasi minimal harus mengizinkan:
+
+```
+open_basedir=/www/wwwroot/cloud.domainanda.com/app-src/:/www/wwwroot/cloud.domainanda.com-private/:/tmp/
+```
+
+Jika aaPanel memiliki Base directory limit atau Anti-XSS yang mengunci konfigurasi, tambahkan kedua direktori tersebut ke whitelist aaPanel.
+
+### **Tahap 6 — Migration database dan setup admin**
+
+Jalankan:
+
+```
+cd /www/wwwroot/cloud.domainanda.com/app-src
 php spark migrate
 ```
 
-Ganti `DOMAIN` dengan domain yang dipakai atau gunakan direktori aplikasi khusus yang Anda masukkan saat instalasi.
-
-Setelah migration berhasil, buka:
+Kemudian buka:
 
 ```
-https://DOMAIN/setup
+https://cloud.domainanda.com/setup
 ```
 
-Ikuti halaman setup untuk membuat akun administrator pertama. Setelah admin berhasil dibuat, login dan periksa fitur manajemen pengguna serta upload file.
+Buat akun Superadmin pertama, termasuk nomor WhatsApp yang diminta pada halaman setup.
 
+Setelah itu login dan uji upload, preview, download, serta manajemen pengguna.
 
-### penyebab langsung aplikasi menghasilkan HTTP 500.
+## **3. Panduan mengatasi error yang mungkin muncul**
 
-1. Perbaikan langsung melalui aaPanel
-Buka aaPanel:
-1. Masuk menu Website.
-2. Pilih cloud.pesonawifi.my.id.
-3. Klik Site directory.
-4. Cari bagian Anti-XSS attack (Base directory limit).
-5. Atur batas direktori agar mencakup seluruh folder aplikasi, bukan hanya public.
+Berikut langkah penyelesaian yang sudah dimasukkan ke dokumentasi GitHub.
 
-   
-## Batasan dan keamanan
-- Preview video saat ini mengirim file melalui response PHP biasa; untuk video besar sebaiknya memakai internal redirect (Nginx X-Accel-Redirect) agar hemat memori dan mendukung range request.
-- Pencarian saat ini berbasis nama file/folder, bukan isi dokumen.
-- Folder restore dilakukan bertahap dari parent ke child.
-- Link share adalah bearer link: siapa pun yang memiliki URL dapat mengakses sampai dicabut/kedaluwarsa. Jangan bagikan file sensitif menggunakan link publik.
-- Konversi Office dilakukan saat preview pertama dan cache PDF; ukuran sumber dibatasi 50 MB. LibreOffice tidak disertakan otomatis oleh updater.
-- Belum ada antivirus scanning, file versioning, kolaborasi editor, pencarian isi dokumen, object storage, atau automated integration tests.
-- Jangan gunakan untuk data penting sebelum uji integrasi, backup/restore, batas upload PHP/Nginx, dan security review.
+| Error                          | Penyebab dan penyelesaian                                       |
+| ------------------------------ | --------------------------------------------------------------- |
+| HTTP 500                       | Periksa log PHP-FPM, `open_basedir`, dan permission.            |
+| `open_basedir restriction`     | Izinkan direktori `app-src/`, private storage, dan `/tmp/`.     |
+| `Operation not permitted`      | Periksa `lsattr`; kemungkinan file `.user.ini` immutable.       |
+| `/setup` menghasilkan 404      | Periksa document root dan Nginx rewrite.                        |
+| Database connection error      | Periksa kredensial database di `.env`, lalu jalankan migration. |
+| `Permission denied`            | Periksa kepemilikan `writable/` dan private storage.            |
+| Composer gagal                 | Periksa versi PHP CLI, Composer, dan ekstensi PHP.              |
+| Upload 413                     | Naikkan batas upload PHP dan `client_max_body_size` Nginx.      |
+| `Module zip is already loaded` | Periksa konfigurasi PHP yang memuat ekstensi zip dua kali.      |
 
+### **Contoh khusus: HTTP 500 karena immutable&#x20;**`.user.ini`
 
-## Troubleshooting instalasi aaPanel
+Jika muncul:
 
-### HTTP 500 / open_basedir restriction
-
-CodeIgniter membutuhkan akses ke `app/`, `vendor/`, `writable/`, file `.env`, dan private storage. Jika log PHP menunjukkan `open_basedir restriction` dan hanya mengizinkan `public/` serta `/tmp/`, periksa:
-
-```bash
-APP="/www/wwwroot/DOMAIN/app-src"
-STORAGE="/www/wwwroot/DOMAIN-private"
-cat "$APP/public/.user.ini"
+```
+Operation not permitted
 ```
 
-Nilai minimal yang diperlukan:
+Periksa:
 
-```ini
-open_basedir=/www/wwwroot/DOMAIN/app-src/:/www/wwwroot/DOMAIN-private/:/tmp/
 ```
-
-Ganti DOMAIN sesuai path instalasi. Jika penulisan menghasilkan `Operation not permitted`, periksa atribut immutable:
-
-```bash
-INI="/www/wwwroot/DOMAIN/app-src/public/.user.ini"
+INI="/www/wwwroot/cloud.domainanda.com/app-src/public/.user.ini"
 lsattr "$INI"
 ```
 
-Jika output menampilkan huruf `i`, lepaskan sementara, ubah file, lalu kembalikan perlindungan bila memang digunakan aaPanel:
+Jika terdapat huruf `i`, berarti file immutable.
 
-```bash
+Lepaskan sementara:
+
+```
 chattr -i "$INI"
+```
+
+Perbaiki konfigurasi:
+
+```
 cat > "$INI" <<'EOF'
-open_basedir=/www/wwwroot/DOMAIN/app-src/:/www/wwwroot/DOMAIN-private/:/tmp/
+open_basedir=/www/wwwroot/cloud.domainanda.com/app-src/:/www/wwwroot/cloud.domainanda.com-private/:/tmp/
 EOF
+```
+
+Atur permission:
+
+```
 chmod 644 "$INI"
-# Opsional: aktifkan kembali hanya jika sebelumnya memang immutable
-# chattr +i "$INI"
 ```
 
-Jika tidak ada atribut `i`, periksa ACL dengan `getfacl -p "$INI"` dan konfigurasi PHP-FPM:
+Setelah itu restart PHP-FPM melalui aaPanel dan tunggu hingga konfigurasi `.user.ini` terbaca.
 
-```bash
-grep -RniE 'open_basedir|php_admin_value' /www/server/php/84/etc 2>/dev/null
+**Catatan:** Jangan menjalankan `chattr -i` jika atribut `i` tidak ditemukan. Jika tidak ada, periksa ACL dan konfigurasi PHP-FPM.
+
+## **4. Cara update aplikasi setelah ada perbaikan baru**
+
+Untuk server yang sudah terpasang, gunakan updater, bukan installer baru.
+
+```
+curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/update-aapanel.sh | bash
 ```
 
-Jika ada `php_admin_value[open_basedir]` atau Base directory limit/Anti-XSS aaPanel yang membatasi akses, tambahkan direktori `app-src/`, private storage, dan `/tmp/` ke whitelist di aaPanel. Nilai PHP CLI `open_basedir => no value` tidak membuktikan konfigurasi PHP-FPM website sudah benar. Restart PHP-FPM dari aaPanel dan tunggu hingga 5 menit untuk cache `.user.ini`.
+Updater akan memperbarui kode aplikasi, dependency, dan migration. File `.env`, database, private storage, serta file pengguna tidak seharusnya dihapus.
 
-### Error umum lainnya
+Sebelum update server produksi, tetap buat backup database dan private storage.
 
-- **404 pada /setup atau /login:** pastikan document root mengarah ke `app-src/public` dan Nginx memiliki `try_files $uri $uri/ /index.php?$query_string;` dalam blok `location /`. Jangan membuat blok location duplikat.
-- **Database connection error:** pastikan database dan user sudah dibuat, password benar, host/port sesuai, lalu periksa bagian `database.default.*` di `.env`. Jalankan `php spark migrate` dari direktori aplikasi.
-- **Permission denied / writable tidak bisa ditulis:** sesuaikan owner `writable/` dan private storage dengan user PHP-FPM aaPanel (umumnya `www`), misalnya `chown -R www:www "$APP/writable" "$STORAGE"`.
-- **Composer/PHP dependency error:** pastikan PHP CLI 8.2+ dan Composer 2 memakai PHP yang kompatibel dengan PHP-FPM, serta ekstensi `intl`, `mbstring`, `mysqli`, `fileinfo`, `curl`, dan `gd` aktif.
-- **Upload 413:** naikkan `client_max_body_size` di Nginx dan `upload_max_filesize`/`post_max_size` di PHP; lihat bagian upload file besar.
-- **zip already loaded:** peringatan ini biasanya bukan penyebab HTTP 500. Periksa konfigurasi PHP CLI/FPM yang memuat ekstensi zip dua kali, lalu sisakan satu deklarasi aktif.
-- **Log error:** periksa log website di aaPanel dan log PHP-FPM versi yang digunakan. Jangan membagikan isi `.env`, password, atau token saat meminta bantuan.
+## **5. Dokumentasi GitHub**
 
-### Setelah instalasi pertama
+- [Repository Pesona Cloud Drive](https://github.com/FerdanaRizky/pesona-cloud-drive?utm_source=chatgpt.com)
+- [README — Panduan utama](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/README.md?utm_source=chatgpt.com)
+- [Panduan instalasi dan troubleshooting aaPanel](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/docs/INSTALL-AA-PANEL.md?utm_source=chatgpt.com)
+- [Installer terbaru](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/install-aapanel.sh?utm_source=chatgpt.com)
 
-```bash
-cd /www/wwwroot/DOMAIN/app-src
-php spark migrate
-```
-
-Buka `https://DOMAIN/setup` untuk membuat admin pertama. Pastikan SSL, login, upload, preview, download, dan pemulihan backup diuji sebelum menyimpan data penting.
+**Penting:** Perbaikan sudah masuk ke GitHub, tetapi belum berarti seluruh skenario instalasi sudah lulus pengujian VPS baru. Sebaiknya lakukan satu kali instalasi bersih pada VPS uji sebelum menjadikan installer ini sebagai standar produksi. Jangan menghapus aplikasi atau database yang sedang berjalan hanya untuk menguji installer.
