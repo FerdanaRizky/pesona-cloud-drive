@@ -288,7 +288,7 @@ class Files extends BaseController
             $token = bin2hex(random_bytes(32));
             $db->table('file_shares')->insert([
                 'file_id' => $id, 'owner_id' => $uid, 'shared_with_email' => null,
-                'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token),
+                'token_hash' => hash('sha256', $token), 'token_ciphertext' => \\App\\Libraries\\ShareTokenCipher::encrypt($token),
                 'permission' => 'viewer', 'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
             ]);
             $createdShareIds[] = (int) $db->insertID();
