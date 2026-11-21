@@ -160,6 +160,8 @@ location / {
 
 
 Jika sudah ada location /, cukup ganti isinya. Jangan membuat blok duplikat.
+Kemudian simpan dan jalankan:
+nginx -t && /etc/init.d/nginx reload
 
 ### 7. Jalankan database migration dan buat admin pertama
 Installer menyiapkan file aplikasi dan `.env`, tetapi database migration dijalankan setelah database tersedia. Melalui SSH:
