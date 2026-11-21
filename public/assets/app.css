@@ -992,3 +992,11 @@ html[data-bs-theme="light"] .share-bulk-actions select{background:#fff;color:#26
  .share-table-wrap{overflow-x:auto}
 }
 @media(max-width:480px){.share-bulk-info{min-width:100%}.share-file-name{min-width:210px}}
+
+/* Live upload progress */
+.upload-progress-track{height:10px;border-radius:999px;overflow:hidden;background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)}
+.upload-progress-track .progress-bar{border-radius:999px;background:linear-gradient(90deg,#3984ee,#6959dc);transition:width .16s ease}
+#uploadProgressLabel{color:var(--bs-emphasis-color)}
+#uploadProgressPercent{font-variant-numeric:tabular-nums;color:var(--bs-primary)}
+#uploadProgressDetail,#uploadProgressSize{font-size:.78rem}
+#uploadModal .modal-body{min-width:0}
