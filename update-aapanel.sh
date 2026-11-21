@@ -20,6 +20,9 @@ git -C "$REPO_DIR" pull --ff-only
 
 echo "[INFO] Menyalin kode aplikasi dan aset (file .env, vendor, storage, dan data pengguna tidak disentuh)..."
 rsync -a "$REPO_DIR/app/" "$APP_DIR/app/"
+if [[ -f "$REPO_DIR/.user.ini" ]]; then
+    install -m 644 "$REPO_DIR/.user.ini" "$APP_DIR/.user.ini"
+fi
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$REPO_DIR/public/assets/" "$APP_DIR/public/assets/"
 
