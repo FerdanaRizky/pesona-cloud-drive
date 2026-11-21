@@ -94,6 +94,9 @@ $formatActivityDate = static function ($value) {
                 <?php foreach ($files as $file):
                     $ext = strtolower((string) ($file['extension'] ?? ''));
                     $mime = strtolower((string) ($file['mime_type'] ?? ''));
+                    $previewable = str_starts_with($mime, 'image/')
+                        || $mime === 'application/pdf'
+                        || in_array($ext, ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true);
                     $kind = 'file'; $label = strtoupper($ext ?: 'FILE');
                     if (in_array($ext, ['doc','docx','odt'], true)) { $kind='word'; $label='DOC'; }
                     elseif (in_array($ext, ['xls','xlsx','ods','csv'], true)) { $kind='sheet'; $label='XLS'; }
