@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal<?= (int)$u['id'] ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     
-    <div class="modal fade" id="editPhoneModal<?= (int)$u['id'] ?>" tabindex="-1" aria-labelledby="editPhoneModalLabel<?= (int)$u['id'] ?>" aria-hidden="true">
+    <div class="modal fade user-phone-edit-modal" id="editPhoneModal<?= (int)$u['id'] ?>" tabindex="-1" aria-labelledby="editPhoneModalLabel<?= (int)$u['id'] ?>" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>">
@@ -153,6 +153,15 @@ document.addEventListener('DOMContentLoaded',function(){
 .user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
 .user-phone-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 </style>
+
+<script>
+/* Keep per-user modals outside cards/grid to avoid Bootstrap backdrop and stacking issues. */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.user-phone-edit-modal').forEach(function (modal) {
+    if (modal.parentElement !== document.body) document.body.appendChild(modal);
+  });
+});
+</script>
 
 <script>
 (function(){
