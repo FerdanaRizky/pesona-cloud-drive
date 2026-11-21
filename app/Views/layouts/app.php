@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/app.css?v=20261121-status-action-visible-v1" rel="stylesheet">
+<link href="/assets/app.css?v=20261121-sidebar-version-footer-v1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -27,6 +27,10 @@ $currentPath = trim($currentPath, '/');
 <a class="nav-link <?= str_starts_with($currentPath, 'admin/users') ? 'active' : '' ?>" href="/admin/users">♙ <span>Manajemen Pengguna</span></a>
 <?php endif ?>
 </nav>
+<div class="sidebar-footer" aria-label="Informasi aplikasi">
+  <span class="sidebar-app-version">Pesona Cloud Drive <strong>v1.0.0</strong></span>
+  <span class="sidebar-copyright">© 2026 Pesona Data Media</span>
+</div>
 </aside>
 <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main-content">
