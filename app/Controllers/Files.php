@@ -54,11 +54,14 @@ class Files extends BaseController
                 : null;
         }
 
+        $locationParts = array_map(static fn($item) => (string) $item['name'], $breadcrumbs);
+        $currentLocation = 'Drive Saya' . ($locationParts ? ' / ' . implode(' / ', $locationParts) : '');
+
         $allFolders = (new DriveFolderModel())->where('user_id', $uid)->where('is_trashed', 0)->orderBy('name', 'ASC')->findAll(500);
         $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
         return view('drive/files', [
             'title' => 'File Saya', 'files' => $files, 'folders' => $childFolders,
-            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'user' => $user, 'term' => $term, 'allFolders' => $allFolders,
+            'currentFolder' => $current, 'breadcrumbs' => $breadcrumbs, 'currentLocation' => $currentLocation, 'user' => $user, 'term' => $term, 'allFolders' => $allFolders,
         ]);
     }
 
