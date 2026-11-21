@@ -88,8 +88,8 @@ class Files extends BaseController
         $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
 
         return view('drive/files', [
-            'title' => 'Bintang', 'files' => $files, 'folders' => $folders,
-            'currentFolder' => null, 'breadcrumbs' => [], 'currentLocation' => 'Bintang',
+            'title' => 'Favorit', 'files' => $files, 'folders' => $folders,
+            'currentFolder' => null, 'breadcrumbs' => [], 'currentLocation' => 'Favorit',
             'user' => $user, 'term' => $term, 'allFolders' => $allFolders,
             'isStarredPage' => true,
         ]);
