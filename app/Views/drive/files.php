@@ -11,19 +11,64 @@
 <form method="get" action="/files" class="d-flex gap-2 mb-4" role="search"><input type="hidden" name="folder" value="<?= (int) ($currentFolder['id'] ?? 0) ?>"><input class="form-control" name="q" value="<?= esc($term ?? '') ?>" placeholder="Cari nama file atau folder..."><button class="btn btn-outline-secondary">Cari</button><?php if (!empty($term)): ?><a class="btn btn-outline-secondary" href="<?= !empty($currentFolder) ? '/files?folder=' . (int) $currentFolder['id'] : '/files' ?>">Reset</a><?php endif ?></form>
 <script>document.addEventListener('DOMContentLoaded',function(){const viewRoot=document.getElementById('driveViewRoot');const viewButtons=document.querySelectorAll('[data-drive-view]');const savedView=localStorage.getItem('pcd-drive-view')||'list';function setDriveView(view){if(!viewRoot)return;viewRoot.dataset.driveView=view;viewButtons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.driveView===view)));localStorage.setItem('pcd-drive-view',view);}viewButtons.forEach(b=>b.addEventListener('click',()=>setDriveView(b.dataset.driveView)));setDriveView(savedView);
 const selectionForm=document.getElementById('bulkActionForm'),selectionCount=document.getElementById('bulkSelectionCount'),selectAll=document.getElementById('selectAllFiles'),selectAllFolders=document.getElementById('selectAllFolders'),hiddenIds=document.getElementById('bulkSelectedIds'),menuTrigger=document.getElementById('bulkActionsMenu'),hint=document.getElementById('bulkSelectionHint');
+function selectedUnique(){
+ const map=new Map();
+ document.querySelectorAll('.drive-item-select:checked').forEach(box=>map.set(box.dataset.itemType+':'+box.value,box));
+ return [...map.values()];
+}
 function refreshSelection(){
- const selected=[...document.querySelectorAll('.drive-item-select:checked')],fileCount=selected.filter(x=>x.dataset.itemType==='file').length,folderCount=selected.length-fileCount;
+ const selected=selectedUnique(),fileCount=selected.filter(x=>x.dataset.itemType==='file').length,folderCount=selected.length-fileCount;
  selectionCount.textContent=selected.length+' item dipilih ('+fileCount+' file, '+folderCount+' folder)';
- 
  hiddenIds.innerHTML='';
  selected.forEach(box=>{const hidden=document.createElement('input');hidden.type='hidden';hidden.name=box.dataset.itemType==='folder'?'folder_ids[]':'file_ids[]';hidden.value=box.value;hiddenIds.appendChild(hidden);});
  if(menuTrigger)menuTrigger.disabled=!selected.length;
  const selectionBar=document.querySelector(".bulk-selection-bar");
  if(selectionBar){selectionBar.classList.toggle("is-selection-active",selected.length>0);selectionBar.setAttribute("aria-hidden",selected.length===0?"true":"false");}
- if(selectAll){const all=[...document.querySelectorAll('.drive-item-select')];selectAll.checked=all.length>0&&all.every(x=>x.checked);selectAll.indeterminate=all.some(x=>x.checked)&&!selectAll.checked;}
- if(selectAllFolders){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="folder"]')];selectAllFolders.checked=all.length>0&&all.every(x=>x.checked);selectAllFolders.indeterminate=all.some(x=>x.checked)&&!selectAllFolders.checked;}
+ document.querySelectorAll('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card').forEach(item=>{
+   const box=item.querySelector('.drive-item-select');if(!box)return;
+   item.classList.toggle('is-dashboard-selected',box.checked);
+ });
+ if(selectAll){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="file"]')].filter(x=>x.getClientRects().length>0);selectAll.checked=all.length>0&&all.every(x=>x.checked);selectAll.indeterminate=all.some(x=>x.checked)&&!selectAll.checked;}
+ if(selectAllFolders){const all=[...document.querySelectorAll('.drive-item-select[data-item-type="folder"]')].filter(x=>x.getClientRects().length>0);selectAllFolders.checked=all.length>0&&all.every(x=>x.checked);selectAllFolders.indeterminate=all.some(x=>x.checked)&&!selectAllFolders.checked;}
 }
-document.querySelectorAll('.drive-item-select').forEach(box=>box.addEventListener('change',refreshSelection));
+document.querySelectorAll('.drive-item-select').forEach(box=>box.addEventListener('change',function(){
+ const key=this.dataset.itemType+':'+this.value;
+ document.querySelectorAll('.drive-item-select').forEach(other=>{if(other.dataset.itemType+':'+other.value===key)other.checked=this.checked;});
+ refreshSelection();
+}));
+const driveRoot=document.getElementById('driveViewRoot');
+let selectionAnchor=null;
+const getSelectableItems=()=>[...driveRoot.querySelectorAll('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card')].filter(item=>item.getClientRects().length>0);
+const isItemControl=target=>!!target.closest('button,form,.dropdown,.dropdown-menu,[data-bs-toggle],input,select,textarea');
+function setItemChecked(item,checked){
+ const box=item.querySelector('.drive-item-select');if(!box)return;
+ const key=box.dataset.itemType+':'+box.value;
+ document.querySelectorAll('.drive-item-select').forEach(other=>{if(other.dataset.itemType+':'+other.value===key)other.checked=checked;});
+}
+driveRoot.addEventListener('click',event=>{
+ const item=event.target.closest('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card');
+ if(!item||isItemControl(event.target))return;
+ const mainLink=event.target.closest('.dashboard-folder-main,.dashboard-file-title,.dashboard-file-preview,.dashboard-list-name');
+ if(mainLink)event.preventDefault();
+ const items=getSelectableItems();
+ if(event.shiftKey&&selectionAnchor&&items.includes(selectionAnchor)){
+   if(!event.ctrlKey&&!event.metaKey)document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=false);
+   const a=items.indexOf(selectionAnchor),b=items.indexOf(item);
+   items.slice(Math.min(a,b),Math.max(a,b)+1).forEach(entry=>setItemChecked(entry,true));
+ }else{
+   const box=item.querySelector('.drive-item-select');if(!box)return;
+   const next=(event.ctrlKey||event.metaKey)?!box.checked:true;
+   if(!event.ctrlKey&&!event.metaKey)document.querySelectorAll('.drive-item-select').forEach(other=>other.checked=false);
+   setItemChecked(item,next);selectionAnchor=item;
+ }
+ refreshSelection();
+});
+driveRoot.addEventListener('dblclick',event=>{
+ const item=event.target.closest('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card');
+ if(!item||isItemControl(event.target))return;
+ const link=item.querySelector('.dashboard-folder-main[href],.dashboard-file-title[href],.dashboard-file-preview[href],.dashboard-list-name[href]');
+ if(link){event.preventDefault();window.location.assign(link.href);}
+});
 selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=selectAll.checked);refreshSelection();});
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
 document.getElementById('clearDriveSelection')?.addEventListener('click',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=false);refreshSelection();});
