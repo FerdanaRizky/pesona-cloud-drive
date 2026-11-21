@@ -166,23 +166,27 @@ normalize_path() {
 APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
 STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
 ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
-# Do not modify the aaPanel website-level .user.ini: aaPanel may protect it
-# with immutable attributes or ACLs. Configure only app-local ini files.
-USER_INI_FILES=()
-for ini in "$APP_DIR/.user.ini" "$APP_DIR/public/.user.ini"; do
-    [[ -f "$ini" ]] && USER_INI_FILES+=("$ini")
-done
-
-# Ensure the document-root ini exists; this is the only file required for
-# the application's open_basedir override and is inside the app directory.
+# Configure app-local ini files only. aaPanel may mark .user.ini immutable
+# (chattr +i). Temporarily remove that flag when present, update safely, then
+# restore it so aaPanel's protection is preserved. Never touch website-level ini.
 PUBLIC_INI="$APP_DIR/public/.user.ini"
 if [[ ! -e "$PUBLIC_INI" ]]; then
     if ! install -m 644 /dev/null "$PUBLIC_INI"; then
-        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir secara manual melalui aaPanel."
+        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir manual melalui aaPanel."
         PUBLIC_INI=""
     fi
 fi
-[[ -n "$PUBLIC_INI" ]] && USER_INI_FILES+=("$PUBLIC_INI")
+
+USER_INI_FILES=()
+for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
+    [[ -n "$ini" && -f "$ini" ]] || continue
+    duplicate=0
+    for existing in "${USER_INI_FILES[@]}"; do
+        [[ "$existing" == "$ini" ]] && duplicate=1
+    done
+    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
+done
+
 for ini in "${USER_INI_FILES[@]}"; do
     tmp="$(mktemp)"
     if ! awk -v required="$ALLOWED_REQUIRED" '
@@ -202,18 +206,26 @@ for ini in "${USER_INI_FILES[@]}"; do
         next
       }
       { print }
-      END {
-        if (!updated) print "open_basedir=" required
-      }
+      END { if (!updated) print "open_basedir=" required }
     ' "$ini" > "$tmp"; then
         echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
         rm -f "$tmp"
         continue
     fi
-    # aaPanel may protect its website-level .user.ini (immutable/ACL). Do not
-    # abort the installation: try the document-root ini and report any skip.
+
+    immutable=0
+    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
+        immutable=1
+        if ! chattr -i "$ini"; then
+            echo "[WARN] Tidak dapat melepas atribut immutable pada $ini. Atur open_basedir manual melalui aaPanel."
+            rm -f "$tmp"
+            continue
+        fi
+    fi
+
     if ! cat "$tmp" > "$ini"; then
-        echo "[WARN] Tidak dapat mengubah $ini (izin/immutable). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS di aaPanel."
+        echo "[WARN] Tidak dapat menulis $ini (izin/ACL). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS."
+        [[ "$immutable" -eq 1 ]] && chattr +i "$ini" 2>/dev/null || true
         rm -f "$tmp"
         continue
     fi
@@ -222,8 +234,15 @@ for ini in "${USER_INI_FILES[@]}"; do
     if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
     elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
     fi
+    if [[ "$immutable" -eq 1 ]]; then
+        chattr +i "$ini" || echo "[WARN] Gagal mengembalikan atribut immutable pada $ini."
+    fi
     echo "[OK] open_basedir disesuaikan: $ini"
 done
+
+if [[ -z "$PUBLIC_INI" ]]; then
+    echo "[WARN] File public/.user.ini belum tersedia; konfigurasi open_basedir wajib diselesaikan melalui aaPanel."
+fi
 
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
