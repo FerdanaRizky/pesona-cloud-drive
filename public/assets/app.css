@@ -1317,3 +1317,156 @@ html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-
  #driveViewRoot[data-drive-view="list"] .drive-files-card th:nth-child(4),
  #driveViewRoot[data-drive-view="list"] .drive-files-card td:nth-child(4){display:none!important}
 }
+
+
+/* ===== Google Drive-inspired grid: compact folders + rich file preview cards ===== */
+#driveViewRoot[data-drive-view="grid"] .drive-folders-section>.row{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr))!important;
+ gap:10px!important;
+ margin:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-folders-section>.row>[class*="col-"]{
+ width:auto!important;max-width:none!important;padding:0!important;min-width:0
+}
+#driveViewRoot[data-drive-view="grid"] .folder-tile{
+ display:flex!important;align-items:center!important;gap:10px!important;
+ min-height:60px!important;height:60px!important;padding:9px 12px!important;
+ border:1px solid var(--pcd-line)!important;border-radius:15px!important;
+ background:#17263b!important;box-shadow:none!important;transition:background .16s,border-color .16s
+}
+#driveViewRoot[data-drive-view="grid"] .folder-tile:hover{
+ background:#20334f!important;border-color:rgba(105,151,225,.48)!important
+}
+#driveViewRoot[data-drive-view="grid"] .folder-tile>a{
+ display:flex;align-items:center;gap:10px;min-width:0;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;font-size:.9rem;font-weight:620
+}
+#driveViewRoot[data-drive-view="grid"] .folder-tile .multi-select-control{flex:0 0 auto}
+#driveViewRoot[data-drive-view="grid"] .folder-tile .action-menu-trigger{
+ width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;
+ border:0!important;background:transparent!important;box-shadow:none!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card{
+ padding:0!important;overflow:visible!important;background:transparent!important;
+ border:0!important;box-shadow:none!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card>.d-flex{
+ padding:15px 18px!important;margin:0!important;border:1px solid var(--pcd-line);
+ border-radius:15px 15px 0 0;background:rgba(24,39,60,.78)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card>.table-responsive{
+ padding:14px 14px 16px!important;border:1px solid var(--pcd-line);
+ border-top:0;border-radius:0 0 15px 15px;background:rgba(17,29,48,.58)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{
+ grid-template-columns:repeat(auto-fill,minmax(238px,1fr))!important;gap:14px!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row{
+ position:relative!important;display:flex!important;flex-direction:column!important;
+ justify-content:flex-start!important;min-width:0!important;min-height:0!important;
+ padding:12px!important;border:1px solid rgba(148,169,199,.2)!important;
+ border-radius:16px!important;background:#17263b!important;
+ box-shadow:0 2px 8px rgba(0,0,0,.06)!important;transition:transform .18s,border-color .18s,background .18s
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:hover{
+ transform:translateY(-2px);border-color:rgba(105,151,225,.5)!important;background:#1b2d46!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(2){
+ display:block!important;width:100%!important;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-cell{
+ display:flex!important;flex-direction:column-reverse!important;align-items:stretch!important;
+ gap:10px!important;min-width:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-meta{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ min-height:30px;padding:0 2px!important;min-width:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-name{
+ min-width:0!important;flex:1 1 auto;font-size:.88rem!important;line-height:1.35!important;
+ font-weight:600!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-mime{display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual{
+ display:flex!important;width:100%!important;height:auto!important;aspect-ratio:16/10!important;
+ flex:0 0 auto!important;overflow:hidden!important;border-radius:10px!important;
+ background:#e9edf4!important;border:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-preview-link{
+ position:relative!important;display:block!important;width:100%!important;height:100%!important;
+ overflow:hidden!important;background:#edf1f7!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-preview-link img{
+ display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;
+ object-position:center!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual--pdf .drive-file-preview-link img,
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual--word .drive-file-preview-link img,
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual--sheet .drive-file-preview-link img,
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual--slides .drive-file-preview-link img{
+ object-fit:contain!important;background:#f8fafc!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-preview-fallback{
+ display:none;position:absolute;inset:0;align-items:center;justify-content:center;
+ color:#526783;font-size:.78rem;font-weight:800;letter-spacing:.06em
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-visual.preview-failed .drive-file-preview-fallback{display:flex}
+#driveViewRoot[data-drive-view="grid"] .drive-file-type-art{
+ display:flex!important;width:100%!important;height:100%!important;min-height:0!important;
+ flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:10px
+}
+#driveViewRoot[data-drive-view="grid"] .drive-file-type-art svg{width:54px!important;height:54px!important}
+#driveViewRoot[data-drive-view="grid"] .drive-file-type-art span{font-size:.72rem;letter-spacing:.06em}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(1){
+ display:block!important;position:absolute!important;top:18px!important;left:18px!important;
+ z-index:4;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(1) .form-check-input{
+ width:18px;height:18px;margin:0!important;border:1px solid #8292a8;
+ box-shadow:0 1px 5px rgba(0,0,0,.18)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(6){
+ display:block!important;position:absolute!important;top:14px!important;right:14px!important;
+ z-index:4;width:auto!important;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(6) .action-menu-trigger{
+ width:34px;height:34px;background:rgba(14,25,42,.92)!important;
+ border:1px solid rgba(148,169,199,.25)!important;border-radius:10px;backdrop-filter:blur(8px)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(3),
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(4),
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(5){display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr:not(.file-row){display:block!important;grid-column:1/-1!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr:not(.file-row) td{display:block!important;text-align:center;padding:28px!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-folders-section .folder-tile{
+ background:#eef3f9!important;border-color:transparent!important;color:#17243a!important
+}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-folders-section .folder-tile:hover{background:#e5edf8!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card>.d-flex{background:#f6f8fc;border-color:#e2e8f1}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card>.table-responsive{background:#fff;border-color:#e2e8f1}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row{
+ background:#fff!important;border-color:#e4eaf2!important;box-shadow:0 2px 10px rgba(35,55,85,.045)!important
+}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:hover{background:#f9fbff!important}
+@media(max-width:767px){
+ #driveViewRoot[data-drive-view="grid"] .drive-folders-section>.row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #driveViewRoot[data-drive-view="grid"] .folder-tile{height:56px!important;min-height:56px!important;padding:8px!important;gap:6px!important}
+ #driveViewRoot[data-drive-view="grid"] .folder-tile>a{font-size:.8rem}
+ #driveViewRoot[data-drive-view="grid"] .folder-tile .action-menu-trigger{width:30px!important;min-width:30px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card>.d-flex{padding:13px 14px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card>.table-responsive{padding:10px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row{padding:9px!important;border-radius:13px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-file-cell{gap:8px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-file-name{font-size:.78rem!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(1){top:14px!important;left:14px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row>td:nth-child(6){top:10px!important;right:10px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-file-visual{aspect-ratio:1.25/1!important}
+}
+@media(max-width:390px){
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row{padding:7px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-file-name{font-size:.73rem!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-file-visual{aspect-ratio:1/1!important}
+}
