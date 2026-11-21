@@ -29,8 +29,8 @@ $formatActivityDate = static function ($value) {
                     <span class="dashboard-card-name" title="<?= esc($folder['name'], 'attr') ?>"><?= esc($folder['name']) ?></span>
                 </a>
                 <div class="dropdown">
-                    <button class="dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>">⋮</button>
-                    <div class="dropdown-menu dropdown-menu-end">
+                    <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>">⋮</button>
+                    <div class="dropdown-menu dropdown-menu-end file-action-menu">
                         <a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>">Buka folder</a>
                         <a class="dropdown-item" href="/files">Kelola di File Saya</a>
                     </div>
