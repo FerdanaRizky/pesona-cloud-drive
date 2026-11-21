@@ -1,9 +1,3 @@
-Sudah di-push ke GitHub
-
-Saya sudah memperbaiki installer dan memperbarui dokumentasi agar kendala instalasi seperti yang terjadi pada `cloud.pesonawifi.my.id` dapat ditangani dengan lebih baik.
-
-## **1. Perubahan yang sudah di-push**
-
 **1. Installer aaPanel**
 
 Updated
@@ -140,9 +134,8 @@ Installer versi terbaru akan mengatur `.user.ini` aplikasi secara otomatis.
 
 Konfigurasi minimal harus mengizinkan:
 
-```
+
 open_basedir=/www/wwwroot/cloud.domainanda.com/app-src/:/www/wwwroot/cloud.domainanda.com-private/:/tmp/
-```
 
 Jika aaPanel memiliki Base directory limit atau Anti-XSS yang mengunci konfigurasi, tambahkan kedua direktori tersebut ke whitelist aaPanel.
 
@@ -185,9 +178,8 @@ Berikut langkah penyelesaian yang sudah dimasukkan ke dokumentasi GitHub.
 
 Jika muncul:
 
-```
+
 Operation not permitted
-```
 
 Periksa:
 
@@ -219,7 +211,9 @@ chmod 644 "$INI"
 ```
 
 Setelah itu restart PHP-FPM melalui aaPanel dan tunggu hingga konfigurasi `.user.ini` terbaca.
-
+```
+/etc/init.d/php-fpm-84 restart
+```
 **Catatan:** Jangan menjalankan `chattr -i` jika atribut `i` tidak ditemukan. Jika tidak ada, periksa ACL dan konfigurasi PHP-FPM.
 
 ## **4. Cara update aplikasi setelah ada perbaikan baru**
@@ -234,11 +228,43 @@ Updater akan memperbarui kode aplikasi, dependency, dan migration. File `.env`, 
 
 Sebelum update server produksi, tetap buat backup database dan private storage.
 
-## **5. Dokumentasi GitHub**
+## **5. Perbaiki batas upload Nginx
+Di aaPanel, buka:
 
-- [Repository Pesona Cloud Drive](https://github.com/FerdanaRizky/pesona-cloud-drive?utm_source=chatgpt.com)
-- [README — Panduan utama](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/README.md?utm_source=chatgpt.com)
-- [Panduan instalasi dan troubleshooting aaPanel](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/docs/INSTALL-AA-PANEL.md?utm_source=chatgpt.com)
-- [Installer terbaru](https://github.com/FerdanaRizky/pesona-cloud-drive/blob/main/install-aapanel.sh?utm_source=chatgpt.com)
+Website → cloud.pesonawifi.my.id → Config
 
-**Penting:** Perbaikan sudah masuk ke GitHub, tetapi belum berarti seluruh skenario instalasi sudah lulus pengujian VPS baru. Sebaiknya lakukan satu kali instalasi bersih pada VPS uji sebelum menjadikan installer ini sebagai standar produksi. Jangan menghapus aplikasi atau database yang sedang berjalan hanya untuk menguji installer.
+Tambahkan di dalam blok server HTTPS:
+```
+client_max_body_size 1100m;
+client_body_timeout 3600s;
+```
+
+Tes dan reload Nginx:
+```
+nginx -t && /etc/init.d/nginx reload
+```
+
+## **6. Perbaiki konfigurasi PHP 8.4
+Jalankan perintah berikut melalui SSH sebagai root. Perintah ini membuat backup terlebih dahulu dan hanya mengubah konfigurasi yang diperlukan.
+
+```
+PHPINI="/www/server/php/84/etc/php.ini"
+
+cp -a "$PHPINI" "$PHPINI.backup-upload-$(date +%Y%m%d-%H%M%S)"
+
+sed -i \
+-e 's/^upload_max_filesize.*/upload_max_filesize = 1024M/' \
+-e 's/^post_max_size.*/post_max_size = 1100M/' \
+-e 's/^memory_limit.*/memory_limit = 512M/' \
+-e 's/^max_execution_time.*/max_execution_time = 3600/' \
+-e 's/^max_input_time.*/max_input_time = 3600/' \
+-e 's/^max_file_uploads.*/max_file_uploads = 100/' \
+"$PHPINI"
+
+echo "===== HASIL KONFIGURASI ====="
+grep -E '^(upload_max_filesize|post_max_size|memory_limit|max_execution_time|max_input_time|max_file_uploads)' "$PHPINI"
+```
+Restart PHP-FPM 8.4
+```
+/etc/init.d/php-fpm-84 restart
+```
