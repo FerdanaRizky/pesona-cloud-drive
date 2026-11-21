@@ -92,50 +92,64 @@ selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
 document.getElementById('clearDriveSelection')?.addEventListener('click',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=false);refreshSelection();});
 const bulkModal=document.getElementById('bulkActionModal');
+const bulkActionUrl={
+ share:<?= json_encode(site_url('files/bulk-share')) ?>,
+ move:<?= json_encode(site_url('files/bulk-move')) ?>,
+ download:<?= json_encode(site_url('files/bulk-download')) ?>,
+ trash:<?= json_encode(site_url('files/bulk-trash')) ?>
+};
+function checkedBulkItems(){return [...document.querySelectorAll('.drive-item-select:checked')];}
+function submitBulkAction(action){
+ if(!selectionForm)return;
+ selectionForm.action=bulkActionUrl[action]||bulkActionUrl.trash;
+ selectionForm.dataset.pendingAction='';
+ if(typeof selectionForm.requestSubmit==='function')selectionForm.requestSubmit();
+ else HTMLFormElement.prototype.submit.call(selectionForm);
+}
 document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventListener('click',function(event){
- event.preventDefault();
- if(this.classList.contains('selection-action-btn'))event.stopPropagation();
- const action=this.dataset.bulkAction,count=document.querySelectorAll('.drive-item-select:checked').length;
- if(!count)return;
- const shareField=document.getElementById('bulkShareField'),moveField=document.getElementById('bulkMoveField'),title=document.getElementById('bulkActionModalTitle'),confirmButton=document.getElementById('bulkActionConfirm');
- shareField.classList.toggle('d-none',action!=='share');moveField.classList.toggle('d-none',action!=='move');
+ event.preventDefault();event.stopPropagation();
+ const action=this.dataset.bulkAction,selected=checkedBulkItems();
+ if(!selected.length){alert('Pilih file atau folder terlebih dahulu.');return;}
+ const files=selected.filter(box=>box.dataset.itemType==='file');
+ if((action==='share'||action==='move')&&!files.length){alert('Pilih minimal satu file untuk '+(action==='share'?'dibagikan.':'dipindahkan.'));return;}
  if(action==='share'||action==='move'){
-  title.textContent=action==='share'?'Bagikan file terpilih':'Pindahkan file terpilih';
-  confirmButton.textContent=action==='share'?'Buat tautan':'Pindahkan file';
+  document.getElementById('bulkShareField').classList.toggle('d-none',action!=='share');
+  document.getElementById('bulkMoveField').classList.toggle('d-none',action!=='move');
+  document.getElementById('bulkActionModalTitle').textContent=action==='share'?'Bagikan file terpilih':'Pindahkan file terpilih';
+  document.getElementById('bulkActionConfirm').textContent=action==='share'?'Buat tautan':'Pindahkan file';
   selectionForm.dataset.pendingAction=action;
-  const openDropdown=bootstrap.Dropdown.getInstance(this);openDropdown?.hide();bootstrap.Modal.getOrCreateInstance(bulkModal,{backdrop:true,keyboard:true,focus:true}).show();
+  bootstrap.Modal.getOrCreateInstance(bulkModal).show();
   return;
  }
  if(action==='download'){
-  if(!confirm('Unduh file yang dipilih? Folder yang dipilih akan dilewati.'))return;
-  selectionForm.action='/files/bulk-download';selectionForm.requestSubmit();return;
+  if(!files.length){alert('Pilihan Anda tidak berisi file yang dapat diunduh.');return;}
+  if(!confirm('Unduh '+files.length+' file terpilih?'))return;
+  submitBulkAction('download');return;
  }
  if(action==='trash'){
-  if(!confirm('Pindahkan semua file dan folder terpilih ke Sampah?'))return;
-  selectionForm.action=<?= json_encode(site_url('files/bulk-trash')) ?>;HTMLFormElement.prototype.submit.call(selectionForm);
+  if(!confirm('Pindahkan '+selected.length+' item terpilih ke Sampah?'))return;
+  submitBulkAction('trash');
  }
 }));
-selectionForm?.addEventListener('submit',function(event){
- const action=this.dataset.pendingAction;
- if(action==='share')this.action='/files/bulk-share';
- if(action==='move')this.action='/files/bulk-move';
- this.dataset.pendingAction='';
-});
-bulkModal?.addEventListener('hidden.bs.modal',()=>{selectionForm.dataset.pendingAction='';selectionForm.action=<?= json_encode(site_url('files/bulk-trash')) ?>;document.body.classList.remove('modal-open');document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.remove());});
 document.getElementById('bulkActionConfirm')?.addEventListener('click',function(){
- const action=selectionForm.dataset.pendingAction;
+ const action=selectionForm?.dataset.pendingAction;
  if(!action)return;
+ const files=checkedBulkItems().filter(box=>box.dataset.itemType==='file');
+ if(!files.length){alert('Pilih minimal satu file.');return;}
  if(action==='move'){
-  const files=[...document.querySelectorAll('.drive-item-select:checked')].filter(box=>box.dataset.itemType==='file');
-  if(!files.length){alert('Pilih minimal satu file. Folder yang dipilih tidak dapat dipindahkan melalui aksi ini.');return;}
-  selectionForm.action=<?= json_encode(site_url('files/bulk-move')) ?>;
+  const target=document.getElementById('bulkMoveFolder');
+  let hidden=selectionForm.querySelector('input[name="parent_id"]');
+  if(!hidden){hidden=document.createElement('input');hidden.type='hidden';hidden.name='parent_id';selectionForm.appendChild(hidden);}
+  hidden.value=target.value;
  }else if(action==='share'){
-  const files=[...document.querySelectorAll('.drive-item-select:checked')].filter(box=>box.dataset.itemType==='file');
-  if(!files.length){alert('Pilih minimal satu file untuk dibagikan.');return;}
-  selectionForm.action=<?= json_encode(site_url('files/bulk-share')) ?>;
+  let expiry=selectionForm.querySelector('input[name="expires_days"]');
+  if(!expiry){expiry=document.createElement('input');expiry.type='hidden';expiry.name='expires_days';selectionForm.appendChild(expiry);}
+  expiry.value=document.getElementById('bulkShareExpiry').value;
  }
- selectionForm.requestSubmit();
+ submitBulkAction(action);
+ bootstrap.Modal.getOrCreateInstance(bulkModal).hide();
 });
+bulkModal?.addEventListener('hidden.bs.modal',()=>{if(selectionForm)selectionForm.dataset.pendingAction='';});
 refreshSelection();
 const modalEl=document.getElementById('uploadModal');document.getElementById('openUploadPicker')?.addEventListener('click',function(){bootstrap.Modal.getOrCreateInstance(modalEl).show();});
 const uploadForm=document.querySelector('#uploadModal form'),uploadInput=document.getElementById('modalUploadInput'),uploadWrap=document.getElementById('uploadProgressWrap'),uploadFill=document.getElementById('uploadProgressFill'),uploadPercent=document.getElementById('uploadProgressPercent'),uploadLabel=document.getElementById('uploadProgressLabel'),uploadDetail=document.getElementById('uploadProgressDetail'),uploadSize=document.getElementById('uploadProgressSize'),uploadBar=document.getElementById('uploadProgressBar'),uploadStart=document.getElementById('startUploadButton'),uploadCancel=document.getElementById('uploadCancelButton');
@@ -165,6 +179,40 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 <div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
 <button type="button" class="dropdown-item" data-bulk-action="share"><?= $menuIcon('share') ?>Bagikan</button><button type="button" class="dropdown-item" data-bulk-action="download"><?= $menuIcon('download') ?>Download</button><button type="button" class="dropdown-item" data-bulk-action="move"><?= $menuIcon('move') ?>Pindah ke folder</button><div class="dropdown-divider"></div><button type="button" class="dropdown-item text-danger" data-bulk-action="trash"><?= $menuIcon('trash') ?>Pindahkan ke Sampah</button>
 </div></div></div></form>
+
+<div class="modal fade" id="bulkActionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkActionModalTitle">Aksi item terpilih</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <div id="bulkShareField" class="d-none">
+          <label class="form-label" for="bulkShareExpiry">Masa berlaku tautan</label>
+          <select class="form-select" id="bulkShareExpiry">
+            <option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option>
+          </select>
+          <div class="form-text">Tautan hanya dibuat untuk file yang dipilih.</div>
+        </div>
+        <div id="bulkMoveField" class="d-none">
+          <label class="form-label" for="bulkMoveFolder">Pilih folder tujuan</label>
+          <select class="form-select" id="bulkMoveFolder">
+            <option value="0">Drive utama</option>
+            <?php foreach (($allFolders ?? []) as $folderOption): ?>
+              <option value="<?= (int) $folderOption['id'] ?>"><?= esc($folderOption['name']) ?></option>
+            <?php endforeach ?>
+          </select>
+          <div class="form-text">File yang dipilih akan dipindahkan ke folder tujuan. Folder yang dipilih tidak ikut dipindahkan.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" id="bulkActionConfirm">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <section class="dashboard-section dashboard-folder-section file-manager-folder-section">
 <div class="dashboard-section-heading"><h2><span aria-hidden="true">⌄</span> Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div>
