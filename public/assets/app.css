@@ -1809,3 +1809,156 @@ html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folder
  #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody,
  #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 }
+
+
+/* ===== Google Drive-inspired Grid layout across Drive, Trash and Shared Links ===== */
+/* Drive folders stay as compact horizontal tiles at the top; files use preview cards below. */
+#driveViewRoot[data-drive-view="grid"] .drive-files-card .table-responsive{overflow:visible!important;padding:0 14px 16px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card table,
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{display:block!important;width:100%!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;
+ grid-auto-flow:row dense;grid-auto-rows:min-content;align-items:start;gap:14px!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row{
+ display:flex!important;position:relative;flex-direction:row!important;align-items:center;justify-content:flex-start;
+ min-width:0!important;min-height:60px!important;height:60px;padding:8px 42px 8px 12px!important;
+ border:1px solid var(--bs-border-color)!important;border-radius:13px!important;
+ background:#eef3f9!important;box-shadow:none!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row>td{display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row>td:nth-child(2){
+ display:flex!important;align-items:center;width:100%!important;min-width:0;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-cell{
+ display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;width:100%;min-width:0
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .folder-list-icon{
+ display:inline-grid;place-items:center;flex:0 0 30px;width:30px;height:30px;margin:0;
+ font-size:0!important;background:transparent!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .folder-list-icon:before{
+ content:"";display:block;width:27px;height:23px;border-radius:5px;
+ background:linear-gradient(145deg,#f7c75c,#eaa72e);
+ clip-path:polygon(0 15%,37% 15%,48% 28%,100% 28%,100% 100%,0 100%)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-meta{min-width:0;flex:1}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-name{font-size:.88rem;font-weight:600}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-name a{
+ display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-mime{display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row>td:last-child{
+ display:block!important;position:absolute;top:50%;right:7px;width:auto!important;padding:0!important;transform:translateY(-50%)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .action-menu-trigger{
+ width:30px;height:34px;min-width:30px;padding:0;border:0!important;background:transparent!important;box-shadow:none!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row.is-drive-selected{
+ background:#dcecff!important;border-color:#6ca8e9!important;box-shadow:inset 3px 0 0 #3984dc!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row){
+ display:flex!important;position:relative;flex-direction:column!important;align-items:stretch;justify-content:flex-start;
+ min-width:0!important;min-height:250px!important;padding:10px!important;
+ border:1px solid var(--bs-border-color)!important;border-radius:14px!important;background:var(--bs-body-bg)!important;
+ box-shadow:0 2px 8px rgba(15,35,65,.035)
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td{display:none!important}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td:nth-child(2){
+ display:block!important;width:100%!important;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-cell{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important;width:100%
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-visual{
+ width:100%!important;height:148px!important;min-height:148px!important;flex:0 0 148px!important;
+ border-radius:9px!important;overflow:hidden
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-preview-link img{object-fit:cover}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-name{font-size:.86rem;font-weight:600}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-name a{display:-webkit-box;white-space:normal;-webkit-line-clamp:2}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-mime{
+ display:block!important;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td:first-child{
+ display:block!important;position:absolute;top:15px;left:15px;z-index:3
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td:last-child{
+ display:block!important;position:absolute;top:7px;right:7px;z-index:4;width:auto!important;padding:0!important
+}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row)>td:last-child .action-menu-trigger{
+ width:34px;height:34px;border:1px solid rgba(130,150,180,.2)!important;border-radius:10px;
+ background:rgba(14,25,42,.88)!important;color:#e8eef8!important;box-shadow:0 2px 8px rgba(0,0,0,.14)
+}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row{background:#eef3f9!important;border-color:#e5ebf3!important}
+html[data-bs-theme="light"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-name a{color:#202a38!important}
+html[data-bs-theme="dark"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row{background:#202a36!important;border-color:#394653!important}
+html[data-bs-theme="dark"] #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.folder-list-row .drive-file-name a{color:#edf3fb!important}
+
+/* Trash: folder entries are compact pills, deleted files are full-size cards. */
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card .table-responsive,
+#trashViewRoot[data-trash-view="grid"] .trash-files-card .table-responsive{overflow:visible!important}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;gap:12px!important;align-items:start
+}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr{
+ display:flex!important;position:relative;align-items:center;min-width:0;min-height:60px!important;height:60px;
+ padding:8px 42px 8px 12px!important;border:1px solid var(--bs-border-color)!important;border-radius:13px!important;
+ background:#eef3f9!important
+}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td{display:none!important}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2){display:block!important;width:100%;padding:0!important}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2)>.d-flex{gap:10px!important;min-width:0}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2) .trash-item-icon{flex:0 0 30px;font-size:1.4rem}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:nth-child(2) .fw-semibold{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr td:last-child{
+ display:block!important;position:absolute;right:7px;top:50%;width:auto!important;padding:0!important;transform:translateY(-50%)
+}
+#trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr.is-drive-selected{background:#dcecff!important;border-color:#6ca8e9!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody{
+ display:grid!important;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;gap:14px!important;align-items:stretch
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr{
+ display:flex!important;position:relative;flex-direction:column!important;min-width:0;min-height:230px!important;
+ padding:12px!important;border:1px solid var(--bs-border-color)!important;border-radius:14px!important;background:var(--bs-body-bg)!important
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td{display:none!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2){
+ display:flex!important;align-items:flex-start;width:100%;padding:0 28px 8px 0!important
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2)>.d-flex{flex-direction:column!important;align-items:stretch!important;gap:9px!important;width:100%}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2) .trash-item-icon{
+ display:grid;place-items:center;width:100%;height:145px;flex:none;border-radius:9px;background:var(--bs-tertiary-bg);font-size:2.6rem
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2) .min-width-0{min-width:0;width:100%}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:last-child{
+ display:block!important;position:absolute;right:7px;top:7px;width:auto!important;padding:0!important
+}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:last-child .action-menu-trigger{background:rgba(14,25,42,.88)!important;color:#fff!important}
+#trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr.is-drive-selected{background:rgba(83,158,220,.2)!important;border-color:#579be3!important}
+html[data-bs-theme="light"] #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody tr{background:#eef3f9!important;border-color:#e5ebf3!important}
+
+/* Shared-link cards use the same footprint and rhythm as file cards. */
+#shareViewRoot[data-share-view="grid"] .share-management-card .share-table-wrap{overflow:visible!important}
+#shareViewRoot[data-share-view="grid"] .share-management-card tbody{
+ grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;gap:14px!important;align-items:stretch
+}
+#shareViewRoot[data-share-view="grid"] .share-management-card tbody tr.share-row{
+ min-height:230px!important;padding:48px 12px 12px!important;border-radius:14px!important
+}
+#shareViewRoot[data-share-view="grid"] .share-management-card tbody tr.share-row>td:nth-child(2){min-height:145px!important}
+#shareViewRoot[data-share-view="grid"] .share-file-icon{width:100%!important;height:112px!important;flex:0 0 112px!important;border-radius:9px!important}
+#shareViewRoot[data-share-view="grid"] .share-file-name{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+#shareViewRoot[data-share-view="grid"] .share-file-name .fw-semibold{-webkit-line-clamp:2}
+@media(max-width:575px){
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody,
+ #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody,
+ #trashViewRoot[data-trash-view="grid"] .trash-folders-card tbody,
+ #shareViewRoot[data-share-view="grid"] .share-management-card tbody{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row){min-height:210px!important;padding:8px!important}
+ #driveViewRoot[data-drive-view="grid"] .drive-files-card tbody tr.file-row:not(.folder-list-row) .drive-file-visual{height:112px!important;min-height:112px!important;flex-basis:112px!important}
+ #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr{min-height:205px!important;padding:9px!important}
+ #trashViewRoot[data-trash-view="grid"] .trash-files-card tbody tr td:nth-child(2) .trash-item-icon{height:112px}
+ #shareViewRoot[data-share-view="grid"] .share-management-card tbody tr.share-row{min-height:210px!important;padding:44px 9px 10px!important}
+}
