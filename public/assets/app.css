@@ -2364,3 +2364,41 @@ html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gr
  .user-create-modal-content .create-user-field:nth-child(4),
  .user-create-modal-content .create-user-actions{grid-column:1/-1}
 }
+
+
+/* Balanced, aligned layout for the create-user dialog. */
+.user-create-modal-content .modal-body{padding:24px 28px 28px!important}
+.user-create-modal-content .create-user-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:
+    "name email"
+    "phone quota"
+    "password password"
+    "actions actions";
+  align-items:start;
+  gap:18px 20px;
+}
+.user-create-modal-content .create-user-field{min-width:0;display:flex;flex-direction:column}
+.user-create-modal-content .create-user-field:nth-of-type(1){grid-area:name}
+.user-create-modal-content .create-user-field:nth-of-type(2){grid-area:email}
+.user-create-modal-content .create-user-field:nth-of-type(3){grid-area:phone}
+.user-create-modal-content .create-user-field:nth-of-type(4){grid-area:password}
+.user-create-modal-content .create-user-field:nth-of-type(5){grid-area:quota}
+.user-create-modal-content .create-user-field .form-label{min-height:22px;margin:0 0 8px;font-weight:650}
+.user-create-modal-content .create-user-field .form-control,
+.user-create-modal-content .create-user-field .input-group{width:100%;min-width:0;min-height:48px}
+.user-create-modal-content .create-user-field .form-text{min-height:18px;margin-top:6px}
+.user-create-modal-content .create-user-field .input-group .form-control{height:48px}
+.user-create-modal-content .create-user-field .input-group .btn{min-width:52px}
+.user-create-modal-content .create-user-actions{grid-area:actions;margin-top:2px}
+.user-create-modal-content .create-user-submit{min-height:48px}
+@media(max-width:599.98px){
+ .user-create-modal-content .modal-body{padding:20px!important}
+ .user-create-modal-content .create-user-form{
+   grid-template-columns:minmax(0,1fr);
+   grid-template-areas:"name" "email" "phone" "password" "quota" "actions";
+   gap:14px;
+ }
+ .user-create-modal-content .create-user-field .form-label{min-height:0}
+}
