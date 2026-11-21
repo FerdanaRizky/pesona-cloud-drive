@@ -14,7 +14,7 @@
 <nav class="nav flex-column mt-4">
 <a class="nav-link <?= $currentPath === 'dashboard' ? 'active' : '' ?>" href="/dashboard">⌂ <span>Dashboard</span></a>
 <a class="nav-link <?= in_array($currentPath, ['files', 'files/search'], true) ? 'active' : '' ?>" href="/files">▤ <span>File Saya</span></a>
-<a class="nav-link <?= $currentPath === 'starred' ? 'active' : '' ?>" href="/starred">★ <span>Bintang</span></a>
+<a class="nav-link <?= $currentPath === 'starred' ? 'active' : '' ?>" href="/starred">★ <span>Favorit</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'trash') ? 'active' : '' ?>" href="/trash">♲ <span>Sampah</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'shares') ? 'active' : '' ?>" href="/shares">⛓ <span>Link Berbagi</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'activity') ? 'active' : '' ?>" href="/activity">◷ <span>Riwayat Aktivitas</span></a>
