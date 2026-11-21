@@ -55,6 +55,59 @@ $formatActivityDate = static function ($value) {
             </div>
         </div>
         <?php if (!empty($files)): ?>
+        <div class="dashboard-file-list-wrap">
+            <table class="dashboard-file-list">
+                <thead><tr>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Alasan file disarankan</th>
+                    <th scope="col">Pemilik</th>
+                    <th scope="col">Lokasi</th>
+                    <th scope="col" class="dashboard-list-action-heading"><span class="visually-hidden">Aksi</span></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($files as $file):
+                    $ext = strtolower((string) ($file['extension'] ?? ''));
+                    $mime = strtolower((string) ($file['mime_type'] ?? ''));
+                    $kind = 'file'; $label = strtoupper($ext ?: 'FILE');
+                    if (in_array($ext, ['doc','docx','odt'], true)) { $kind='word'; $label='DOC'; }
+                    elseif (in_array($ext, ['xls','xlsx','ods','csv'], true)) { $kind='sheet'; $label='XLS'; }
+                    elseif (in_array($ext, ['ppt','pptx','odp'], true)) { $kind='slides'; $label='PPT'; }
+                    elseif ($mime === 'application/pdf' || $ext === 'pdf') { $kind='pdf'; $label='PDF'; }
+                    elseif (str_starts_with($mime, 'image/')) { $kind='image'; $label='IMG'; }
+                    elseif (in_array($ext, ['mp4','m4v','mov','webm','ogv','avi','mkv'], true)) { $kind='video'; $label='VIDEO'; }
+                    elseif (in_array($ext, ['mp3','wav','ogg','m4a','flac','aac'], true)) { $kind='audio'; $label='AUDIO'; }
+                    elseif (in_array($ext, ['zip','rar','7z','tar','gz','bz2'], true)) { $kind='archive'; $label='ZIP'; }
+                    $reasonDate = $formatActivityDate($file['updated_at'] ?? $file['created_at'] ?? null);
+                    $ownerName = (string) ($user['name'] ?? session()->get('name') ?? 'Saya');
+                    $parentId = (int) ($file['parent_id'] ?? 0);
+                    $locationName = (string) ($file['dashboard_location'] ?? 'Drive Saya');
+                    $fileUrl = in_array($kind, ['image','pdf','word','sheet','slides'], true) ? '/files/preview/' . (int) $file['id'] : '/files/download/' . (int) $file['id'];
+                ?>
+                    <tr>
+                        <td>
+                            <a class="dashboard-list-name" href="<?= esc($fileUrl, 'attr') ?>">
+                                <span class="dashboard-file-kind dashboard-file-kind--<?= esc($kind, 'attr') ?>" aria-hidden="true"><?= esc($label) ?></span>
+                                <span class="dashboard-list-filename" title="<?= esc($file['original_name'], 'attr') ?>"><?= esc($file['original_name']) ?></span>
+                            </a>
+                        </td>
+                        <td><span class="dashboard-list-history">Anda mengubahnya · <?= esc($reasonDate) ?></span></td>
+                        <td><span class="dashboard-list-owner"><span class="dashboard-avatar" aria-hidden="true"><?= esc(mb_strtoupper(mb_substr($ownerName, 0, 1))) ?></span><span title="<?= esc($ownerName, 'attr') ?>"><?= esc($ownerName) ?></span></span></td>
+                        <td><a class="dashboard-list-location" href="<?= $parentId > 0 ? '/files?folder=' . $parentId : '/files' ?>" title="<?= esc($locationName, 'attr') ?>"><span aria-hidden="true"><?= $parentId > 0 ? '📁' : '▣' ?></span><span><?= esc($locationName) ?></span></a></td>
+                        <td class="dashboard-list-action-cell">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
+                                <div class="dropdown-menu dropdown-menu-end file-action-menu">
+                                    <a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">Preview</a>
+                                    <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">Unduh</a>
+                                    <a class="dropdown-item" href="/files">Kelola di File Saya</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
         <div class="dashboard-file-grid">
             <?php foreach ($files as $file):
                 $ext = strtolower((string) ($file['extension'] ?? ''));
