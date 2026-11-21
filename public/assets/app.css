@@ -1642,3 +1642,68 @@ html[data-bs-theme="light"] .share-management-card tbody tr.share-row.is-drive-s
 html[data-bs-theme="light"] #trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected .fw-semibold,
 html[data-bs-theme="light"] #trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected .fw-semibold,
 html[data-bs-theme="light"] .share-management-card tbody tr.share-row.is-drive-selected .fw-semibold{color:#174f91}
+
+
+/* Google Drive-style selection toolbar: controls appear only while items are selected */
+#driveViewRoot .selection-column,
+#driveViewRoot .drive-files-card thead .selection-column,
+#driveViewRoot .drive-files-card tbody .selection-column,
+#driveViewRoot .drive-files-card tbody tr.file-row>td:first-child,
+#trashViewRoot .trash-selection-column,
+.share-management-card .share-select-column{display:none!important;width:0!important;padding:0!important;border:0!important}
+#driveViewRoot .drive-item-select,
+#trashViewRoot .trash-item-select,
+.share-management-card .share-row-select,
+#selectAllFiles,#selectAllFolders,#selectAllTrashFiles,#selectAllTrashFolders,#selectAllShares{display:none!important}
+#driveViewRoot .bulk-selection-bar{
+ display:none;min-height:50px;padding:7px 12px;margin:0 0 14px!important;
+ border:1px solid #3b5d8a;border-radius:18px;
+ background:#eef3fa!important;color:#26384f!important;
+ box-shadow:0 2px 8px rgba(0,0,0,.04)
+}
+#driveViewRoot .bulk-selection-bar.is-selection-active{display:flex}
+#driveViewRoot .bulk-selection-info{gap:12px;flex:1 1 auto}
+#driveViewRoot .bulk-selection-info strong{font-size:.94rem;color:#26384f}
+#driveViewRoot .bulk-action-controls{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.selection-clear-icon{
+ display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+ padding:0;border:0;border-radius:50%;background:transparent;color:inherit;
+ font-size:27px;line-height:1;cursor:pointer
+}
+.selection-clear-icon:hover{background:rgba(45,65,90,.1)}
+.selection-action-btn{
+ display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;
+ border:0;border-radius:10px;background:transparent;color:#394a5e;
+ font-size:22px;font-weight:600;line-height:1;cursor:pointer
+}
+.selection-action-btn:hover{background:rgba(50,75,105,.12)}
+.selection-action-btn.danger{color:#c34a53}
+#driveViewRoot .bulk-selection-bar .bulk-menu-trigger{width:38px;height:38px;border:0!important;background:transparent!important;color:#394a5e!important;font-size:22px}
+#trashViewRoot .trash-bulk-selection{display:none;min-height:50px;padding:7px 12px;margin:0 0 14px!important;border:1px solid #3b5d8a;border-radius:18px;background:#eef3fa!important;color:#26384f!important}
+#trashViewRoot .trash-bulk-selection.is-selection-active{display:flex}
+#trashViewRoot .trash-bulk-selection .bulk-selection-info{gap:12px}
+#trashViewRoot .trash-bulk-selection .bulk-selection-info strong{font-size:.94rem;color:#26384f}
+#trashViewRoot .trash-bulk-selection .bulk-action-controls{display:flex;align-items:center;gap:5px}
+#trashViewRoot .trash-bulk-selection .bulk-menu-trigger{width:38px;height:38px;border:0!important;background:transparent!important;color:#394a5e!important;font-size:22px}
+#trashViewRoot .trash-selection-column{display:none!important}
+.share-bulk-toolbar{display:none!important}
+.share-bulk-toolbar.is-selection-active{display:flex!important;min-height:50px;padding:7px 12px;margin:0 0 14px!important;border:1px solid #3b5d8a;border-radius:18px;background:#eef3fa!important;color:#26384f!important}
+.share-bulk-info{display:flex;flex-direction:row;align-items:center;gap:12px;min-width:0;flex:1}
+.share-bulk-info strong{font-size:.94rem;color:#26384f}
+.share-bulk-actions{display:flex;align-items:center;gap:5px}
+.share-expiry-inline{display:inline-flex;align-items:center}
+.share-bulk-actions select{width:118px;min-height:34px;background:#fff;color:#26384f;border-color:#cbd5e1}
+.share-bulk-actions .selection-action-btn{width:36px;height:36px}
+.share-bulk-actions #bulkShareUpdate,.share-bulk-actions #bulkShareRevoke{display:none!important}
+.share-management-card .share-select-column{display:none!important}
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar,
+html[data-bs-theme="dark"] #trashViewRoot .trash-bulk-selection,
+html[data-bs-theme="dark"] .share-bulk-toolbar.is-selection-active{
+ background:#eef3fa!important;color:#26384f!important;border-color:#cbd5e1!important
+}
+@media(max-width:767px){
+ #driveViewRoot .bulk-selection-bar,#trashViewRoot .trash-bulk-selection,.share-bulk-toolbar.is-selection-active{gap:5px;padding:6px 8px!important}
+ .selection-action-btn{width:32px;height:34px;font-size:19px}
+ .selection-clear-icon{width:30px;height:32px}
+ .share-bulk-actions select{width:92px}
+}
