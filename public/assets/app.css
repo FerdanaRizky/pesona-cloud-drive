@@ -893,3 +893,53 @@ html[data-bs-theme="light"] .profile-edit-icon{background:#f0f5ff;border-color:#
 .share-expiry-panel .form-select{min-width:105px}
 .share-row>td{vertical-align:middle}
 @media(max-width:767px){.share-actions-trigger{width:42px;height:40px}.share-expiry-panel{min-width:190px}.share-link-panel{max-width:100%}}
+
+/* Share management: icon actions, readable links and mobile-friendly table */
+.share-page-heading{padding:4px 2px 8px}
+.share-page-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.15em;color:#82adf5;margin-bottom:8px}
+.share-page-heading h1{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:780;letter-spacing:-.035em}
+.share-page-heading p{max-width:680px;line-height:1.5}
+.share-back-button{display:inline-flex;align-items:center;gap:8px;min-height:42px;border-radius:10px;padding:8px 13px}
+.share-back-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.share-management-card{border:1px solid #2d405d;border-radius:17px;background:linear-gradient(150deg,#172943,#111d30);box-shadow:0 9px 26px rgba(0,0,0,.09)}
+.share-management-table{--bs-table-bg:transparent;--bs-table-color:var(--bs-body-color);margin-bottom:0;min-width:760px}
+.share-management-table thead th{font-size:.78rem;letter-spacing:.025em;color:#9eb5d4;font-weight:750;border-bottom-color:#30435f;padding:12px 10px;white-space:nowrap}
+.share-management-table tbody td{padding:13px 10px;border-bottom-color:#2a3c57}
+.share-management-table tbody tr:last-child td{border-bottom:0}
+.share-file-name{display:flex;align-items:center;gap:10px;min-width:230px}
+.share-file-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:36px;border-radius:10px;background:rgba(69,126,218,.15);color:#91baff}
+.share-file-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.share-actions-trigger{display:inline-grid;place-items:center;width:39px;height:39px;padding:0;border-radius:11px;border-color:#405775;background:rgba(51,79,118,.15);color:#b9d0ef}
+.share-actions-trigger:hover,.share-actions-trigger:focus{background:rgba(69,126,218,.2);border-color:#6595d5;color:#fff}
+.share-actions-trigger svg{width:19px;height:19px;fill:currentColor}
+.share-actions-menu{min-width:230px;padding:7px;border:1px solid #344a68;border-radius:13px;background:#172943;box-shadow:0 16px 36px rgba(0,0,0,.28)}
+.share-actions-menu .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:9px;color:#dce8f8}
+.share-actions-menu .dropdown-item:hover{background:rgba(83,132,204,.17);color:#fff}
+.share-actions-menu .dropdown-item svg{width:17px;height:17px;flex:0 0 17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.share-actions-menu .dropdown-item.text-danger{color:#ff929c!important}
+.share-actions-menu .dropdown-item.text-danger:hover{background:rgba(220,53,69,.12)}
+.share-link-panel{max-width:440px;padding:9px;border:1px solid #344a68;border-radius:11px;background:rgba(7,18,32,.35)}
+.share-link-panel .input-group{min-width:260px}
+.share-link-panel .form-control{font-size:.78rem}
+.share-expiry-panel{min-width:220px;max-width:280px;margin-left:auto;padding:8px;border:1px solid #344a68;border-radius:11px;background:rgba(7,18,32,.35)}
+.share-expiry-panel form{align-items:center}
+.share-expiry-panel .form-select{min-width:110px}
+.share-expiry-save{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border-radius:8px}
+.share-expiry-save svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+html[data-bs-theme="light"] .share-management-card{background:linear-gradient(150deg,#fff,#f7f9fd);border-color:#dce5f1}
+html[data-bs-theme="light"] .share-management-table thead th{color:#61738d;border-bottom-color:#e2e9f2}
+html[data-bs-theme="light"] .share-management-table tbody td{border-bottom-color:#e6ecf4}
+html[data-bs-theme="light"] .share-actions-menu{background:#fff;border-color:#dce5f1;box-shadow:0 14px 32px rgba(28,45,70,.16)}
+html[data-bs-theme="light"] .share-actions-menu .dropdown-item{color:#26364d}
+html[data-bs-theme="light"] .share-actions-menu .dropdown-item:hover{background:#eef4fc;color:#1e4e8a}
+html[data-bs-theme="light"] .share-link-panel,html[data-bs-theme="light"] .share-expiry-panel{background:#f7f9fd;border-color:#e0e7f1}
+@media(max-width:767px){
+ .share-page-heading{align-items:flex-start!important}
+ .share-back-button{width:100%;justify-content:center}
+ .share-management-card{padding:10px!important;border-radius:14px}
+ .share-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .share-management-table{min-width:700px}
+ .share-actions-trigger{width:42px;height:42px}
+ .share-link-panel{max-width:100%}
+ .share-expiry-panel{max-width:100%;min-width:0}
+}
