@@ -1,11 +1,12 @@
 <?= $this->extend('layouts/app') ?>
 <?= $this->section('content') ?>
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+<div class="profile-page-shell">
+<div class="profile-hero mb-4">
  <div><h1 class="h3 mb-1">Profil Pengguna</h1><p class="text-secondary mb-0">Kelola informasi akun dan keamanan Pesona Cloud Drive.</p></div>
- <div class="user-avatar profile-page-avatar"><?= esc(strtoupper(substr((string)($user['name'] ?: $user['email']),0,1))) ?></div>
+ <div class="profile-hero-avatar"><?= esc(strtoupper(substr((string)($user['name'] ?: $user['email']),0,1))) ?></div>
 </div>
-<div class="card p-4 profile-info-card" style="max-width:820px">
- <div class="d-flex align-items-center gap-2 mb-3"><span class="profile-section-icon">♙</span><div><h2 class="h5 mb-0">Informasi akun</h2><small class="text-secondary">Informasi profil yang terhubung dengan akun Anda.</small></div></div>
+<div class="card p-4 profile-info-card">
+ <div class="d-flex align-items-center gap-2 mb-3 profile-section-heading"><span class="profile-section-icon">♙</span><div><h2 class="h5 mb-0">Informasi akun</h2><small class="text-secondary">Informasi profil yang terhubung dengan akun Anda.</small></div></div>
  <div class="user-profile-summary profile-account-summary">
   <div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><div class="profile-value-with-edit"><strong><?= esc($user['name']) ?></strong><button class="profile-edit-icon" type="button" data-bs-toggle="modal" data-bs-target="#editNameModal" aria-label="Ubah nama lengkap" title="Ubah nama"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L19.8 7.7a2.1 2.1 0 0 0-3-3L4 16.5Z"/><path d="m15.5 6.5 3 3"/></svg></button></div></div>
   <div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($user['email']) ?></strong><small class="text-secondary">Email tidak dapat diubah</small></div>
@@ -39,4 +40,5 @@
  <div class="mb-3"><label class="form-label" for="new_password">Password baru</label><div class="input-group"><input class="form-control" id="new_password" type="password" name="password" minlength="12" autocomplete="new-password" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="form-text">Minimal 12 karakter.</div></div>
  <div class="mb-1"><label class="form-label" for="password_confirm">Konfirmasi password baru</label><div class="input-group"><input class="form-control" id="password_confirm" type="password" name="password_confirm" minlength="12" autocomplete="new-password" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirm" aria-label="Tampilkan konfirmasi password" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7S15.6 19 12 19 2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
 </div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary" type="submit">Simpan Password</button></div></form></div></div></div>
+</div>
 <?= $this->endSection() ?>
