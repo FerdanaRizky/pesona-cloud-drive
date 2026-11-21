@@ -203,7 +203,7 @@ class Files extends BaseController
             $model->update($id, ['is_trashed' => 1]);
             $this->logActivity((int) session()->get('user_id'), 'file.trash', 'Memindahkan ke sampah: ' . $file['original_name']);
         }
-        return redirect()->back()->with('message', 'File dipindahkan ke sampah.');
+        return redirect()->to('/files')->with('message', 'File dipindahkan ke sampah.');
     }
 
 
