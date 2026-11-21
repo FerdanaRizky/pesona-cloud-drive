@@ -53,7 +53,7 @@ class Users extends BaseController
         $target = $users->find($id);
         if (!$target) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
 
-        $status = (string) $this->request->getPost('status');
+        $status = (string) ($this->request->getPost('status') ?? $target['status']);
         $quotaGb = (int) $this->request->getPost('quota_gb');
         if (!in_array($status, ['active', 'suspended'], true) || $quotaGb < 1 || $quotaGb > 10000) {
             return redirect()->back()->with('error', 'Status atau kuota tidak valid.');
