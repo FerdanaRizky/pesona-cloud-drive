@@ -62,19 +62,35 @@ class Share extends BaseController
         if (!$share || (int) $share['is_trashed'] === 1) {
             return redirect()->to('/shares')->with('error', 'Link berbagi tidak ditemukan atau file sudah di Sampah.');
         }
+        // If a saved encrypted token exists, decrypt and show that exact URL again.
+        // Previously this branch only returned an informational message, leaving the URL hidden.
         if (!empty($share['token_ciphertext'])) {
-            return redirect()->to('/shares')->with('message', 'URL tautan ini sudah tersimpan. Gunakan menu Tampilkan link kembali.');
+            try {
+                $savedToken = service('encrypter')->decrypt($share['token_ciphertext']);
+                if (is_string($savedToken) && preg_match('/^[a-f0-9]{64}$/', $savedToken)) {
+                    return redirect()->to('/shares')
+                        ->with('share_link', site_url('s/' . $savedToken))
+                        ->with('share_id', $id)
+                        ->with('message', 'Link berbagi berhasil ditampilkan kembali.');
+                }
+            } catch (\\Throwable $e) {
+                // If legacy ciphertext cannot be decrypted (for example, after an app-key change),
+                // rotate it below and persist a fresh encrypted token.
+            }
         }
 
-        // Legacy rows stored only token_hash. The original URL cannot be derived from a hash,
-        // so rotate the token and persist its encrypted form for future display.
+        // Legacy rows stored only a hash, or ciphertext that can no longer be decrypted.
+        // The old URL cannot be reconstructed; issue a replacement and save it securely.
         $token = bin2hex(random_bytes(32));
         $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->update([
             'token_hash' => hash('sha256', $token),
             'token_ciphertext' => service('encrypter')->encrypt($token),
         ]);
         $this->log($uid, 'file.share_restore', 'Membuat ulang URL tautan berbagi: ' . $share['original_name']);
-        return redirect()->to('/shares')->with('share_link', site_url('s/' . $token))->with('share_id', $id)->with('message', 'URL baru berhasil dibuat dan disimpan.');
+        return redirect()->to('/shares')
+            ->with('share_link', site_url('s/' . $token))
+            ->with('share_id', $id)
+            ->with('message', 'URL pengganti berhasil dibuat dan disimpan.');
     }
 
     public function revokeOne(int $id)
