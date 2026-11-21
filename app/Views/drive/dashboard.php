@@ -1,6 +1,25 @@
 <?= $this->extend('layouts/app') ?>
 <?= $this->section('content') ?>
 <?php
+$menuIcon = static function (string $name): string {
+    $paths = [
+        'share' => '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/>',
+        'download' => '<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>',
+        'move' => '<path d="M3 7h7l2 2h9v11H3z"/><path d="M12 12v5m-3-3 3 3 3-3"/>',
+        'trash' => '<path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/>',
+        'rename' => '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>',
+        'preview' => '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+        'star' => '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
+        'link' => '<path d="M10 13a5 5 0 0 0 7.1 0l3-3A5 5 0 0 0 13 2.9l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3A5 5 0 0 0 11 21.1l1.7-1.7"/>',
+        'restore' => '<path d="M3 7v5h5"/><path d="M4.5 12a8 8 0 1 0 2-5.3L3 12"/>',
+        'more' => '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+        'folder' => '<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+        'close' => '<path d="m18 6-12 12M6 6l12 12"/>',
+    ];
+    return '<svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'.($paths[$name] ?? $paths['folder']).'</svg>';
+};
+?>
+<?php
 $formatActivityDate = static function ($value) {
     $time = $value ? strtotime((string) $value) : false;
     return $time ? date('j M', $time) : 'Baru saja';
@@ -23,7 +42,7 @@ $formatActivityDate = static function ($value) {
             <button type="button" class="selection-action-btn" data-dashboard-bulk="share" title="Bagikan" aria-label="Bagikan">↗</button>
             <button type="button" class="selection-action-btn" data-dashboard-bulk="download" title="Download" aria-label="Download">↓</button>
             <button type="button" class="selection-action-btn" data-dashboard-bulk="move" title="Pindahkan" aria-label="Pindahkan">▣</button>
-            <div class="dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="dashboardBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" disabled>⋮</button>
+            <div class="dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="dashboardBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" disabled><?= $menuIcon('more') ?></button>
                 <div class="dropdown-menu dropdown-menu-end file-action-menu">
                     <button type="button" class="dropdown-item" data-dashboard-bulk="share">Bagikan</button>
                     <button type="button" class="dropdown-item" data-dashboard-bulk="download">Download</button>
@@ -55,10 +74,10 @@ $formatActivityDate = static function ($value) {
                     <span class="dashboard-card-name" title="<?= esc($folder['name'], 'attr') ?>"><?= esc($folder['name']) ?></span>
                 </a>
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>">⋮</button>
+                    <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>"><?= $menuIcon('more') ?></button>
                     <div class="dropdown-menu dropdown-menu-end file-action-menu">
                         <a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>">Buka folder</a>
-                        <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
+                        <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120"><?= $menuIcon('rename') ?>Ganti nama</button>
                     </div>
                 </div>
             </article>
@@ -124,14 +143,14 @@ $formatActivityDate = static function ($value) {
                         <td><a class="dashboard-list-location" href="<?= $parentId > 0 ? '/files?folder=' . $parentId : '/files' ?>" title="<?= esc($locationName, 'attr') ?>"><span aria-hidden="true"><?= $parentId > 0 ? '📁' : '▣' ?></span><span><?= esc($locationName) ?></span></a></td>
                         <td class="dashboard-list-action-cell">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
+                                <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('more') ?></button>
                                 <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                                    <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">◉ Preview</a><?php endif ?>
-                                    <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">↓ Unduh</a>
-                                    <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>">✎ Ganti nama</button>
-                                    <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>">↗ Pindah folder</button>
-                                    <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>">♧ Bagi tautan</button>
-                                    <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
+                                    <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>"><?= $menuIcon('preview') ?>Preview</a><?php endif ?>
+                                    <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>"><?= $menuIcon('download') ?>Unduh</a>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('rename') ?>Ganti nama</button>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>"><?= $menuIcon('move') ?>Pindah folder</button>
+                                    <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>"><?= $menuIcon('share') ?>Bagi tautan</button>
+                                    <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
                                     <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
                                 </div>
                             </div>
@@ -169,14 +188,14 @@ $formatActivityDate = static function ($value) {
                     </span>
                     <a class="dashboard-file-title" href="<?= esc($openUrl, 'attr') ?>" title="<?= esc($file['original_name'], 'attr') ?>"><?= esc($file['original_name']) ?></a>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
+                        <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('more') ?></button>
                         <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                            <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">◉ Preview</a><?php endif ?>
-                            <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">↓ Unduh</a>
-                            <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>">✎ Ganti nama</button>
-                            <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>">↗ Pindah folder</button>
-                            <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>">♧ Bagi tautan</button>
-                            <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
+                            <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>"><?= $menuIcon('preview') ?>Preview</a><?php endif ?>
+                            <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>"><?= $menuIcon('download') ?>Unduh</a>
+                            <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('rename') ?>Ganti nama</button>
+                            <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>"><?= $menuIcon('move') ?>Pindah folder</button>
+                            <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>"><?= $menuIcon('share') ?>Bagi tautan</button>
+                            <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
                             <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
                         </div>
                     </div>
