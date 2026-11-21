@@ -39,14 +39,14 @@ $formatActivityDate = static function ($value) {
         <button type="button" class="dashboard-selection-clear" id="dashboardClearSelection" aria-label="Batalkan pilihan">×</button>
         <strong id="dashboardSelectionCount">0 item dipilih</strong>
         <div class="dashboard-selection-actions">
-            <button type="button" class="selection-action-btn" data-dashboard-bulk="share" title="Bagikan" aria-label="Bagikan">↗</button>
-            <button type="button" class="selection-action-btn" data-dashboard-bulk="download" title="Download" aria-label="Download">↓</button>
-            <button type="button" class="selection-action-btn" data-dashboard-bulk="move" title="Pindahkan" aria-label="Pindahkan">▣</button>
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="share" title="Bagikan" aria-label="Bagikan"><?= $menuIcon('share') ?></button>
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="download" title="Download" aria-label="Download"><?= $menuIcon('download') ?></button>
+            <button type="button" class="selection-action-btn" data-dashboard-bulk="move" title="Pindahkan" aria-label="Pindahkan"><?= $menuIcon('move') ?></button>
             <div class="dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="dashboardBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" disabled><?= $menuIcon('more') ?></button>
                 <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                    <button type="button" class="dropdown-item" data-dashboard-bulk="share">Bagikan</button>
-                    <button type="button" class="dropdown-item" data-dashboard-bulk="download">Download</button>
-                    <button type="button" class="dropdown-item" data-dashboard-bulk="move">Pindah ke folder</button>
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="share"><?= $menuIcon('share') ?>Bagikan</button>
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="download"><?= $menuIcon('download') ?>Download</button>
+                    <button type="button" class="dropdown-item" data-dashboard-bulk="move"><?= $menuIcon('move') ?>Pindah ke folder</button>
                 </div>
             </div>
         </div>
@@ -150,8 +150,8 @@ $formatActivityDate = static function ($value) {
                                     <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('rename') ?>Ganti nama</button>
                                     <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>"><?= $menuIcon('move') ?>Pindah folder</button>
                                     <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>"><?= $menuIcon('share') ?>Bagi tautan</button>
-                                    <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
-                                    <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
+                                    <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= $menuIcon('star') ?><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
+                                    <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info"><?= $menuIcon('link') ?>Cabut tautan berbagi</button></form><?php endif ?>
                                 </div>
                             </div>
                         </td>
@@ -195,8 +195,8 @@ $formatActivityDate = static function ($value) {
                             <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/rename/<?= (int) $file['id'] ?>" data-name="<?= esc($file['original_name'], 'attr') ?>"><?= $menuIcon('rename') ?>Ganti nama</button>
                             <button type="button" class="dropdown-item" data-dashboard-action="move" data-url="/files/move/<?= (int) $file['id'] ?>"><?= $menuIcon('move') ?>Pindah folder</button>
                             <button type="button" class="dropdown-item" data-dashboard-action="share" data-url="/files/share/<?= (int) $file['id'] ?>"><?= $menuIcon('share') ?>Bagi tautan</button>
-                            <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
-                            <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
+                            <form method="post" action="/files/star/<?= (int) $file['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($file['is_starred']) ? 'text-warning' : '' ?>"><?= $menuIcon('star') ?><?= !empty($file['is_starred']) ? 'Hapus favorit' : 'Tambahkan favorit' ?></button></form>
+                            <?php if (!empty($file['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $file['id'] ?>" onsubmit="return confirm('Cabut tautan berbagi file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info"><?= $menuIcon('link') ?>Cabut tautan berbagi</button></form><?php endif ?>
                         </div>
                     </div>
                 </div>
