@@ -15,7 +15,7 @@ document.addEventListener('click',event=>{
   '#dashboardDriveRoot [data-dashboard-selectable], #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card'
  );
  if(!item)return;
- if(event.target.closest('button,input,select,textarea,form,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn'))return;
+ if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn,.multi-select-control'))return;
  const clickedLink=event.target.closest('a[href]');
  const primaryLink=clickedLink||item.querySelector(
   '.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-file-preview[href], .dashboard-list-name[href]'
