@@ -6,6 +6,26 @@ sidebarBackdrop?.addEventListener('click',closeSidebar);
 sidebar?.querySelectorAll('a.nav-link').forEach(link=>link.addEventListener('click',closeSidebar));
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();});
+/* Mobile navigation: a single tap opens a file or folder instead of requiring a double tap.
+   Selection by checkbox and all action/menu controls remain available. */
+document.addEventListener('click',event=>{
+ const mobile=window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+ if(!mobile)return;
+ const item=event.target.closest(
+  '#dashboardDriveRoot [data-dashboard-selectable], #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card'
+ );
+ if(!item)return;
+ if(event.target.closest('button,input,select,textarea,form,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn'))return;
+ const clickedLink=event.target.closest('a[href]');
+ const primaryLink=clickedLink||item.querySelector(
+  '.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-file-preview[href], .dashboard-list-name[href]'
+ );
+ if(!primaryLink||!item.contains(primaryLink))return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ window.location.assign(primaryLink.href);
+},true);
+
 /* Drive interaction: single click selects, double click opens (list and grid). */
 const driveRoot=document.getElementById('driveViewRoot');
 if(driveRoot){
