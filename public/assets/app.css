@@ -2744,3 +2744,55 @@ html[data-bs-theme="light"] #userCardsGrid .user-password-form{background:#f8faf
  #userCardsGrid .user-setting-form .quota-edit-row{grid-template-columns:minmax(0,1fr) auto}
  #userCardsGrid .user-setting-form .quota-save-button{min-width:104px}
 }
+
+
+/* Collapsible role/status actions in user cards */
+#userCardsGrid .user-action-disclosure{
+ grid-column:1 / -1;
+ min-width:0;
+ border:1px solid #2d4260;
+ border-radius:14px;
+ overflow:hidden;
+ background:rgba(8,19,35,.22);
+}
+#userCardsGrid .user-action-disclosure>summary{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ min-height:64px;
+ padding:12px 16px;
+ cursor:pointer;
+ list-style:none;
+ user-select:none;
+}
+#userCardsGrid .user-action-disclosure>summary::-webkit-details-marker{display:none}
+#userCardsGrid .user-action-disclosure>summary>span:first-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+#userCardsGrid .user-action-disclosure>summary strong{font-size:.9rem;color:var(--bs-body-color)}
+#userCardsGrid .user-action-disclosure>summary small{font-size:.78rem;color:var(--bs-secondary-color)}
+#userCardsGrid .user-action-disclosure>summary:hover{background:rgba(75,135,230,.08)}
+#userCardsGrid .disclosure-chevron{font-size:1.25rem;color:var(--bs-secondary-color);transition:transform .2s ease}
+#userCardsGrid .user-action-disclosure[open] .disclosure-chevron{transform:rotate(180deg)}
+#userCardsGrid .user-action-disclosure[open]>summary{border-bottom:1px solid #2d4260;background:rgba(75,135,230,.07)}
+#userCardsGrid .user-action-disclosure .user-role-form{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(250px,auto);
+ align-items:center;
+ gap:16px;
+ margin:0;
+ padding:15px 16px;
+ border:0;
+ border-radius:0;
+ background:transparent;
+}
+#userCardsGrid .user-action-disclosure .user-status-edit-form{padding:14px 16px}
+#userCardsGrid .user-action-disclosure .user-status-edit-form .btn{min-height:40px;border-radius:10px;font-weight:650}
+html[data-bs-theme="light"] #userCardsGrid .user-action-disclosure{background:#fff;border-color:#dfe7f2}
+html[data-bs-theme="light"] #userCardsGrid .user-action-disclosure[open]>summary{border-color:#dfe7f2;background:#f4f7fc}
+@media(max-width:767px){
+ #userCardsGrid .user-action-disclosure .user-role-form{grid-template-columns:minmax(0,1fr);gap:12px}
+ #userCardsGrid .user-action-disclosure .user-role-form-actions{grid-template-columns:minmax(0,1fr) auto}
+}
+@media(max-width:420px){
+ #userCardsGrid .user-action-disclosure .user-role-form-actions{grid-template-columns:minmax(0,1fr)}
+}
