@@ -164,13 +164,7 @@ https://DOMAIN/setup
 
 Ikuti halaman setup untuk membuat akun administrator pertama. Setelah admin berhasil dibuat, login dan periksa fitur manajemen pengguna serta upload file.
 
-### 7. Pengaturan lanjutan
-- Konfigurasikan SMTP pada file `.env` jika ingin menggunakan fitur lupa/reset password melalui email. Lihat bagian **Konfigurasi email reset password**.
-- Untuk preview dokumen Office, pasang LibreOffice: `apt install libreoffice`.
-- Untuk upload file besar, ikuti bagian **Upload file berukuran besar (aaPanel)** dan sesuaikan batas Nginx/PHP.
-- Buat backup database dan direktori private storage secara rutin.
 
-Panduan teknis tambahan: [docs/INSTALL-AA-PANEL.md](docs/INSTALL-AA-PANEL.md).
 
 ## Batasan dan keamanan
 - Preview video saat ini mengirim file melalui response PHP biasa; untuk video besar sebaiknya memakai internal redirect (Nginx X-Accel-Redirect) agar hemat memori dan mendukung range request.
