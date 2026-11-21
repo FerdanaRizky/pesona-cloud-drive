@@ -166,14 +166,23 @@ normalize_path() {
 APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
 STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
 ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
+# Do not modify the aaPanel website-level .user.ini: aaPanel may protect it
+# with immutable attributes or ACLs. Configure only app-local ini files.
 USER_INI_FILES=()
-for ini in "/www/wwwroot/$DOMAIN/.user.ini" "$APP_DIR/.user.ini" "$APP_DIR/public/.user.ini"; do
+for ini in "$APP_DIR/.user.ini" "$APP_DIR/public/.user.ini"; do
     [[ -f "$ini" ]] && USER_INI_FILES+=("$ini")
 done
-# Ensure a per-document-root ini exists even when aaPanel has not generated one.
+
+# Ensure the document-root ini exists; this is the only file required for
+# the application's open_basedir override and is inside the app directory.
 PUBLIC_INI="$APP_DIR/public/.user.ini"
-[[ -f "$PUBLIC_INI" ]] || : > "$PUBLIC_INI"
-USER_INI_FILES+=("$PUBLIC_INI")
+if [[ ! -e "$PUBLIC_INI" ]]; then
+    if ! install -m 644 /dev/null "$PUBLIC_INI"; then
+        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir secara manual melalui aaPanel."
+        PUBLIC_INI=""
+    fi
+fi
+[[ -n "$PUBLIC_INI" ]] && USER_INI_FILES+=("$PUBLIC_INI")
 for ini in "${USER_INI_FILES[@]}"; do
     tmp="$(mktemp)"
     if ! awk -v required="$ALLOWED_REQUIRED" '
