@@ -2550,3 +2550,59 @@ html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gr
   font-weight:800!important;
   margin-left:2px!important;
 }
+
+
+/* Account menu refinement: compact, aligned and responsive */
+.account-dropdown{position:relative}
+.account-menu{
+  --account-menu-bg:#142238;
+  width:min(304px,calc(100vw - 24px));
+  min-width:0!important;
+  margin-top:12px!important;
+  padding:10px!important;
+  border:1px solid rgba(133,160,198,.22)!important;
+  border-radius:18px!important;
+  background:var(--account-menu-bg)!important;
+  box-shadow:0 22px 60px rgba(0,0,0,.38),0 3px 12px rgba(0,0,0,.18)!important;
+  transform-origin:top right;
+  overflow:hidden;
+}
+.account-menu-heading{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;padding:9px 8px 13px!important;min-width:0}
+.account-menu-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(140deg,#478cf5,#8059e8);color:#fff;font-size:1rem;font-weight:800;box-shadow:0 5px 14px rgba(72,119,230,.22)}
+.account-menu-identity{display:flex;flex-direction:column;gap:4px;min-width:0}
+.account-menu-identity strong{display:block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0f5ff;font-size:.88rem;line-height:1.25}
+.account-menu-identity small{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#9aabc3;font-size:.72rem}
+.account-menu-divider{height:1px;margin:2px 4px 8px;background:rgba(137,160,194,.17)}
+.account-menu .dropdown-item.account-profile-item,
+.account-menu .dropdown-item.account-logout-item{
+  display:flex!important;flex-direction:row!important;align-items:center!important;gap:11px!important;
+  width:100%;min-height:52px;padding:9px 10px!important;margin:0;border-radius:12px!important;
+  white-space:normal!important;text-decoration:none;transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+.account-menu .account-profile-item{color:#e7efff!important}
+.account-menu .account-profile-item:hover{background:rgba(78,126,205,.16)!important;color:#fff!important}
+.account-menu-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;font-size:1.05rem;font-weight:700}
+.account-profile-icon{background:rgba(91,145,235,.16);color:#8db8ff}
+.account-profile-item>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.account-profile-item strong{font-size:.84rem;font-weight:650;line-height:1.2}
+.account-profile-item small{color:#91a4c0;font-size:.7rem;line-height:1.25}
+.account-menu-arrow{font-size:1.3rem;line-height:1;color:#7186a5;transition:transform .16s ease}
+.account-profile-item:hover .account-menu-arrow{transform:translateX(3px);color:#b8d1ff}
+.account-menu .dropdown-item.account-logout-item{min-height:46px;color:#ff9eaa!important;font-size:.84rem;font-weight:700}
+.account-logout-icon{background:rgba(226,83,108,.14);color:#ff9eaa}
+.account-menu .account-logout-item:hover{background:rgba(214,75,96,.13)!important;color:#ffc0c7!important}
+.account-menu .account-logout-item:hover .account-logout-icon{background:rgba(226,83,108,.24)}
+html[data-bs-theme="light"] .account-menu{--account-menu-bg:#fff;border-color:#e3eaf4!important;box-shadow:0 22px 55px rgba(30,53,86,.17)!important}
+html[data-bs-theme="light"] .account-menu-identity strong{color:#1e2d44}
+html[data-bs-theme="light"] .account-menu-identity small,.account-menu-identity small .user-presence{color:#71819a}
+html[data-bs-theme="light"] .account-menu-divider{background:#e9eef6}
+html[data-bs-theme="light"] .account-menu .account-profile-item{color:#263b59!important}
+html[data-bs-theme="light"] .account-menu .account-profile-item:hover{background:#f0f5ff!important;color:#1c4f9b!important}
+html[data-bs-theme="light"] .account-profile-item small{color:#7788a1}
+html[data-bs-theme="light"] .account-profile-icon{background:#edf3ff;color:#3e70c7}
+html[data-bs-theme="light"] .account-logout-icon{background:#fff0f2;color:#c83f61}
+@media(max-width:575px){
+ .account-menu{width:min(286px,calc(100vw - 16px));margin-top:9px!important;border-radius:16px!important}
+ .account-menu-heading{padding:7px 6px 11px!important}
+ .account-menu-identity strong{max-width:190px}
+}
