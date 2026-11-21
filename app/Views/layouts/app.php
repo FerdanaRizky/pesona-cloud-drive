@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/app.css?v=20261121-trash-filters-v1" rel="stylesheet">
+<link href="/assets/app.css?v=20261121-starred-v1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -14,6 +14,7 @@
 <nav class="nav flex-column mt-4">
 <a class="nav-link <?= $currentPath === 'dashboard' ? 'active' : '' ?>" href="/dashboard">⌂ <span>Dashboard</span></a>
 <a class="nav-link <?= in_array($currentPath, ['files', 'files/search'], true) ? 'active' : '' ?>" href="/files">▤ <span>File Saya</span></a>
+<a class="nav-link <?= $currentPath === 'starred' ? 'active' : '' ?>" href="/starred">★ <span>Bintang</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'trash') ? 'active' : '' ?>" href="/trash">♲ <span>Sampah</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'shares') ? 'active' : '' ?>" href="/shares">⛓ <span>Link Berbagi</span></a>
 <a class="nav-link <?= str_starts_with($currentPath, 'activity') ? 'active' : '' ?>" href="/activity">◷ <span>Riwayat Aktivitas</span></a>
@@ -57,6 +58,6 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/app.js?v=20261121-trash-filters-v1"></script>
+<script src="/assets/app.js?v=20261121-starred-v1"></script>
 </body>
 </html>
