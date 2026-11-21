@@ -682,3 +682,16 @@ html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;colo
  #createUserPanel .create-user-actions{padding-top:0}
  #createUserPanel .create-user-actions .create-user-submit{width:100%;height:44px}
 }
+
+/* Search users in administration */
+.users-search-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.users-search-box{position:relative;display:flex;align-items:center;flex:1 1 360px;max-width:620px}
+.users-search-box>svg{position:absolute;left:14px;width:19px;height:19px;fill:none;stroke:#8eafd9;stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.users-search-box .form-control{height:44px;padding:9px 42px 9px 43px;border-radius:11px;background:#0d192b;border:1px solid #354966;color:#edf4ff}
+.users-search-box .form-control:focus{border-color:#568fe9;box-shadow:0 0 0 .2rem rgba(66,130,225,.14)}
+.users-search-box .form-control::-webkit-search-cancel-button{display:none}
+.users-search-clear{position:absolute;right:10px;display:grid;place-items:center;width:27px;height:27px;border:0;border-radius:7px;background:rgba(135,160,195,.14);color:#b7c9e2;font-size:21px;line-height:1;cursor:pointer}
+.users-search-clear[hidden]{display:none}
+.users-search-result{white-space:nowrap}
+#userCardsGrid>[hidden]{display:none!important}
+@media(max-width:575px){.users-search-box{flex-basis:100%;max-width:none}.users-search-result{width:100%}}
