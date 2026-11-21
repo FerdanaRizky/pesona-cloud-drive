@@ -1012,3 +1012,13 @@ html[data-bs-theme="light"] .share-bulk-actions select{background:#fff;color:#26
 .upload-file-track .progress-bar{border-radius:99px;background:linear-gradient(90deg,#3984ee,#6959dc);transition:width .12s ease}
 .upload-file-track .progress-bar.bg-danger{background:#dc3545!important}
 .upload-file-detail,.upload-file-percent{font-size:.72rem}
+
+/* Drive-style visual previews for images, PDF and Office documents */
+.file-thumbnail--document{background:#fff;overflow:hidden}
+.file-thumbnail--document img{width:100%;height:100%;object-fit:contain;background:#fff}
+.file-thumbnail--document .file-thumbnail-fallback{background:#1b2c45;color:#a9c7f5}
+#driveViewRoot[data-drive-view="list"] .file-thumbnail--document{width:58px;height:66px;border-radius:7px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card .file-thumbnail--document{width:100%;height:142px;border-radius:9px}
+#driveViewRoot[data-drive-view="grid"] .drive-files-card .file-thumbnail--document img{object-fit:contain}
+html[data-bs-theme="light"] .file-thumbnail--document .file-thumbnail-fallback{background:#edf3ff;color:#315b9a}
+@media(max-width:575px){#driveViewRoot[data-drive-view="grid"] .drive-files-card .file-thumbnail--document{height:112px}}
