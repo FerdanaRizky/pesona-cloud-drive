@@ -28,11 +28,11 @@ $menuIcon = static function (string $name): string {
 <form id="bulkPurgeForm" method="post" action="/trash/bulk-purge" class="bulk-selection-bar trash-bulk-selection mb-3" aria-hidden="true"><?= csrf_field() ?><div id="trashSelectedIds"></div><div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearTrashSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="trashSelectionCount">0 item dipilih</strong></div><div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-trash-bulk-action="restore" title="Pulihkan" aria-label="Pulihkan"><?= $menuIcon('restore') ?></button><button type="button" class="selection-action-btn danger" data-trash-bulk-action="purge" title="Hapus permanen" aria-label="Hapus permanen"><?= $menuIcon('trash') ?></button><div class="dropdown floating-action-dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="trashBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled><?= $menuIcon('more') ?></button><div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu"><button type="button" class="dropdown-item" data-trash-bulk-action="restore"><?= $menuIcon('restore') ?>Pulihkan</button><div class="dropdown-divider"></div><button type="button" class="dropdown-item text-danger" data-trash-bulk-action="purge"><?= $menuIcon('trash') ?>Hapus permanen</button></div></div></div></form>
 <div class="card p-3 p-lg-4 mb-4 trash-files-card">
   <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">File</h2><span class="small text-secondary"><?= count($files) ?> file</span></div><span class="trash-section-icon">▤</span></div>
-  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Ukuran</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
+  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Ukuran</th><th>Tanggal dihapus</th><th>Lokasi folder awal</th><th class="text-end">Aksi</th></tr></thead><tbody>
   <?php foreach ($files as $f): ?>
   <tr class="file-row">
     <td class="trash-selection-column"><input type="checkbox" class="form-check-input trash-item-select" data-item-type="file" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><span class="trash-item-icon">▧</span><div class="min-width-0"><div class="fw-semibold text-break"><a class="text-reset text-decoration-none" href="/files/preview/<?= (int)$f['id'] ?>?trash=1"><?= esc($f['original_name']) ?></a></div><small class="text-secondary">File · klik dua kali untuk membuka</small></div></div></td>
-    <td class="text-nowrap"><?= number_format($f['size_bytes']/1048576,2) ?> MB</td><td class="text-nowrap"><?= esc($f['updated_at']) ?></td>
+    <td class="text-nowrap"><?= number_format($f['size_bytes']/1048576,2) ?> MB</td><td class="text-nowrap"><?= esc($f['trashed_at'] ?? $f['updated_at'] ?? '-') ?></td><td class="trash-original-location" title="<?= esc($f['original_location'] ?? 'Drive Saya', 'attr') ?>"><span class="text-secondary"><?= $menuIcon('folder') ?></span><span><?= esc($f['original_location'] ?? 'Drive Saya') ?></span></td>
     <td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
       <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi file"><?= $menuIcon('more') ?></button>
       <div class="dropdown-menu dropdown-menu-end file-action-menu">
@@ -43,14 +43,14 @@ $menuIcon = static function (string $name): string {
     </div></td>
   </tr>
   <?php endforeach ?>
-  <?php if (!$files): ?><tr><td colspan="5"><div class="empty-trash"><span>▤</span><strong>Belum ada file di sampah</strong><small>File yang Anda hapus akan muncul di sini.</small></div></td></tr><?php endif ?>
+  <?php if (!$files): ?><tr><td colspan="6"><div class="empty-trash"><span>▤</span><strong>Belum ada file di sampah</strong><small>File yang Anda hapus akan muncul di sini.</small></div></td></tr><?php endif ?>
   </tbody></table></div>
 </div>
 <div class="card p-3 p-lg-4 trash-folders-card">
   <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div><span class="trash-section-icon">📁</span></div>
-  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFolders" aria-label="Pilih semua folder"></th><th>Nama folder</th><th>Dihapus / diubah</th><th class="text-end">Aksi</th></tr></thead><tbody>
+  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="trash-selection-column"><input type="checkbox" class="form-check-input" id="selectAllTrashFolders" aria-label="Pilih semua folder"></th><th>Nama folder</th><th>Tanggal dihapus</th><th>Lokasi folder awal</th><th class="text-end">Aksi</th></tr></thead><tbody>
   <?php foreach ($folders as $f): ?>
-  <tr class="file-row"><td class="trash-selection-column"><input type="checkbox" class="form-check-input trash-item-select" data-item-type="folder" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><span class="trash-item-icon">📁</span><div class="fw-semibold text-break"><?= esc($f['name']) ?></div></div></td><td class="text-nowrap"><?= esc($f['updated_at']) ?></td>
+  <tr class="file-row"><td class="trash-selection-column"><input type="checkbox" class="form-check-input trash-item-select" data-item-type="folder" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['name'], 'attr') ?>"></td><td><div class="d-flex align-items-center gap-2"><span class="trash-item-icon">📁</span><div class="fw-semibold text-break"><?= esc($f['name']) ?></div></div></td><td class="text-nowrap"><?= esc($f['trashed_at'] ?? $f['updated_at'] ?? '-') ?></td><td class="trash-original-location" title="<?= esc($f['original_location'] ?? 'Drive Saya', 'attr') ?>"><span class="text-secondary"><?= $menuIcon('folder') ?></span><span><?= esc($f['original_location'] ?? 'Drive Saya') ?></span></td>
     <td class="text-end"><div class="dropdown folder-actions floating-action-dropdown">
       <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi folder"><?= $menuIcon('more') ?></button>
       <div class="dropdown-menu dropdown-menu-end file-action-menu">
@@ -61,7 +61,7 @@ $menuIcon = static function (string $name): string {
     </div></td>
   </tr>
   <?php endforeach ?>
-  <?php if (!$folders): ?><tr><td colspan="4"><div class="empty-trash"><span>📁</span><strong>Belum ada folder di sampah</strong><small>Folder yang Anda hapus akan muncul di sini.</small></div></td></tr><?php endif ?>
+  <?php if (!$folders): ?><tr><td colspan="5"><div class="empty-trash"><span>📁</span><strong>Belum ada folder di sampah</strong><small>Folder yang Anda hapus akan muncul di sini.</small></div></td></tr><?php endif ?>
   </tbody></table></div>
 </div>
 <script>
