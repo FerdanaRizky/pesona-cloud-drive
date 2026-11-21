@@ -91,9 +91,7 @@ const modalEl=document.getElementById('uploadModal');document.getElementById('op
 </div>
 </form>
 
-<div class="row g-3 mb-4">
-  <div class="col-12 col-sm-6 col-lg-4"><div class="admin-stat file-count-stat"><div class="muted-label">Jumlah file</div><div class="fs-4 fw-semibold"><?= count($files) ?></div></div></div>
-</div>
+
 
 <?php if ($folders): ?>
 <div class="mb-4 drive-folders-section"><div class="d-flex align-items-center gap-2 mb-3"><h2 class="h6 text-secondary mb-0">Folder<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><label class="small text-secondary d-inline-flex align-items-center gap-2 ms-auto"><input type="checkbox" class="form-check-input m-0" id="selectAllFolders"> Pilih semua folder</label></div><div class="row g-2">
