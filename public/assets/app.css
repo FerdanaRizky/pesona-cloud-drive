@@ -2236,3 +2236,21 @@ html[data-bs-theme="light"] .dashboard-file-list-row.is-dashboard-selected{backg
  #driveViewRoot .dashboard-folder-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
  #driveViewRoot .dashboard-file-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
 }
+
+
+/* Unified SVG icon language for every Drive action menu and selection toolbar. */
+.file-action-menu .dropdown-item{display:flex;align-items:center;gap:10px;min-height:40px}
+.file-action-menu .dropdown-item .menu-action-icon{display:block;flex:0 0 18px;width:18px;height:18px;margin:0;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+.file-action-menu .dropdown-item:hover .menu-action-icon{opacity:1}
+.file-action-menu .dropdown-item.text-danger .menu-action-icon{stroke:currentColor}
+.action-menu-trigger .menu-action-icon{display:block;width:18px;height:18px;margin:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.selection-action-btn .menu-action-icon{display:block;width:19px;height:19px;margin:auto;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bulk-action-menu .dropdown-item{display:flex;align-items:center;gap:10px}
+#driveViewRoot .bulk-selection-bar .selection-action-btn{display:inline-flex;align-items:center;justify-content:center}
+#driveViewRoot .bulk-selection-bar .bulk-menu-trigger{display:inline-flex;align-items:center;justify-content:center}
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar{background:linear-gradient(110deg,#172943,#111d30)!important;border-color:#30435f!important;color:#e7eef9!important}
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-clear-icon,
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-btn,
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .bulk-menu-trigger{color:#dce8f8!important}
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-btn:hover{background:rgba(112,157,218,.16)}
+html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-btn.danger{color:#ff8d98!important}
