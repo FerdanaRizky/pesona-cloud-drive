@@ -70,9 +70,9 @@ class Share extends BaseController
         try {
             $token = service('encrypter')->decrypt($share['token_ciphertext']);
             if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
-                throw new \\RuntimeException('Invalid saved share token.');
+                throw new \RuntimeException('Invalid saved share token.');
             }
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             return redirect()->to('/shares')->with('error', 'URL tautan tidak dapat dibaca. Periksa konfigurasi encryption key aplikasi.');
         }
 
