@@ -12,7 +12,7 @@
 </div>
 <div class="d-flex justify-content-end mb-3"><button class="btn create-user-open-button" type="button" data-bs-toggle="modal" data-bs-target="#createUserModal"><span class="create-user-open-icon">＋</span> Tambah pengguna</button></div>
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:620px">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:720px">
     <div class="modal-content user-create-modal-content">
       <div class="modal-header border-0 pb-0 px-4 pt-4">
         <div class="d-flex align-items-center gap-3"><div class="create-user-icon">＋</div><div><h2 class="h5 mb-1" id="createUserModalLabel">Tambah pengguna baru</h2><p class="small text-secondary mb-0">Buat akun dan tentukan kuota penyimpanan awal.</p></div></div>
