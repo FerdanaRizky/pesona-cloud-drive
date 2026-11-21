@@ -22,7 +22,6 @@
         <?php if (session()->getFlashdata('errors')): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach ((array) session()->getFlashdata('errors') as $error): ?><li><?= esc($error) ?></li><?php endforeach ?></ul></div><?php endif ?>
         <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
         
-  <div class="d-flex align-items-center gap-3 mb-3"><div class="create-user-icon">＋</div><div><h2 class="h5 mb-1">Tambah pengguna baru</h2><p class="small text-secondary mb-0">Buat akun dan tentukan kuota penyimpanan awal.</p></div></div>
   <form method="post" action="/admin/users/create" class="create-user-form">
     <?= csrf_field() ?>
     <div class="create-user-field"><label class="form-label" for="new_user_name">Nama lengkap</label><input class="form-control" id="new_user_name" name="name" maxlength="120" value="<?= esc(old('name')) ?>" placeholder="Nama pengguna" required></div>
@@ -35,7 +34,7 @@
       </div>
     </div>
   </div>
-</div>>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){
