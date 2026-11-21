@@ -13,6 +13,7 @@ class Users extends BaseController
             'total' => count($users),
             'active' => count(array_filter($users, static fn ($u) => $u['status'] === 'active')),
             'storage' => array_sum(array_map(static fn ($u) => (int) $u['used_bytes'], $users)),
+            'inactive' => count(array_filter($users, static fn ($u) => $u['status'] !== 'active')),
         ];
         return view('admin/users', ['title' => 'Manajemen Pengguna', 'users' => $users, 'stats' => $stats]);
     }
