@@ -65,6 +65,36 @@ class Files extends BaseController
         ]);
     }
 
+    public function starred()
+    {
+        $uid = (int) session()->get('user_id');
+        $term = mb_substr(trim((string) $this->request->getGet('q')), 0, 120);
+        $query = (new DriveFileModel())->where('user_id', $uid)->where('is_trashed', 0)->where('is_starred', 1);
+        if ($term !== '') $query->like('original_name', $term);
+        $files = $query->orderBy('updated_at', 'DESC')->findAll(500);
+
+        $fileIds = array_map(static fn($file) => (int) $file['id'], $files);
+        $sharedIds = [];
+        if ($fileIds) {
+            $rows = db_connect()->table('file_shares')->select('file_id')
+                ->where('owner_id', $uid)->whereIn('file_id', $fileIds)->groupBy('file_id')->get()->getResultArray();
+            $sharedIds = array_fill_keys(array_map(static fn($row) => (int) $row['file_id'], $rows), true);
+        }
+        foreach ($files as &$file) $file['has_share'] = isset($sharedIds[(int) $file['id']]);
+        unset($file);
+
+        $folders = [];
+        $allFolders = (new DriveFolderModel())->where('user_id', $uid)->where('is_trashed', 0)->orderBy('name', 'ASC')->findAll(500);
+        $user = db_connect()->table('users')->where('id', $uid)->get()->getRowArray();
+
+        return view('drive/files', [
+            'title' => 'Bintang', 'files' => $files, 'folders' => $folders,
+            'currentFolder' => null, 'breadcrumbs' => [], 'currentLocation' => 'Bintang',
+            'user' => $user, 'term' => $term, 'allFolders' => $allFolders,
+            'isStarredPage' => true,
+        ]);
+    }
+
     public function createFolder()
     {
         $uid = (int) session()->get('user_id');
