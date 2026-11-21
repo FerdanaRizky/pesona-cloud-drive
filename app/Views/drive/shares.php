@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded',function(){
  // Row click selects a share; double click opens its saved URL panel.
  const shareRoot=document.querySelector('.share-management-card');
  const shareIsControl=target=>!!target.closest('button,input,select,textarea,form,a,.dropdown-menu,[data-bs-toggle],.share-actions-menu,.share-link-panel,.share-expiry-panel');
- const selectShareRow=row=>{const box=row?.querySelector('.share-row-select');if(!box)return;box.checked=true;row.classList.add('is-drive-selected');box.dispatchEvent(new Event('change',{bubbles:true}));};
- shareRoot?.addEventListener('click',event=>{const row=event.target.closest('tr.share-row');if(!row||shareIsControl(event.target))return;selectShareRow(row);});
+ const selectShareRow=(row,event)=>{const box=row?.querySelector('.share-row-select');if(!box)return;const all=Array.from(shareRoot.querySelectorAll('.share-row-select'));if(event?.ctrlKey||event?.metaKey){box.checked=!box.checked;}else{all.forEach(item=>item.checked=item===box);}all.forEach(item=>item.dispatchEvent(new Event('change',{bubbles:true})));};
+ shareRoot?.addEventListener('click',event=>{const row=event.target.closest('tr.share-row');if(!row||shareIsControl(event.target))return;selectShareRow(row,event);});
  shareRoot?.addEventListener('dblclick',event=>{const row=event.target.closest('tr.share-row');if(!row||shareIsControl(event.target))return;const toggle=row.querySelector('[data-toggle-share-link]');if(toggle){event.preventDefault();toggle.click();}});
  shareRoot?.addEventListener('change',event=>{const box=event.target.closest('.share-row-select');if(!box)return;box.closest('tr.share-row')?.classList.toggle('is-drive-selected',box.checked);});
 
