@@ -605,3 +605,14 @@ html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;colo
 .user-delete-icon-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .status-self-label{font-size:.72rem;color:var(--bs-secondary-color);padding:4px 7px}
 @media(max-width:575px){.user-card-status-area{align-items:flex-end}.user-status-inline{gap:6px}}
+
+/* Cleaner quota input and save action in user management */
+.quota-edit-group{margin-top:2px}
+.quota-edit-row{display:flex;align-items:center;gap:10px}
+.quota-number-input{flex:1 1 auto;min-width:0;height:40px;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
+.quota-number-input::-webkit-inner-spin-button,.quota-number-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.quota-save-button{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:7px;min-width:104px;height:40px;padding:0 15px;border:1px solid #397eea;border-radius:10px;background:linear-gradient(135deg,#347fe8,#6758df);color:#fff;font-size:.84rem;font-weight:700;box-shadow:0 5px 14px rgba(48,111,220,.2);transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}
+.quota-save-button:hover{color:#fff;filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 7px 18px rgba(48,111,220,.3)}
+.quota-save-button:active{transform:translateY(0)}
+.quota-save-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:420px){.quota-save-button{min-width:88px;padding:0 10px}}
