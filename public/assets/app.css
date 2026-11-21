@@ -2184,3 +2184,55 @@ html[data-bs-theme="light"] .dashboard-file-list-row.is-dashboard-selected{backg
 .dashboard-selectable-item.is-dashboard-selected .dashboard-list-filename,
 .dashboard-selectable-item.is-dashboard-selected .dashboard-card-name{color:var(--bs-primary)}
 .dashboard-file-list-row.dashboard-selectable-item{cursor:pointer}
+
+
+/* File Saya adopts the same separated folder cards + file grid/list composition as Dashboard. */
+#driveViewRoot .file-manager-list-wrap{display:block;min-width:0;width:100%;overflow-x:auto}
+#driveViewRoot .file-manager-grid{display:none}
+#driveViewRoot[data-drive-view="grid"] .file-manager-list-wrap{display:none}
+#driveViewRoot[data-drive-view="grid"] .file-manager-grid{display:grid}
+#driveViewRoot .file-manager-folder-section{margin-bottom:30px}
+#driveViewRoot .file-manager-files-section{margin-top:0}
+#driveViewRoot .file-manager-folder-card{min-height:76px;position:relative}
+#driveViewRoot .file-manager-folder-card .dashboard-folder-main{padding-right:42px}
+#driveViewRoot .file-manager-folder-card .dashboard-more-btn{position:relative;z-index:3}
+#driveViewRoot .file-manager-list{width:100%;min-width:820px;table-layout:fixed;border-collapse:collapse}
+#driveViewRoot .file-manager-list th,#driveViewRoot .file-manager-list td{padding:13px 10px;border-bottom:1px solid var(--bs-border-color);vertical-align:middle;text-align:left}
+#driveViewRoot .file-manager-list th{font-size:.88rem;color:var(--bs-secondary-color);font-weight:600;white-space:nowrap}
+#driveViewRoot .file-manager-list th:nth-child(1){width:0;padding:0}
+#driveViewRoot .file-manager-list th:nth-child(2){width:34%}
+#driveViewRoot .file-manager-list th:nth-child(3){width:16%}
+#driveViewRoot .file-manager-list th:nth-child(4){width:19%}
+#driveViewRoot .file-manager-list th:nth-child(5){width:15%}
+#driveViewRoot .file-manager-list th:nth-child(6){width:10%}
+#driveViewRoot .file-manager-list th:nth-child(7){width:46px}
+#driveViewRoot .file-manager-list .file-manager-select-cell,
+#driveViewRoot .file-manager-list .file-manager-select-heading{width:0!important;padding:0!important}
+#driveViewRoot .file-manager-list .file-manager-select-cell .drive-item-select,
+#driveViewRoot .file-manager-list .file-manager-select-heading .form-check-input,
+#driveViewRoot .file-manager-card-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+#driveViewRoot .file-manager-list-row{cursor:pointer;transition:background .14s}
+#driveViewRoot .file-manager-list-row:hover{background:var(--bs-tertiary-bg)}
+#driveViewRoot .file-manager-list-row.is-dashboard-selected{background:rgba(13,110,253,.17)!important;box-shadow:inset 3px 0 0 var(--bs-primary)}
+#driveViewRoot .file-manager-list .dashboard-list-name{min-width:0}
+#driveViewRoot .file-manager-list .dashboard-list-history small{display:block;margin-top:3px;color:var(--bs-secondary-color)}
+#driveViewRoot .file-manager-list .drive-type-label{font-size:.9rem}
+#driveViewRoot .file-manager-list .drive-type-label small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+#driveViewRoot .file-manager-list .dashboard-list-location{font-size:.9rem}
+#driveViewRoot .file-manager-list .dashboard-list-action-cell{width:46px;text-align:right!important}
+#driveViewRoot .file-manager-list-row .dashboard-more-btn{width:34px;height:34px}
+#driveViewRoot .file-manager-file-card{position:relative;cursor:pointer}
+#driveViewRoot .file-manager-file-card.is-dashboard-selected{border-color:var(--bs-primary)!important;background:rgba(13,110,253,.16)!important;box-shadow:inset 3px 0 0 var(--bs-primary),0 0 0 1px rgba(13,110,253,.12)}
+#driveViewRoot .file-manager-folder-card.is-dashboard-selected{border:1px solid var(--bs-primary)!important;background:rgba(13,110,253,.16)!important;box-shadow:inset 3px 0 0 var(--bs-primary)}
+#driveViewRoot .file-manager-file-card .dashboard-file-title,
+#driveViewRoot .file-manager-list-row .dashboard-list-name,
+#driveViewRoot .file-manager-folder-card .dashboard-card-name{user-select:none}
+#driveViewRoot .dashboard-file-preview img{pointer-events:none}
+#driveViewRoot .dashboard-file-preview,.file-manager-folder-card .dashboard-folder-main{cursor:pointer}
+#driveViewRoot .dashboard-file-list-wrap .dropdown{display:flex;justify-content:flex-end}
+@media(max-width:767px){
+ #driveViewRoot .file-manager-list{min-width:760px}
+ #driveViewRoot .file-manager-list th,#driveViewRoot .file-manager-list td{padding:11px 8px}
+ #driveViewRoot .dashboard-folder-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+ #driveViewRoot .dashboard-file-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+}
