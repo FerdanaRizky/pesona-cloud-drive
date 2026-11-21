@@ -62,30 +62,51 @@ else
     git clone "$REPO" "$SOURCE_DIR"
 fi
 
-# Ensure the CodeIgniter framework skeleton exists. A previous interrupted
-# install may leave only spark (or only some directories) in APP_DIR. Complete
-# missing framework files from a temporary appstarter without overwriting any
-# existing user configuration or data.
-if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -d "$APP_DIR/public" ]]; then
+# Ensure the CodeIgniter framework skeleton exists. This site may already
+# contain the application, .env, and vendor but have no public/ directory.
+# Restore only missing framework entry-point files; never overwrite user data.
+if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
     if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
         echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
         echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
         exit 1
     fi
-    mkdir -p "$APP_DIR"
     BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
     trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
     composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
-    rsync -a --ignore-existing "$BOOTSTRAP_DIR/app/" "$APP_DIR/"
+
+    # Fill missing top-level framework files only. Existing app code/config,
+    # .env, vendor, writable data, and uploads are left untouched.
+    mkdir -p "$APP_DIR"
+    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
+        if [[ ! -e "$APP_DIR/$item" && -e "$BOOTSTRAP_DIR/app/$item" ]]; then
+            cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
+        fi
+    done
+    for dir in app public tests writable; do
+        if [[ ! -d "$APP_DIR/$dir" ]]; then
+            cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
+        fi
+    done
+    # A partially-created public directory may exist but lack the front
+    # controller. Copy only the missing entry-point files from appstarter.
+    mkdir -p "$APP_DIR/public"
+    for item in index.php .htaccess; do
+        if [[ ! -e "$APP_DIR/public/$item" && -e "$BOOTSTRAP_DIR/app/public/$item" ]]; then
+            cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
+        fi
+    done
     rm -rf "$BOOTSTRAP_DIR"
     trap - EXIT
 fi
 
 [[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
-    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah proses pemulihan."
+    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah pemulihan."
+    echo "[INFO] File yang wajib tersedia: spark, app/Config/Paths.php, public/index.php"
     echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
     exit 1
 }
+
 rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
