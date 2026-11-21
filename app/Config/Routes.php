@@ -59,6 +59,8 @@ $routes->get('admin/users', 'Admin\\Users::index', ['filter' => 'admin']);
 $routes->post('admin/users/create', 'Admin\\Users::create', ['filter' => 'admin']);
 $routes->post('admin/users/update/(:num)', 'Admin\\Users::update/$1', ['filter' => 'admin']);
 $routes->post('admin/users/reset-password/(:num)', 'Admin\\Users::resetPassword/$1', ['filter' => 'admin']);
+$routes->post('admin/users/toggle-status/(:num)', 'Admin\\Users::toggleStatus/$1', ['filter' => 'admin']);
+$routes->post('admin/users/delete/(:num)', 'Admin\\Users::delete/$1', ['filter' => 'admin']);
 
 $routes->get('account/profile', 'Account::profile', ['filter' => 'auth']);
 $routes->post('account/profile', 'Account::updateProfile', ['filter' => 'auth']);
