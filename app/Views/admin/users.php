@@ -82,31 +82,8 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
     </div>
-    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal<?= (int)$u['id'] ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
+    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     
-    <div class="modal fade user-phone-edit-modal" id="editPhoneModal<?= (int)$u['id'] ?>" tabindex="-1" aria-labelledby="editPhoneModalLabel<?= (int)$u['id'] ?>" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>">
-            <?= csrf_field() ?>
-            <input type="hidden" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editPhoneModalLabel<?= (int)$u['id'] ?>">Ubah Nomor WhatsApp</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-              <label class="form-label" for="edit_phone_<?= (int)$u['id'] ?>">Nomor WhatsApp pengguna</label>
-              <input class="form-control" id="edit_phone_<?= (int)$u['id'] ?>" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>" required>
-              <div class="form-text">Gunakan format internasional, contoh 6281234567890.</div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-              <button type="submit" class="btn btn-primary">Simpan nomor</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
     <div class="user-storage-block">
       <div class="d-flex justify-content-between align-items-center mb-2"><span class="small text-secondary">Penyimpanan terpakai</span><strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong></div>
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
@@ -145,6 +122,48 @@ document.addEventListener('DOMContentLoaded',function(){
 <?php endforeach ?>
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
+<div class="modal fade" id="editPhoneModal" tabindex="-1" aria-labelledby="editPhoneModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" id="editPhoneForm" action="/admin/users/update/0">
+        <?= csrf_field() ?>
+        <input type="hidden" name="quota_gb" id="editPhoneQuota" value="1">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPhoneModalLabel">Ubah Nomor WhatsApp</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="editPhoneInput">Nomor WhatsApp pengguna</label>
+          <input class="form-control" id="editPhoneInput" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" required>
+          <div class="form-text">Gunakan format internasional, contoh 6281234567890.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan nomor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('editPhoneModal');
+  const form = document.getElementById('editPhoneForm');
+  const phone = document.getElementById('editPhoneInput');
+  const quota = document.getElementById('editPhoneQuota');
+  const title = document.getElementById('editPhoneModalLabel');
+  if (!modal || !form || !phone || !quota || !title) return;
+  modal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    const userId = trigger.getAttribute('data-user-id');
+    form.action = '/admin/users/update/' + encodeURIComponent(userId);
+    phone.value = trigger.getAttribute('data-user-phone') || '';
+    quota.value = trigger.getAttribute('data-user-quota') || '1';
+    title.textContent = 'Ubah Nomor WhatsApp — ' + (trigger.getAttribute('data-user-name') || 'Pengguna');
+  });
+});
+</script>
 <style>
 .user-profile-panel{border:1px solid var(--bs-border-color);border-radius:10px;padding:12px}
 .user-profile-panel .user-profile-summary{margin-top:0}
@@ -153,15 +172,6 @@ document.addEventListener('DOMContentLoaded',function(){
 .user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
 .user-phone-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 </style>
-
-<script>
-/* Keep per-user modals outside cards/grid to avoid Bootstrap backdrop and stacking issues. */
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.user-phone-edit-modal').forEach(function (modal) {
-    if (modal.parentElement !== document.body) document.body.appendChild(modal);
-  });
-});
-</script>
 
 <script>
 (function(){
