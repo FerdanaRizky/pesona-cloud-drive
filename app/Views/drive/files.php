@@ -119,7 +119,7 @@ const modalEl=document.getElementById('uploadModal');document.getElementById('op
 <button type="button" class="dropdown-item" data-file-action="move" data-url="/files/move/<?= (int) $f['id'] ?>" data-folders="<?= esc(json_encode($allFolders ?? $folders), 'attr') ?>">↗ Pindah folder</button>
 <button type="button" class="dropdown-item" data-file-action="share" data-url="/files/share/<?= (int) $f['id'] ?>">♧ Bagi tautan</button>
 <form method="post" action="/files/star/<?= (int) $f['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($f['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($f['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
-<form method="post" action="/files/share/revoke/<?= (int) $f['id'] ?>" onsubmit="return confirm('Cabut semua tautan berbagi untuk file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form>
+<?php if (!empty($f['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $f['id'] ?>" onsubmit="return confirm('Cabut semua tautan berbagi untuk file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
 <div class="dropdown-divider"></div>
 <form method="post" action="/files/delete/<?= (int) $f['id'] ?>" onsubmit="return confirm('Hapus file ini? File akan dipindahkan ke Sampah.')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
 </div></div>
