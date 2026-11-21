@@ -73,4 +73,24 @@ document.addEventListener('keyup',event=>{if(event.key==='Shift')clearShiftSelec
 window.addEventListener('blur',clearShiftSelectionMode);
 
 
+/* Keep the currently open sidebar section highlighted on every route. */
+(()=>{
+ const sidebar=document.getElementById('appSidebar');
+ if(!sidebar)return;
+ const normalize=value=>('/'+String(value||'').replace(/^\\/+|\\/+$/g,''))
+   .replace(/\\/index\\.php(?=\\/|$)/,'')
+   .replace(/\\/+$/,'')||'/';
+ const current=normalize(window.location.pathname);
+ const links=[...sidebar.querySelectorAll('.nav-link[href]')];
+ let activeLink=null;
+ links.forEach(link=>{
+   const target=normalize(new URL(link.href,window.location.origin).pathname);
+   const matches=target==='/'?current==='/':(current===target||current.startsWith(target+'/'));
+   link.classList.toggle('active',matches);
+   if(matches&&(!activeLink||target.length>normalize(new URL(activeLink.href,window.location.origin).pathname).length))activeLink=link;
+ });
+ links.forEach(link=>{if(link!==activeLink)link.classList.remove('active');});
+})();
+
+
 })();
