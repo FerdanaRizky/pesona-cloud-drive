@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/app.css?v=20261121-add-user-modal-v5" rel="stylesheet">
+<link href="/assets/app.css?v=20261121-account-menu-polish-v1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -41,12 +41,14 @@ $currentPath = trim($currentPath, '/');
 <div class="user-top-meta"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><span><?= esc(ucfirst((string)session()->get('role'))) ?> account</span><small class="user-presence"><i></i>Online</small></div><span class="account-chevron">⌄</span>
 </button>
 <div class="dropdown-menu dropdown-menu-end account-menu">
-<div class="account-menu-heading"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><small><?= esc(ucfirst((string)session()->get('role'))) ?> · <span class="user-presence"><i></i>Online</span></small></div>
-<div class="dropdown-divider"></div>
-<a class="dropdown-item" href="/account/profile"><span class="logout-icon">♙</span><span>Profil Pengguna</span></a>
-
-<div class="dropdown-divider"></div>
-<a class="dropdown-item account-logout-item" href="/logout"><span class="logout-icon">↪</span><span>Keluar dari akun</span></a>
+<div class="account-menu-heading">
+<div class="account-menu-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
+<div class="account-menu-identity"><strong><?= esc(session()->get('name') ?: session()->get('email')) ?></strong><small><?= esc(ucfirst((string)session()->get('role'))) ?> account <span class="user-presence"><i></i>Online</span></small></div>
+</div>
+<div class="account-menu-divider"></div>
+<a class="dropdown-item account-profile-item" href="/account/profile"><span class="account-menu-icon account-profile-icon" aria-hidden="true">♙</span><span><strong>Profil Pengguna</strong><small>Kelola informasi akun Anda</small></span><span class="account-menu-arrow" aria-hidden="true">›</span></a>
+<div class="account-menu-divider"></div>
+<a class="dropdown-item account-logout-item" href="/logout"><span class="account-menu-icon account-logout-icon" aria-hidden="true">↪</span><span>Keluar dari akun</span></a>
 </div>
 </div>
 </div>
