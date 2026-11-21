@@ -42,7 +42,7 @@
     <div class="user-card-controls">
       <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
         <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
-        <div class="row g-2 align-items-end"><div class="col-12"><label class="form-label small">Nomor WhatsApp profil</label><input class="form-control form-control-sm" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>"><div class="form-text">Format internasional, contoh 6281234567890.</div></div><div class="col-5"><label class="form-label small">Status akun</label><select class="form-select form-select-sm" name="status"><option value="active" <?= $u['status']==='active'?'selected':'' ?>>Aktif</option><option value="suspended" <?= $u['status']==='suspended'?'selected':'' ?>>Ditangguhkan</option></select></div><div class="col-4"><label class="form-label small">Kuota GB</label><input class="form-control form-control-sm" type="number" name="quota_gb" min="1" max="10000" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required></div><div class="col-3"><button class="btn btn-sm btn-outline-primary w-100">Simpan</button></div></div>
+        <div class="row g-2 align-items-end"><div class="col-12"><label class="form-label small">Nomor WhatsApp profil</label><input class="form-control form-control-sm" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>"><div class="form-text">Format internasional, contoh 6281234567890.</div></div><div class="col-8"><label class="form-label small">Kuota GB</label><input class="form-control form-control-sm" type="number" name="quota_gb" min="1" max="10000" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required></div><div class="col-3"><button class="btn btn-sm btn-outline-primary w-100">Simpan</button></div></div>
       </form>
       <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
         <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
@@ -50,15 +50,19 @@
         <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
         <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
       </form>
-      <div class="user-account-actions">
-        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+      <div class="user-account-actions user-account-actions-modern">
+        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
           <?= csrf_field() ?>
-          <button class="btn btn-sm <?= $u['status']==='active'?'btn-outline-warning':'btn-outline-success' ?>" type="submit"><?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?></button>
+          <span class="status-switch-copy"><strong><?= $u['status']==='active'?'Akun aktif':'Akun nonaktif' ?></strong><small><?= $u['status']==='active'?'Pengguna dapat masuk dan mengakses file.':'Akses pengguna sedang dinonaktifkan.' ?></small></span>
+          <label class="account-switch" title="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>">
+            <input type="checkbox" <?= $u['status']==='active'?'checked':'' ?> <?= (int)$u['id']===(int)session()->get('user_id')?'disabled':'' ?> onchange="if(this.form.reportValidity() && confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')) this.form.requestSubmit(); else this.checked=<?= $u['status']==='active'?'true':'false' ?>;">
+            <span class="account-switch-track"><span class="account-switch-thumb"></span></span>
+          </label>
         </form>
         <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-        <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Akun hanya dapat dihapus jika belum memiliki file atau folder.')">
+        <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" class="user-delete-form" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Penghapusan hanya tersedia jika pengguna belum memiliki file atau folder.')">
           <?= csrf_field() ?>
-          <button class="btn btn-sm btn-outline-danger" type="submit">Hapus pengguna</button>
+          <button class="btn btn-sm btn-outline-danger" type="submit"><span aria-hidden="true">⌫</span> Hapus pengguna</button>
         </form>
         <?php endif ?>
       </div>
