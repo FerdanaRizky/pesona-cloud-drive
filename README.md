@@ -202,3 +202,68 @@ Buka aaPanel:
 - Konversi Office dilakukan saat preview pertama dan cache PDF; ukuran sumber dibatasi 50 MB. LibreOffice tidak disertakan otomatis oleh updater.
 - Belum ada antivirus scanning, file versioning, kolaborasi editor, pencarian isi dokumen, object storage, atau automated integration tests.
 - Jangan gunakan untuk data penting sebelum uji integrasi, backup/restore, batas upload PHP/Nginx, dan security review.
+
+
+## Troubleshooting instalasi aaPanel
+
+### HTTP 500 / open_basedir restriction
+
+CodeIgniter membutuhkan akses ke `app/`, `vendor/`, `writable/`, file `.env`, dan private storage. Jika log PHP menunjukkan `open_basedir restriction` dan hanya mengizinkan `public/` serta `/tmp/`, periksa:
+
+```bash
+APP="/www/wwwroot/DOMAIN/app-src"
+STORAGE="/www/wwwroot/DOMAIN-private"
+cat "$APP/public/.user.ini"
+```
+
+Nilai minimal yang diperlukan:
+
+```ini
+open_basedir=/www/wwwroot/DOMAIN/app-src/:/www/wwwroot/DOMAIN-private/:/tmp/
+```
+
+Ganti DOMAIN sesuai path instalasi. Jika penulisan menghasilkan `Operation not permitted`, periksa atribut immutable:
+
+```bash
+INI="/www/wwwroot/DOMAIN/app-src/public/.user.ini"
+lsattr "$INI"
+```
+
+Jika output menampilkan huruf `i`, lepaskan sementara, ubah file, lalu kembalikan perlindungan bila memang digunakan aaPanel:
+
+```bash
+chattr -i "$INI"
+cat > "$INI" <<'EOF'
+open_basedir=/www/wwwroot/DOMAIN/app-src/:/www/wwwroot/DOMAIN-private/:/tmp/
+EOF
+chmod 644 "$INI"
+# Opsional: aktifkan kembali hanya jika sebelumnya memang immutable
+# chattr +i "$INI"
+```
+
+Jika tidak ada atribut `i`, periksa ACL dengan `getfacl -p "$INI"` dan konfigurasi PHP-FPM:
+
+```bash
+grep -RniE 'open_basedir|php_admin_value' /www/server/php/84/etc 2>/dev/null
+```
+
+Jika ada `php_admin_value[open_basedir]` atau Base directory limit/Anti-XSS aaPanel yang membatasi akses, tambahkan direktori `app-src/`, private storage, dan `/tmp/` ke whitelist di aaPanel. Nilai PHP CLI `open_basedir => no value` tidak membuktikan konfigurasi PHP-FPM website sudah benar. Restart PHP-FPM dari aaPanel dan tunggu hingga 5 menit untuk cache `.user.ini`.
+
+### Error umum lainnya
+
+- **404 pada /setup atau /login:** pastikan document root mengarah ke `app-src/public` dan Nginx memiliki `try_files $uri $uri/ /index.php?$query_string;` dalam blok `location /`. Jangan membuat blok location duplikat.
+- **Database connection error:** pastikan database dan user sudah dibuat, password benar, host/port sesuai, lalu periksa bagian `database.default.*` di `.env`. Jalankan `php spark migrate` dari direktori aplikasi.
+- **Permission denied / writable tidak bisa ditulis:** sesuaikan owner `writable/` dan private storage dengan user PHP-FPM aaPanel (umumnya `www`), misalnya `chown -R www:www "$APP/writable" "$STORAGE"`.
+- **Composer/PHP dependency error:** pastikan PHP CLI 8.2+ dan Composer 2 memakai PHP yang kompatibel dengan PHP-FPM, serta ekstensi `intl`, `mbstring`, `mysqli`, `fileinfo`, `curl`, dan `gd` aktif.
+- **Upload 413:** naikkan `client_max_body_size` di Nginx dan `upload_max_filesize`/`post_max_size` di PHP; lihat bagian upload file besar.
+- **zip already loaded:** peringatan ini biasanya bukan penyebab HTTP 500. Periksa konfigurasi PHP CLI/FPM yang memuat ekstensi zip dua kali, lalu sisakan satu deklarasi aktif.
+- **Log error:** periksa log website di aaPanel dan log PHP-FPM versi yang digunakan. Jangan membagikan isi `.env`, password, atau token saat meminta bantuan.
+
+### Setelah instalasi pertama
+
+```bash
+cd /www/wwwroot/DOMAIN/app-src
+php spark migrate
+```
+
+Buka `https://DOMAIN/setup` untuk membuat admin pertama. Pastikan SSL, login, upload, preview, download, dan pemulihan backup diuji sebelum menyimpan data penting.
