@@ -46,6 +46,18 @@
   });
   saveOpenPanel(remembered);
  });
+ // Opening an expiry editor closes the visible URL and any other expiry editor.
+ document.addEventListener('show.bs.collapse',function(event){
+  const target=event.target;
+  if(!target.classList.contains('share-expiry-panel'))return;
+  document.querySelectorAll('.share-link-panel[id]').forEach(function(panel){setPanelState(panel,false);});
+  saveOpenPanel('');
+  document.querySelectorAll('.share-expiry-panel.show').forEach(function(other){
+   if(other!==target && window.bootstrap?.Collapse){
+    window.bootstrap.Collapse.getOrCreateInstance(other,{toggle:false}).hide();
+   }
+  });
+ });
  document.addEventListener('click',function(event){
   const button=event.target.closest('[data-toggle-share-link]');
   if(!button)return;
@@ -54,6 +66,12 @@
   const panel=selector ? document.querySelector(selector) : null;
   if(!panel)return;
   const willShow=panel.hidden;
+  // Showing a URL closes every expiry editor first.
+  if(willShow){
+   document.querySelectorAll('.share-expiry-panel.show').forEach(function(expiryPanel){
+    if(window.bootstrap?.Collapse)window.bootstrap.Collapse.getOrCreateInstance(expiryPanel,{toggle:false}).hide();
+   });
+  }
   // Close every other row before opening the requested URL.
   document.querySelectorAll('.share-link-panel[id]').forEach(function(other){
    setPanelState(other,willShow && other.id===panel.id);
