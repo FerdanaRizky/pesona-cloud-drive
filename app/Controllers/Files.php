@@ -413,6 +413,51 @@ class Files extends BaseController
         return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview]);
     }
 
+    public function thumbnail(int $id)
+    {
+        $uid = (int) session()->get('user_id');
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        if (!$file || !is_file($file['storage_path'])) return $this->response->setStatusCode(404);
+
+        $mime = (string) $file['mime_type'];
+        $extension = strtolower((string) $file['extension']);
+        $imageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (in_array($mime, $imageTypes, true)) {
+            return $this->response->setHeader('Cache-Control', 'private, max-age=3600')
+                ->setHeader('X-Content-Type-Options', 'nosniff')
+                ->setContentType($mime)->setBody(file_get_contents($file['storage_path']));
+        }
+
+        $source = $file['storage_path'];
+        if (\App\Libraries\OfficePreview::supports($file)) {
+            $source = \App\Libraries\OfficePreview::convert($file);
+            if (!$source) return $this->response->setStatusCode(404);
+        } elseif ($mime !== 'application/pdf') {
+            return $this->response->setStatusCode(415);
+        }
+
+        $cacheDir = WRITEPATH . 'cache/file-thumbnails';
+        if (!is_dir($cacheDir) && !mkdir($cacheDir, 0750, true) && !is_dir($cacheDir)) return $this->response->setStatusCode(500);
+        $key = hash('sha256', $source . '|' . filemtime($source) . '|' . filesize($source));
+        $thumbnail = $cacheDir . '/' . $key . '.jpg';
+        if (!is_file($thumbnail) || filesize($thumbnail) < 1) {
+            $binary = trim((string) env('office.pdftoppmPath', 'pdftoppm'));
+            $prefix = $cacheDir . '/' . $key;
+            $command = [$binary, '-f', '1', '-l', '1', '-singlefile', '-jpeg', '-scale-to', '520', $source, $prefix];
+            $pipes = [];
+            $process = @proc_open($command, [0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']], $pipes);
+            if (!is_resource($process)) return $this->response->setStatusCode(404);
+            fclose($pipes[0]); stream_get_contents($pipes[1]); stream_get_contents($pipes[2]); fclose($pipes[1]); fclose($pipes[2]);
+            $status = proc_close($process);
+            $generated = $prefix . '.jpg';
+            if ($status !== 0 || !is_file($generated) || filesize($generated) < 1) return $this->response->setStatusCode(404);
+            if ($generated !== $thumbnail) @rename($generated, $thumbnail);
+        }
+        return $this->response->setHeader('Cache-Control', 'private, max-age=3600')
+            ->setHeader('X-Content-Type-Options', 'nosniff')
+            ->setContentType('image/jpeg')->setBody(file_get_contents($thumbnail));
+    }
+
     public function previewContent(int $id)
     {
         $uid = (int) session()->get('user_id');
