@@ -25,6 +25,9 @@ CodeIgniter 4 memerlukan PHP 8.2+ serta ekstensi intl dan mbstring. Referensi: h
 7. Aktifkan SSL Let's Encrypt dan paksa HTTPS.
 8. Pastikan pengaturan PHP open_basedir mengizinkan seluruh direktori aplikasi, bukan hanya folder `public`. Minimal izinkan `app-src/`, `app-src/public/`, dan private storage. Pada aaPanel, pengaturan ini berkaitan dengan **Directory → Anti-XSS attack (Base directory limit)**.
 9. Pastikan file `.env` dapat dibaca user PHP-FPM (umumnya `www`). Installer mengatur owner `www:www` dan permission `640`.
+11. Installer juga membuat/menyesuaikan `app-src/public/.user.ini` agar `open_basedir` mengizinkan seluruh direktori aplikasi (`app-src/`) dan private storage, sekaligus mempertahankan path yang sebelumnya diizinkan aaPanel. Ini diperlukan karena CodeIgniter memuat file dari `app/`, `vendor/`, dan `.env`, bukan hanya dari `public/`.
+12. Jika aaPanel mengunci `open_basedir` melalui konfigurasi PHP-FPM tingkat pool atau pengaturan Anti-XSS yang menimpa `.user.ini`, sesuaikan whitelist melalui Website → Site directory → Anti-XSS / Base directory limit. Pastikan minimal mencakup direktori `app-src/`, private storage, dan `/tmp/`. Jangan hanya mengizinkan `app-src/public/`.
+13. Setelah instalasi, verifikasi nilai `open_basedir` dari PHP-FPM (bukan hanya PHP CLI) dan buka `/setup`. Jika masih muncul pesan `open_basedir restriction`, periksa file `.user.ini` serta konfigurasi PHP-FPM website.
 10. Setelah database siap, jalankan `php spark migrate`, lalu buka `/setup` untuk membuat administrator pertama.
 
 ## Update aplikasi tanpa instal ulang
