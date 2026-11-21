@@ -81,7 +81,7 @@ class Trash extends BaseController
             return $group === $type;
         };
         $cutoff = null;
-        $now = new \\DateTimeImmutable('today');
+        $now = new \DateTimeImmutable('today');
         switch ($historyFilter) {
             case 'today': $cutoff = $now; break;
             case '7days': $cutoff = $now->modify('-6 days'); break;
@@ -95,7 +95,7 @@ class Trash extends BaseController
         $dateValid = static function (array $item) use ($cutoff, $historyFilter, $dateFrom, $dateTo): bool {
             $raw = $item['trashed_at'] ?? $item['updated_at'] ?? null;
             if (!$raw) return false;
-            try { $date = new \\DateTimeImmutable((string) $raw); } catch (\\Throwable $e) { return false; }
+            try { $date = new \DateTimeImmutable((string) $raw); } catch (\Throwable $e) { return false; }
             if ($historyFilter !== 'range' && $cutoff && $date < $cutoff) return false;
             if ($historyFilter === 'last_year' && $date->format('Y-m-d') > $dateTo) return false;
             if ($historyFilter === 'range') {
