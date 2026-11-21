@@ -235,7 +235,7 @@ class Files extends BaseController
             $movedFolders++;
         }
 
-        return redirect()->back()->with('message', $movedFiles . ' file dan ' . $movedFolders . ' folder (termasuk seluruh isi folder) dipindahkan ke Sampah.');
+        return redirect()->to(site_url('files'))->with('message', $movedFiles . ' file dan ' . $movedFolders . ' folder (termasuk seluruh isi folder) dipindahkan ke Sampah.');
     }
 
     private function trashFolderTree(int $folderId, int $uid): void
