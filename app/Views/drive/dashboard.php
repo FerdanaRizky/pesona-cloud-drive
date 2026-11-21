@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let anchor = null;
     const itemKey = item => item.dataset.itemType + ':' + item.dataset.itemId;
     const getItem = target => target.closest('[data-dashboard-selectable]');
-    const isControl = target => !!target.closest('button,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu,a');
+    const isControl = target => !!target.closest('button,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu,a.dashboard-list-location');
     const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')].filter(item => item.getClientRects().length > 0);
     function refreshSelection() {
         const items = getItems();
