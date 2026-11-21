@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/assets/app.css?v=20261121-mobile-theme-checkbox-v1" rel="stylesheet">
+<link href="/assets/app.css?v=20261121-icon-theme-toggle-v1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -34,7 +34,7 @@ $currentPath = trim($currentPath, '/');
 <button class="btn btn-sm btn-outline-secondary d-lg-none sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="appSidebar">☰</button>
 <span class="text-secondary topbar-caption">Personal cloud workspace</span>
 <div class="topbar-actions ms-auto">
-<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Klik untuk mengganti tema"><span class="theme-toggle-icon" aria-hidden="true">◐</span><span class="theme-toggle-caption">Tema: <strong id="themeModeLabel">Dark</strong></span></button>
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Ganti tema"><span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">☾</span></button>
 <div class="dropdown account-dropdown">
 <button class="user-top-card account-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Buka menu akun">
 <div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
@@ -64,6 +64,6 @@ $currentPath = trim($currentPath, '/');
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/app.js?v=20261121-mobile-theme-checkbox-v1"></script>
+<script src="/assets/app.js?v=20261121-icon-theme-toggle-v1"></script>
 </body>
 </html>
