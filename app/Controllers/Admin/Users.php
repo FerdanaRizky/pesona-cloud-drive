@@ -95,6 +95,49 @@ class Users extends BaseController
         $this->logAdmin('admin.user_password_reset', 'Reset password pengguna #' . $id);
         return redirect()->to('/admin/users')->with('message', 'Password direset. Sampaikan password sementara secara aman kepada pengguna.');
     }
+
+    public function toggleStatus(int $id)
+    {
+        $users = new UserModel();
+        $target = $users->find($id);
+        if (!$target) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
+        if ($id === (int) session()->get('user_id')) return redirect()->to('/admin/users')->with('error', 'Anda tidak dapat menonaktifkan akun sendiri.');
+        $next = $target['status'] === 'active' ? 'suspended' : 'active';
+        if ($target['role'] === 'admin' && $target['status'] === 'active' && $next === 'suspended') {
+            $activeAdmins = (new UserModel())->where('role', 'admin')->where('status', 'active')->countAllResults();
+            if ($activeAdmins <= 1) return redirect()->to('/admin/users')->with('error', 'Administrator aktif terakhir tidak dapat dinonaktifkan.');
+        }
+        $users->update($id, ['status' => $next]);
+        $this->logAdmin('admin.user_status', 'Mengubah status akun #' . $id . ' menjadi ' . $next);
+        return redirect()->to('/admin/users')->with('message', $next === 'active' ? 'Akun pengguna berhasil diaktifkan.' : 'Akun pengguna berhasil dinonaktifkan.');
+    }
+
+    public function delete(int $id)
+    {
+        $users = new UserModel();
+        $target = $users->find($id);
+        if (!$target) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
+        if ($id === (int) session()->get('user_id')) return redirect()->to('/admin/users')->with('error', 'Anda tidak dapat menghapus akun sendiri.');
+        if ($target['role'] === 'admin' && $target['status'] === 'active') {
+            $activeAdmins = (new UserModel())->where('role', 'admin')->where('status', 'active')->countAllResults();
+            if ($activeAdmins <= 1) return redirect()->to('/admin/users')->with('error', 'Administrator aktif terakhir tidak dapat dihapus.');
+        }
+        $db = db_connect();
+        $fileCount = $db->table('drive_files')->where('user_id', $id)->countAllResults();
+        $folderCount = $db->table('drive_folders')->where('user_id', $id)->countAllResults();
+        if ($fileCount > 0 || $folderCount > 0) {
+            return redirect()->to('/admin/users')->with('error', 'Akun belum dapat dihapus karena masih memiliki ' . $fileCount . ' file dan ' . $folderCount . ' folder. Nonaktifkan akun agar data tetap aman.');
+        }
+        $db->transStart();
+        $db->table('password_reset_tokens')->where('user_id', $id)->delete();
+        $db->table('activity_logs')->where('user_id', $id)->delete();
+        $users->delete($id);
+        $db->transComplete();
+        if (!$db->transStatus()) return redirect()->to('/admin/users')->with('error', 'Penghapusan akun gagal. Tidak ada perubahan yang dikonfirmasi.');
+        $this->logAdmin('admin.user_delete', 'Menghapus akun kosong #' . $id . ' (' . $target['email'] . ')');
+        return redirect()->to('/admin/users')->with('message', 'Akun pengguna berhasil dihapus.');
+    }
+
     private function logAdmin(string $action, string $details): void
     {
         db_connect()->table('activity_logs')->insert([
