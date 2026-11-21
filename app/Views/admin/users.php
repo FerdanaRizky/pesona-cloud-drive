@@ -50,6 +50,18 @@
         <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
         <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
       </form>
+      <div class="user-account-actions">
+        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+          <?= csrf_field() ?>
+          <button class="btn btn-sm <?= $u['status']==='active'?'btn-outline-warning':'btn-outline-success' ?>" type="submit"><?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?></button>
+        </form>
+        <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
+        <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Akun hanya dapat dihapus jika belum memiliki file atau folder.')">
+          <?= csrf_field() ?>
+          <button class="btn btn-sm btn-outline-danger" type="submit">Hapus pengguna</button>
+        </form>
+        <?php endif ?>
+      </div>
     </div>
   </article>
 </div>
