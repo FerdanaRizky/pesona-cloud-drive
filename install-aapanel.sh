@@ -107,9 +107,15 @@ EOF
 chmod 640 .env
 mkdir -p "$STORAGE" writable/cache writable/logs writable/session
 chmod 750 "$STORAGE"
-if id www >/dev/null 2>&1; then chown -R www:www "$STORAGE" writable
-elif id www-data >/dev/null 2>&1; then chown -R www-data:www-data "$STORAGE" writable
-else echo "[WARN] User web server tidak ditemukan; atur permission storage dan writable secara manual."; fi
+if id www >/dev/null 2>&1; then
+    chown www:www .env
+    chown -R www:www "$STORAGE" writable
+elif id www-data >/dev/null 2>&1; then
+    chown www-data:www-data .env
+    chown -R www-data:www-data "$STORAGE" writable
+else
+    echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
+fi
 
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
