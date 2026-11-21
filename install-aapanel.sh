@@ -117,6 +117,59 @@ else
     echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
 fi
 
+
+# aaPanel commonly creates an open_basedir restriction that only allows the
+# website document root (public/) and /tmp. CodeIgniter must also read app/,
+# vendor/, writable/, and its .env file. Extend existing .user.ini directives
+# without removing any paths already allowed by aaPanel.
+normalize_path() {
+    local p="$1"
+    [[ "$p" == */ ]] || p="$p/"
+    printf '%s' "$p"
+}
+APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
+STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
+ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
+USER_INI_FILES=()
+for ini in "/www/wwwroot/$DOMAIN/.user.ini" "$APP_DIR/.user.ini" "$APP_DIR/public/.user.ini"; do
+    [[ -f "$ini" ]] && USER_INI_FILES+=("$ini")
+done
+# Ensure a per-document-root ini exists even when aaPanel has not generated one.
+PUBLIC_INI="$APP_DIR/public/.user.ini"
+[[ -f "$PUBLIC_INI" ]] || : > "$PUBLIC_INI"
+USER_INI_FILES+=("$PUBLIC_INI")
+for ini in "${USER_INI_FILES[@]}"; do
+    tmp="$(mktemp)"
+    awk -v required="$ALLOWED_REQUIRED" '
+      BEGIN { updated=0 }
+      /^[[:space:]]*open_basedir[[:space:]]*=/ {
+        line=$0
+        sub(/^[^=]*=[[:space:]]*/, "", line)
+        gsub(/[[:space:]"]/, "", line)
+        n=split(line, paths, ":")
+        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
+        m=split(required, extra, ":")
+        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
+        value=""
+        for (p in allowed) value=value (value=="" ? "" : ":") p
+        print "open_basedir=" value
+        updated=1
+        next
+      }
+      { print }
+      END {
+        if (!updated) print "open_basedir=" required
+      }
+    ' "$ini" > "$tmp"
+    cat "$tmp" > "$ini"
+    rm -f "$tmp"
+    chmod 644 "$ini"
+    if id www >/dev/null 2>&1; then chown www:www "$ini"
+    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini"
+    fi
+    echo "[OK] open_basedir disesuaikan: $ini"
+done
+
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
 echo "[OK] Aplikasi   : $APP_DIR"
