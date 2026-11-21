@@ -82,7 +82,15 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
     </div>
-    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
+    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div>
+      <div class="user-profile-actions">
+        <button type="button" class="btn btn-sm user-reset-password-trigger" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2Z"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+          Reset password
+        </button>
+        <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning">Wajib ganti password</span><?php endif ?>
+      </div>
+    </div>
     
     <div class="user-storage-block">
       <div class="d-flex justify-content-between align-items-center mb-2 user-storage-heading">
@@ -113,12 +121,7 @@ document.addEventListener('DOMContentLoaded',function(){
         </form>
       </details>
       <?php endif ?>
-      <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
-        <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
-        <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" tabindex="0" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-        <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
-        <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
-      </form>
+
 
     </div>
   </article>
@@ -126,6 +129,57 @@ document.addEventListener('DOMContentLoaded',function(){
 <?php endforeach ?>
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" id="resetPasswordForm" action="/admin/users/reset-password/0">
+        <?= csrf_field() ?>
+        <div class="modal-header">
+          <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="resetPasswordInput">Password baru</label>
+          <div class="input-group">
+            <input class="form-control" id="resetPasswordInput" type="password" name="new_password" minlength="12" maxlength="200" autocomplete="new-password" placeholder="Minimal 12 karakter" required>
+            <button class="btn btn-outline-secondary" type="button" id="toggleResetPassword" aria-label="Tampilkan password" aria-pressed="false">
+              <svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="form-text">Password baru minimal 12 karakter. Pengguna akan diminta mengganti password saat masuk berikutnya.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-warning">Simpan password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('resetPasswordModal');
+  const form = document.getElementById('resetPasswordForm');
+  const input = document.getElementById('resetPasswordInput');
+  const title = document.getElementById('resetPasswordModalLabel');
+  const toggle = document.getElementById('toggleResetPassword');
+  if (!modal || !form || !input || !title) return;
+  modal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    form.action = '/admin/users/reset-password/' + encodeURIComponent(trigger.getAttribute('data-user-id'));
+    input.value = '';
+    title.textContent = 'Reset Password — ' + (trigger.getAttribute('data-user-name') || 'Pengguna');
+    if (toggle) { input.type = 'password'; toggle.setAttribute('aria-pressed', 'false'); }
+  });
+  if (toggle) toggle.addEventListener('click', function () {
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    toggle.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Tampilkan password');
+  });
+});
+</script>
 <div class="modal fade" id="editQuotaModal" tabindex="-1" aria-labelledby="editQuotaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -211,6 +265,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <style>
 .user-profile-panel{border:1px solid var(--bs-border-color);border-radius:10px;padding:12px}
 .user-profile-panel .user-profile-summary{margin-top:0}
+.user-profile-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--bs-border-color)}
+.user-reset-password-trigger{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--bs-warning);color:var(--bs-warning);border-radius:9px;padding:7px 11px;font-weight:600}
+.user-reset-password-trigger:hover{background:rgba(var(--bs-warning-rgb),.12);color:var(--bs-warning);border-color:var(--bs-warning)}
+.user-reset-password-trigger svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
 .user-phone-value{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
 .user-phone-edit-button{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;padding:4px;border:1px solid var(--bs-border-color);border-radius:7px;background:transparent;color:var(--bs-secondary-color);vertical-align:middle;cursor:pointer}
 .user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
