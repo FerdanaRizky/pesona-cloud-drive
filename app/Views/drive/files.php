@@ -14,7 +14,7 @@ const selectionForm=document.getElementById('bulkActionForm'),selectionCount=doc
 function refreshSelection(){
  const selected=[...document.querySelectorAll('.drive-item-select:checked')],fileCount=selected.filter(x=>x.dataset.itemType==='file').length,folderCount=selected.length-fileCount;
  selectionCount.textContent=selected.length+' item dipilih ('+fileCount+' file, '+folderCount+' folder)';
- hint.textContent='Pilih aksi melalui menu tiga titik. Aksi file akan diterapkan pada file yang dipilih.';
+ 
  hiddenIds.innerHTML='';
  selected.forEach(box=>{const hidden=document.createElement('input');hidden.type='hidden';hidden.name=box.dataset.itemType==='folder'?'folder_ids[]':'file_ids[]';hidden.value=box.value;hiddenIds.appendChild(hidden);});
  if(menuTrigger)menuTrigger.disabled=!selected.length;
@@ -78,8 +78,8 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 <form id="bulkActionForm" method="post" action="/files/bulk-trash" class="bulk-selection-bar mb-3" aria-hidden="true">
 <?= csrf_field() ?>
 <div id="bulkSelectedIds"></div>
-<div class="bulk-selection-info"><span class="bulk-selection-icon">✓</span><div><strong id="bulkSelectionCount">0 item dipilih</strong><small id="bulkSelectionHint" class="text-secondary d-block">Pilih file atau folder, lalu buka menu aksi.</small></div></div>
-<div class="bulk-action-controls">
+<div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearDriveSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="bulkSelectionCount">0 item dipilih</strong></div>
+<div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-bulk-action="share" title="Bagikan" aria-label="Bagikan">♧</button><button type="button" class="selection-action-btn" data-bulk-action="download" title="Download" aria-label="Download">↓</button><button type="button" class="selection-action-btn" data-bulk-action="move" title="Pindahkan" aria-label="Pindahkan">↗</button><button type="button" class="selection-action-btn" data-bulk-action="trash" title="Pindahkan ke Sampah" aria-label="Pindahkan ke Sampah">▤</button>
   <div class="dropdown floating-action-dropdown">
     <button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="bulkActionsMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button>
     <div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
@@ -90,7 +90,7 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
       <button type="button" class="dropdown-item text-danger" data-bulk-action="trash">⌫ Pindahkan ke Sampah</button>
     </div>
   </div>
-  <button type="button" class="btn btn-sm btn-outline-secondary" id="clearDriveSelection">Batal pilih</button>
+  
 </div>
 <div class="modal fade" id="bulkActionModal" tabindex="-1" aria-hidden="true">
  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
