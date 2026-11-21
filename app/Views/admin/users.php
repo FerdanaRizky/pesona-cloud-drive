@@ -24,10 +24,18 @@
   </form>
 </div></div>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><div><h2 class="h5 mb-1">Daftar pengguna</h2><p class="small text-secondary mb-0">Atur akses dan keamanan setiap akun.</p></div><span class="users-count-pill"><?= count($users) ?> akun terdaftar</span></div>
-<div class="row g-3">
+<div class="users-search-wrap mb-3">
+  <div class="users-search-box">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+    <input type="search" class="form-control" id="userSearchInput" placeholder="Cari nama, email, nomor WhatsApp, atau ID pengguna..." autocomplete="off" aria-label="Cari pengguna">
+    <button type="button" class="users-search-clear" id="clearUserSearch" aria-label="Hapus pencarian" hidden>×</button>
+  </div>
+  <span class="users-search-result small text-secondary" id="userSearchResult"><?= count($users) ?> pengguna</span>
+</div>
+<div class="row g-3" id="userCardsGrid">
 <?php foreach ($users as $u): ?>
 <div class="col-12 col-xl-6">
-  <article class="user-management-card h-100">
+  <article class="user-management-card h-100" data-user-search="<?= esc(strtolower(implode(' ', [(string)$u['name'], (string)$u['email'], (string)($u['phone'] ?? ''), (string)$u['id'], (string)$u['role'], (string)$u['status']])), 'attr') ?>">
     <div class="user-card-heading">
       <div class="user-identity">
         <div class="user-card-avatar <?= $u['role']==='admin'?'avatar-admin':'' ?>"><?= esc(strtoupper(substr((string)$u['name'],0,1))) ?></div>
@@ -78,4 +86,34 @@
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
 <style>.user-profile-panel{border:1px solid var(--bs-border-color);border-radius:10px;padding:12px}.user-profile-panel .user-profile-summary{margin-top:0}</style>
+
+<script>
+(function(){
+ const input=document.getElementById('userSearchInput');
+ const clear=document.getElementById('clearUserSearch');
+ const grid=document.getElementById('userCardsGrid');
+ const result=document.getElementById('userSearchResult');
+ if(!input||!grid||!result)return;
+ const cards=Array.from(grid.querySelectorAll('.user-management-card'));
+ const empty=document.createElement('div');
+ empty.className='col-12';
+ empty.innerHTML='<div class="empty-users"><span>⌕</span><strong>Pengguna tidak ditemukan</strong><small>Coba kata kunci nama, email, nomor WhatsApp, atau ID pengguna lainnya.</small></div>';
+ empty.hidden=true;
+ grid.appendChild(empty);
+ function filter(){
+  const query=input.value.trim().toLocaleLowerCase();
+  let visible=0;
+  cards.forEach(card=>{
+   const match=!query||(card.dataset.userSearch||'').includes(query);
+   card.closest('.col-12').hidden=!match;
+   if(match)visible++;
+  });
+  empty.hidden=visible!==0;
+  result.textContent=query?visible+' dari '+cards.length+' pengguna':' '+cards.length+' pengguna';
+  clear.hidden=!query;
+ }
+ input.addEventListener('input',filter);
+ clear.addEventListener('click',()=>{input.value='';filter();input.focus();});
+})();
+</script>
 <?= $this->endSection() ?>
