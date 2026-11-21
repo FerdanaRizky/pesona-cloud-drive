@@ -281,6 +281,7 @@ class Files extends BaseController
         $expiresAt = in_array($expiry, ['1', '7', '30'], true) ? date('Y-m-d H:i:s', strtotime('+' . (int) $expiry . ' days')) : null;
         $db = db_connect();
         $links = [];
+        $createdShareIds = [];
         foreach ($ids as $id) {
             $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
             if (!$file) continue;
@@ -290,11 +291,12 @@ class Files extends BaseController
                 'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token),
                 'permission' => 'viewer', 'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
             ]);
+            $createdShareIds[] = (int) $db->insertID();
             $links[] = ['name' => $file['original_name'], 'url' => site_url('s/' . $token)];
             $this->logActivity($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
         }
         if (!$links) return redirect()->back()->with('error', 'Tidak ada file valid yang dapat dibagikan.');
-        return redirect()->to('/shares')->with('share_links', $links)->with('message', count($links) . ' tautan berbagi berhasil dibuat.');
+        return redirect()->to('/shares')->with('share_ids', $createdShareIds)->with('share_links', $links)->with('message', count($links) . ' tautan berbagi berhasil dibuat.');
     }
 
     public function bulkDownload()
