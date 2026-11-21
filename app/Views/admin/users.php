@@ -85,8 +85,27 @@ document.addEventListener('DOMContentLoaded',function(){
     <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     
     <div class="user-storage-block">
-      <div class="d-flex justify-content-between align-items-center mb-2"><span class="small text-secondary">Penyimpanan terpakai</span><strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong></div>
+      <div class="d-flex justify-content-between align-items-center mb-2 user-storage-heading">
+        <span class="small text-secondary">Penyimpanan terpakai</span>
+        <div class="d-flex align-items-center gap-2">
+          <strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong>
+          <button class="user-quota-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#quotaEditor<?= (int)$u['id'] ?>" aria-expanded="false" aria-controls="quotaEditor<?= (int)$u['id'] ?>" title="Ubah kuota penyimpanan" aria-label="Ubah kuota penyimpanan pengguna <?= esc($u['name'], 'attr') ?>">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
+      <div class="collapse user-quota-collapse mt-3" id="quotaEditor<?= (int)$u['id'] ?>">
+        <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-quota-edit-form">
+          <?= csrf_field() ?>
+          <label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label>
+          <div class="user-quota-edit-row">
+            <input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required>
+            <button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button>
+          </div>
+          <div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div>
+        </form>
+      </div>
     </div>
     <div class="user-card-controls">
       <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
@@ -105,10 +124,6 @@ document.addEventListener('DOMContentLoaded',function(){
         </form>
       </details>
       <?php endif ?>
-      <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
-        <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
-<div class="quota-edit-group"><label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label><div class="quota-edit-row"><input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required><button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button></div><div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div></div>
-      </form>
       <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
         <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
         <div class="input-group input-group-sm"><input class="form-control" id="reset_password_<?= (int)$u['id'] ?>" type="password" name="new_password" minlength="12" autocomplete="new-password" placeholder="Password baru (min. 12 karakter)" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="reset_password_<?= (int)$u['id'] ?>" tabindex="0" aria-label="Tampilkan password baru" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
@@ -171,6 +186,15 @@ document.addEventListener('DOMContentLoaded', function () {
 .user-phone-edit-button{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;padding:4px;border:1px solid var(--bs-border-color);border-radius:7px;background:transparent;color:var(--bs-secondary-color);vertical-align:middle;cursor:pointer}
 .user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
 .user-phone-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.user-quota-toggle{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;padding:5px;border:1px solid var(--bs-border-color);border-radius:8px;background:transparent;color:var(--bs-secondary-color);cursor:pointer}
+.user-quota-toggle:hover,.user-quota-toggle[aria-expanded="true"]{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
+.user-quota-toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.user-quota-edit-form{padding:14px;border:1px solid var(--bs-border-color);border-radius:12px;background:var(--bs-tertiary-bg,rgba(127,145,170,.06))}
+.user-quota-edit-row{display:grid;grid-template-columns:minmax(70px,.55fr) minmax(110px,1fr);gap:10px}
+.user-quota-edit-row .form-control,.user-quota-edit-row .quota-save-button{min-height:42px;border-radius:10px}
+#userCardsGrid .user-card-controls{display:block}
+#userCardsGrid .user-password-form{width:100%;height:auto}
+@media(max-width:420px){.user-quota-edit-row{grid-template-columns:minmax(0,1fr) auto}.user-quota-edit-row .quota-save-button{min-width:104px}}
 </style>
 
 <script>
