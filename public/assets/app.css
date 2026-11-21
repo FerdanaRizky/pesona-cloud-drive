@@ -2650,3 +2650,17 @@ html[data-bs-theme="light"] .account-logout-icon{background:#fff0f2;color:#c83f6
 @media (max-width: 380px) {
   .theme-toggle-btn { flex-basis:40px; width:40px; min-width:40px; height:40px; }
 }
+
+
+/* Theme icon colors: warm sun for Light, white crescent for Dark */
+.theme-toggle-icon {
+  color:#ffffff;
+  font-size:24px;
+  text-shadow:0 1px 2px rgba(0,0,0,.16);
+  transition:color .18s ease, transform .18s ease;
+}
+html[data-bs-theme="light"] .theme-toggle-icon {
+  color:#f5b51b;
+  text-shadow:0 1px 2px rgba(180,120,0,.18);
+}
+.theme-toggle-btn:hover .theme-toggle-icon { transform:rotate(-10deg) scale(1.08); }
