@@ -87,3 +87,63 @@ Contoh path default:
 - Cache PDF Office: `/www/wwwroot/test-cloud.pesonawifi.my.id/app-src/writable/cache/office-preview/`
 
 Nginx harus memiliki izin baca ke kedua direktori tersebut. `X-Accel-Redirect` hanya digunakan untuk file yang berada di dalam salah satu root tersebut; file di luar root akan memakai fallback PHP.
+
+
+## Pemecahan masalah
+
+### HTTP 500 karena open_basedir
+
+Periksa log PHP-FPM website. Jika ada pesan `open_basedir restriction` yang hanya mengizinkan `public/` dan `/tmp/`, PHP tidak dapat membaca `app/Config/Paths.php`, `vendor/`, atau `.env`.
+
+Periksa konfigurasi:
+
+```bash
+APP="/www/wwwroot/DOMAIN/app-src"
+STORAGE="/www/wwwroot/DOMAIN-private"
+cat "$APP/public/.user.ini"
+```
+
+Pastikan direktori aplikasi dan private storage termasuk dalam daftar, misalnya:
+
+```ini
+open_basedir=/www/wwwroot/DOMAIN/app-src/:/www/wwwroot/DOMAIN-private/:/tmp/
+```
+
+Jika file tidak bisa ditulis dan muncul `Operation not permitted`, periksa immutable flag:
+
+```bash
+INI="$APP/public/.user.ini"
+lsattr "$INI"
+```
+
+Huruf `i` pada atribut file berarti immutable. Hanya jika huruf tersebut ada, jalankan:
+
+```bash
+chattr -i "$INI"
+cat > "$INI" <<EOF
+open_basedir=$APP/:$STORAGE/:/tmp/
+EOF
+chmod 644 "$INI"
+```
+
+Jika tidak ada flag `i`, periksa ACL (`getfacl -p "$INI"`) dan izin direktori induk. Periksa juga apakah PHP-FPM menetapkan nilai paksa:
+
+```bash
+grep -RniE 'open_basedir|php_admin_value' /www/server/php/84/etc 2>/dev/null
+```
+
+Jika ada batasan di PHP-FPM atau aaPanel Website → Site directory → Anti-XSS/Base directory limit, masukkan seluruh direktori aplikasi, private storage, dan `/tmp/` ke whitelist. Konfigurasi PHP CLI yang menampilkan `open_basedir => no value` tidak menjamin PHP-FPM website memiliki nilai yang sama. Restart PHP-FPM dari aaPanel; cache `.user.ini` dapat memerlukan waktu sampai 5 menit.
+
+### Checklist diagnosis singkat
+
+| Gejala | Pemeriksaan/perbaikan |
+|---|---|
+| `/setup` 404 | Document root harus `app-src/public`; cek Nginx `try_files` |
+| HTTP 500 | Baca log PHP-FPM; periksa open_basedir dan permission |
+| Database gagal | Periksa kredensial `.env`, database/user, lalu `php spark migrate` |
+| `Operation not permitted` pada `.user.ini` | Periksa `lsattr`; jika ada `i`, gunakan `chattr -i` sementara |
+| Upload 413 | Naikkan limit Nginx dan PHP |
+| Composer gagal | Cocokkan PHP CLI 8.2+ dan ekstensi wajib; gunakan Composer 2 |
+| Peringatan zip dimuat dua kali | Hilangkan deklarasi ekstensi zip yang duplikat; biasanya bukan penyebab 500 |
+
+Jangan menghapus direktori aplikasi, `.env`, database, atau private storage untuk memperbaiki masalah ini. Simpan backup database dan private storage sebelum update/repair.
