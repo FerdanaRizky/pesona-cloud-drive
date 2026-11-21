@@ -22,6 +22,7 @@ $routes->get('logout', 'Auth::logout', ['filter' => 'auth']);
 $routes->get('/', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('dashboard', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('files', 'Files::index', ['filter' => 'auth']);
+$routes->get('starred', 'Files::starred', ['filter' => 'auth']);
 $routes->get('search', 'Files::search', ['filter' => 'auth']);
 $routes->get('files/preview/(:num)', 'Files::preview/$1', ['filter' => 'auth']);
 $routes->get('files/preview-content/(:num)', 'Files::previewContent/$1', ['filter' => 'auth']);
