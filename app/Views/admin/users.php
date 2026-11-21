@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
     </div>
-    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div>
+    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-phone="<?= esc($u['phone'] ?? '', 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong class="user-role-value"><?= $u['role']==='admin'?'Superadmin':'User' ?><?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?> <button type="button" class="user-role-edit-button" data-bs-toggle="modal" data-bs-target="#editRoleModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-role="<?= $u['role']==='admin'?'superadmin':'user' ?>" title="Ubah peran" aria-label="Ubah peran pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><?php endif ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div>
       <div class="user-profile-actions">
         <button type="button" class="btn btn-sm user-reset-password-trigger" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2Z"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
@@ -105,22 +105,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
     </div>
     <div class="user-card-controls">
-      <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-      <details class="user-action-disclosure user-role-disclosure">
-        <summary><span><strong>Ubah peran</strong><small>Peran saat ini: <?= $u['role']==='admin'?'Superadmin':'User' ?></small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary>
-        <form method="post" action="/admin/users/update-role/<?= (int)$u['id'] ?>" class="user-role-form" onsubmit="return confirm('Ubah peran <?= esc($u['name'], 'js') ?> menjadi '+(this.elements.role.value==='superadmin'?'Superadmin':'User')+'?')">
-          <?= csrf_field() ?>
-          <div class="user-role-form-copy"><strong>Peran & hak akses</strong><span class="small text-secondary">Pilih tingkat akses baru untuk akun ini.</span></div>
-          <div class="user-role-form-actions">
-            <select class="form-select form-select-sm" name="role" aria-label="Pilih peran pengguna">
-              <option value="user" <?= $u['role']==='user'?'selected':'' ?>>User</option>
-              <option value="superadmin" <?= $u['role']==='admin'?'selected':'' ?>>Superadmin</option>
-            </select>
-            <button class="btn btn-sm user-role-save-button" type="submit">Simpan peran</button>
-          </div>
-        </form>
-      </details>
-      <?php endif ?>
+
 
 
     </div>
@@ -129,6 +114,47 @@ document.addEventListener('DOMContentLoaded',function(){
 <?php endforeach ?>
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
+<div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" id="editRoleForm" action="/admin/users/update-role/0" onsubmit="return confirm('Simpan perubahan peran pengguna ini?')">
+        <?= csrf_field() ?>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editRoleModalLabel">Ubah Peran Pengguna</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="editRoleSelect">Peran dan hak akses</label>
+          <select class="form-select" id="editRoleSelect" name="role" required>
+            <option value="user">User</option>
+            <option value="superadmin">Superadmin</option>
+          </select>
+          <div class="form-text">Pilih tingkat akses untuk pengguna ini.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('editRoleModal');
+  const form = document.getElementById('editRoleForm');
+  const select = document.getElementById('editRoleSelect');
+  const title = document.getElementById('editRoleModalLabel');
+  if (!modal || !form || !select || !title) return;
+  modal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    form.action = '/admin/users/update-role/' + encodeURIComponent(trigger.getAttribute('data-user-id'));
+    select.value = trigger.getAttribute('data-user-role') || 'user';
+    title.textContent = 'Ubah Peran — ' + (trigger.getAttribute('data-user-name') || 'Pengguna');
+  });
+});
+</script>
 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -271,6 +297,11 @@ document.addEventListener('DOMContentLoaded', function () {
 .user-reset-password-trigger svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .user-phone-value{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.user-role-value{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.user-role-edit-button{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;padding:4px;border:1px solid var(--bs-border-color);border-radius:7px;background:transparent;color:var(--bs-secondary-color);vertical-align:middle;cursor:pointer}
+.user-role-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
+.user-role-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
 .user-phone-edit-button{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;padding:4px;border:1px solid var(--bs-border-color);border-radius:7px;background:transparent;color:var(--bs-secondary-color);vertical-align:middle;cursor:pointer}
 .user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
 .user-phone-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
