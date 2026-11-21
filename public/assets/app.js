@@ -77,9 +77,9 @@ window.addEventListener('blur',clearShiftSelectionMode);
 (()=>{
  const sidebar=document.getElementById('appSidebar');
  if(!sidebar)return;
- const normalize=value=>('/'+String(value||'').replace(/^\\/+|\\/+$/g,''))
-   .replace(/\\/index\\.php(?=\\/|$)/,'')
-   .replace(/\\/+$/,'')||'/';
+ const normalize=value=>('/'+String(value||'').replace(/^\/+|\/+$/g,''))
+   .replace(/\/index\.php(?=\/|$)/,'')
+   .replace(/\/+$/,'')||'/';
  const current=normalize(window.location.pathname);
  const links=[...sidebar.querySelectorAll('.nav-link[href]')];
  let activeLink=null;
