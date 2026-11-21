@@ -106,22 +106,24 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 
 
 
-<?php if ($folders): ?>
-<div class="mb-4 drive-folders-section"><div class="d-flex align-items-center gap-2 mb-3"><h2 class="h6 text-secondary mb-0">Folder<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><label class="small text-secondary d-inline-flex align-items-center gap-2 ms-auto"><input type="checkbox" class="form-check-input m-0" id="selectAllFolders"> Pilih semua folder</label></div><div class="row g-2">
+<div class="card p-3 drive-files-card"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Drive Saya<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><span class="small text-secondary"><?= count($folders) + count($files) ?> item</span></div>
+<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr>
+<th class="selection-column"><input type="checkbox" class="form-check-input" id="selectAllFiles" aria-label="Pilih semua item"></th>
+<th>Nama</th><th>Pemilik</th><th>Tanggal diubah</th><th>Ukuran file</th><th class="text-end">Aksi</th>
+</tr></thead><tbody>
 <?php foreach ($folders as $folder): ?>
-<div class="col-sm-6 col-xl-4"><div class="folder-tile">
-  <label class="multi-select-control" title="Pilih folder"><input type="checkbox" class="drive-item-select" data-item-type="folder" value="<?= (int) $folder['id'] ?>"><span></span></label>
-  <a class="flex-grow-1 text-decoration-none text-reset" href="/files?folder=<?= (int) $folder['id'] ?>">📁 <?= esc($folder['name']) ?></a>
-  <div class="dropdown folder-actions floating-action-dropdown"><button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi folder">⋮</button><div class="dropdown-menu dropdown-menu-end file-action-menu">
-    <button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
-    <form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
-  </div></div>
-</div></div>
-<?php endforeach ?></div></div>
-<?php endif ?>
-
-<div class="card p-3 drive-files-card"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">File<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><span class="small text-secondary"><?= count($files) ?> item</span></div>
-<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th class="selection-column"><input type="checkbox" class="form-check-input" id="selectAllFiles" aria-label="Pilih semua file"></th><th>Nama file</th><th>Tipe</th><th>Ukuran</th><th>Diunggah</th><th class="text-end">Aksi</th></tr></thead><tbody>
+<tr class="file-row folder-list-row">
+<td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="folder" value="<?= (int) $folder['id'] ?>" aria-label="Pilih folder <?= esc($folder['name'], 'attr') ?>"></td>
+<td><div class="drive-file-cell folder-list-cell"><span class="folder-list-icon" aria-hidden="true">📁</span><div class="drive-file-meta min-width-0"><div class="drive-file-name fw-medium"><a class="text-reset text-decoration-none" href="/files?folder=<?= (int) $folder['id'] ?>"><?= esc($folder['name']) ?></a></div><small class="text-secondary drive-file-mime">Folder</small></div></div></td>
+<td><span class="drive-owner-label"><?= esc(session()->get('name') ?: 'Saya') ?></span></td>
+<td><span class="drive-date-label">—</span></td><td><span class="drive-size-label">—</span></td>
+<td class="text-end"><div class="dropdown folder-actions floating-action-dropdown">
+<button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi folder">⋮</button>
+<div class="dropdown-menu dropdown-menu-end file-action-menu">
+<button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
+<form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
+</div></div></td></tr>
+<?php endforeach ?>
 <?php foreach ($files as $f): ?>
 <tr class="file-row"><td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="file" value="<?= (int) $f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td>
 <div class="drive-file-cell">
@@ -172,7 +174,7 @@ $previewUrl = '/files/preview/' . (int) $f['id'];
 <small class="text-secondary drive-file-mime"><?= esc($f['mime_type']) ?></small>
 </div>
 </div>
-</td><td><?= esc($f['extension'] ?: '—') ?></td><td><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</td><td><?= esc($f['created_at']) ?></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
+</td><td><span class="drive-owner-label"><?= esc(session()->get('name') ?: 'Saya') ?></span></td><td><span class="drive-date-label"><?= esc($f['created_at']) ?></span></td><td><span class="drive-size-label"><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</span></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
 <button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan aksi file">⋮</button>
 <div class="dropdown-menu dropdown-menu-end file-action-menu">
 <?php if (in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf','video/mp4','video/webm','video/ogg'], true)): ?><a class="dropdown-item" href="/files/preview/<?= (int) $f['id'] ?>">◉ Preview</a><?php endif ?>
@@ -186,7 +188,7 @@ $previewUrl = '/files/preview/' . (int) $f['id'];
 <form method="post" action="/files/delete/<?= (int) $f['id'] ?>" onsubmit="return confirm('Hapus file ini? File akan dipindahkan ke Sampah.')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
 </div></div>
 <?php endforeach ?>
-<?php if (!$files): ?><tr><td colspan="6" class="text-center text-secondary py-4">Belum ada file di folder ini.</td></tr><?php endif ?>
+<?php if (!$files && !$folders): ?><tr><td colspan="6" class="text-center text-secondary py-4">Belum ada file di folder ini.</td></tr><?php endif ?>
 </tbody></table></div></div>
 </div><!-- /driveViewRoot -->
 <?= $this->endSection() ?>
