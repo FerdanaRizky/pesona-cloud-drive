@@ -6,4 +6,42 @@ sidebarBackdrop?.addEventListener('click',closeSidebar);
 sidebar?.querySelectorAll('a.nav-link').forEach(link=>link.addEventListener('click',closeSidebar));
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();});
+/* Drive interaction: single click selects, double click opens (list and grid). */
+const driveRoot=document.getElementById('driveViewRoot');
+if(driveRoot){
+ const getItemTarget=target=>target.closest('tr.file-row, .folder-tile');
+ const isControl=target=>!!target.closest('button,input,select,textarea,form,.dropdown-menu,[data-bs-toggle],.file-action-menu,label.multi-select-control');
+ const selectDriveItem=item=>{
+  const checkbox=item?.querySelector('.drive-item-select');
+  if(!checkbox)return;
+  checkbox.checked=true;
+  item.classList.add('is-drive-selected');
+  checkbox.dispatchEvent(new Event('change',{bubbles:true}));
+ };
+ driveRoot.addEventListener('click',event=>{
+  const item=getItemTarget(event.target);
+  if(!item||isControl(event.target))return;
+  const link=event.target.closest('a');
+  if(link&&item.contains(link)){
+   if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+   event.preventDefault();
+  }
+  selectDriveItem(item);
+ });
+ driveRoot.addEventListener('dblclick',event=>{
+  const item=getItemTarget(event.target);
+  if(!item||isControl(event.target))return;
+  const link=item.querySelector('a[href]');
+  if(!link)return;
+  event.preventDefault();
+  window.location.assign(link.href);
+ });
+ driveRoot.addEventListener('change',event=>{
+  const checkbox=event.target.closest('.drive-item-select');
+  if(!checkbox)return;
+  const item=checkbox.closest('tr.file-row, .folder-tile');
+  item?.classList.toggle('is-drive-selected',checkbox.checked);
+ });
+}
+
 })();
