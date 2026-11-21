@@ -56,5 +56,21 @@ if(driveRoot){
   item?.classList.toggle('is-drive-selected',checkbox.checked);
  });
 }
+/* Prevent browser text highlighting while Shift-clicking items for range selection on every Drive page. */
+document.addEventListener('mousedown',event=>{
+ if(!event.shiftKey)return;
+ const selectable=event.target.closest('[data-dashboard-selectable],.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile');
+ if(!selectable)return;
+ event.preventDefault();
+ const selection=window.getSelection?.();
+ selection?.removeAllRanges();
+},true);
+document.addEventListener('keydown',event=>{
+ if(event.key==='Shift')document.documentElement.classList.add('drive-shift-selecting');
+});
+const clearShiftSelectionMode=()=>document.documentElement.classList.remove('drive-shift-selecting');
+document.addEventListener('keyup',event=>{if(event.key==='Shift')clearShiftSelectionMode();});
+window.addEventListener('blur',clearShiftSelectionMode);
+
 
 })();
