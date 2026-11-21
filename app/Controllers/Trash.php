@@ -9,10 +9,49 @@ class Trash extends BaseController
     public function index()
     {
         $uid = (int) session()->get('user_id');
+        $fileModel = new DriveFileModel();
+        $folderModel = new DriveFolderModel();
+
+        $files = $fileModel->where('user_id', $uid)->where('is_trashed', 1)->orderBy('updated_at', 'DESC')->findAll();
+        $folders = $folderModel->where('user_id', $uid)->where('is_trashed', 1)->orderBy('updated_at', 'DESC')->findAll();
+
+        // Keep the original parent references available even when the parent folder is also in Trash.
+        $allFolders = $folderModel->where('user_id', $uid)->findAll();
+        $folderMap = [];
+        foreach ($allFolders as $folder) {
+            $folderMap[(int) $folder['id']] = $folder;
+        }
+
+        $folderPath = static function (?int $parentId) use (&$folderMap): string {
+            if (!$parentId) return 'Drive Saya';
+            $parts = [];
+            $visited = [];
+            $currentId = $parentId;
+            while ($currentId && isset($folderMap[$currentId]) && !isset($visited[$currentId])) {
+                $visited[$currentId] = true;
+                $current = $folderMap[$currentId];
+                array_unshift($parts, (string) $current['name']);
+                $currentId = !empty($current['parent_id']) ? (int) $current['parent_id'] : 0;
+            }
+            return $parts ? 'Drive Saya / ' . implode(' / ', $parts) : 'Drive Saya';
+        };
+
+        foreach ($files as &$file) {
+            $file['original_location'] = $folderPath(!empty($file['parent_id']) ? (int) $file['parent_id'] : null);
+            $file['trashed_at'] = $file['updated_at'] ?? null;
+        }
+        unset($file);
+
+        foreach ($folders as &$folder) {
+            $folder['original_location'] = $folderPath(!empty($folder['parent_id']) ? (int) $folder['parent_id'] : null);
+            $folder['trashed_at'] = $folder['updated_at'] ?? null;
+        }
+        unset($folder);
+
         return view('drive/trash', [
             'title' => 'Sampah',
-            'files' => (new DriveFileModel())->where('user_id', $uid)->where('is_trashed', 1)->orderBy('updated_at', 'DESC')->findAll(),
-            'folders' => (new DriveFolderModel())->where('user_id', $uid)->where('is_trashed', 1)->orderBy('updated_at', 'DESC')->findAll(),
+            'files' => $files,
+            'folders' => $folders,
         ]);
     }
 
