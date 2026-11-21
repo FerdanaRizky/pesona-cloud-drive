@@ -99,7 +99,7 @@ const bulkActionUrl={
  download:<?= json_encode(site_url('files/bulk-download')) ?>,
  trash:<?= json_encode(site_url('files/bulk-trash')) ?>
 };
-function checkedBulkItems(){return [...document.querySelectorAll('.drive-item-select:checked')];}
+function checkedBulkItems(){return selectedUnique();}
 function submitBulkAction(action){
  if(!selectionForm)return;
  selectionForm.action=bulkActionUrl[action]||bulkActionUrl.trash;
