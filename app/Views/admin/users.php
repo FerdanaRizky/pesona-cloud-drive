@@ -10,8 +10,8 @@
   <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-orange">⏸</span><div><div class="muted-label">Akun nonaktif</div><div class="metric-value"><?= (int)$stats['inactive'] ?></div></div></div></div>
   <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-purple">▤</span><div><div class="muted-label">Penyimpanan digunakan</div><div class="metric-value"><?= number_format($stats['storage']/1073741824,2) ?> <small>GB</small></div></div></div></div>
 </div>
-<div class="d-flex justify-content-end mb-3"><button class="btn create-user-open-button" type="button" data-bs-toggle="collapse" data-bs-target="#createUserPanel" aria-expanded="false" aria-controls="createUserPanel"><span class="create-user-open-icon">＋</span> Tambah pengguna</button></div>
-<div class="collapse mb-4" id="createUserPanel"><div class="card user-create-card p-3 p-lg-4">
+<div class="d-flex justify-content-end mb-3"><a class="btn create-user-open-button" href="#createUserPanel"><span class="create-user-open-icon">＋</span> Tambah pengguna</a></div>
+<section class="mb-4" id="createUserPanel"><div class="card user-create-card p-3 p-lg-4">
   <div class="d-flex align-items-center gap-3 mb-3"><div class="create-user-icon">＋</div><div><h2 class="h5 mb-1">Tambah pengguna baru</h2><p class="small text-secondary mb-0">Buat akun dan tentukan kuota penyimpanan awal.</p></div></div>
   <form method="post" action="/admin/users/create" class="create-user-form">
     <?= csrf_field() ?>
@@ -22,7 +22,7 @@
     <div class="create-user-field"><label class="form-label" for="new_user_quota">Kuota penyimpanan (GB)</label><input class="form-control quota-number-input" id="new_user_quota" type="text" inputmode="numeric" pattern="[0-9]{1,5}" name="quota_gb" maxlength="5" autocomplete="off" value="<?= esc(old('quota_gb') ?: '10') ?>" required><div class="form-text">Masukkan angka 1–10.000 GB.</div></div>
     <div class="create-user-actions"><button class="btn create-user-submit w-100" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Simpan</span></button></div>
   </form>
-</div></div>
+</div></section>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><div><h2 class="h5 mb-1">Daftar pengguna</h2><p class="small text-secondary mb-0">Atur akses dan keamanan setiap akun.</p></div><span class="users-count-pill"><?= count($users) ?> akun terdaftar</span></div>
 <div class="users-search-wrap mb-3">
   <div class="users-search-box">
