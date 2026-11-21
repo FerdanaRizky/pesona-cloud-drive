@@ -84,6 +84,38 @@ class Users extends BaseController
         return redirect()->to('/admin/users')->with('message', 'Pengaturan pengguna berhasil diperbarui.');
     }
 
+    public function updateRole(int $id)
+    {
+        $users = new UserModel();
+        $target = $users->find($id);
+        if (!$target) return redirect()->to('/admin/users')->with('error', 'Pengguna tidak ditemukan.');
+        if ($id === (int) session()->get('user_id')) {
+            return redirect()->to('/admin/users')->with('error', 'Peran akun yang sedang digunakan tidak dapat diubah dari sini.');
+        }
+
+        $requestedRole = (string) $this->request->getPost('role');
+        if (!in_array($requestedRole, ['superadmin', 'user'], true)) {
+            return redirect()->to('/admin/users')->with('error', 'Peran pengguna tidak valid.');
+        }
+        $nextRole = $requestedRole === 'superadmin' ? 'admin' : 'user';
+        $currentRole = (string) $target['role'];
+        if ($currentRole === $nextRole) {
+            return redirect()->to('/admin/users')->with('message', 'Peran pengguna tidak berubah.');
+        }
+
+        if ($currentRole === 'admin' && $target['status'] === 'active' && $nextRole !== 'admin') {
+            $activeSuperadmins = $users->where('role', 'admin')->where('status', 'active')->countAllResults();
+            if ($activeSuperadmins <= 1) {
+                return redirect()->to('/admin/users')->with('error', 'Superadmin aktif terakhir tidak dapat diturunkan menjadi User.');
+            }
+        }
+
+        $users->update($id, ['role' => $nextRole]);
+        $label = $nextRole === 'admin' ? 'Superadmin' : 'User';
+        $this->logAdmin('admin.user_role', 'Mengubah peran pengguna #' . $id . ' dari ' . $currentRole . ' menjadi ' . $label);
+        return redirect()->to('/admin/users')->with('message', 'Peran pengguna berhasil diubah menjadi ' . $label . '.');
+    }
+
     public function resetPassword(int $id)
     {
         $users = new UserModel();
