@@ -182,7 +182,17 @@ https://DOMAIN/setup
 Ikuti halaman setup untuk membuat akun administrator pertama. Setelah admin berhasil dibuat, login dan periksa fitur manajemen pengguna serta upload file.
 
 
+### penyebab langsung aplikasi menghasilkan HTTP 500.
 
+1. Perbaikan langsung melalui aaPanel
+Buka aaPanel:
+1. Masuk menu Website.
+2. Pilih cloud.pesonawifi.my.id.
+3. Klik Site directory.
+4. Cari bagian Anti-XSS attack (Base directory limit).
+5. Atur batas direktori agar mencakup seluruh folder aplikasi, bukan hanya public.
+
+   
 ## Batasan dan keamanan
 - Preview video saat ini mengirim file melalui response PHP biasa; untuk video besar sebaiknya memakai internal redirect (Nginx X-Accel-Redirect) agar hemat memori dan mendukung range request.
 - Pencarian saat ini berbasis nama file/folder, bukan isi dokumen.
