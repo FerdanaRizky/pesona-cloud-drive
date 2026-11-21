@@ -392,7 +392,8 @@ class Files extends BaseController
     public function preview(int $id)
     {
         $uid = (int) session()->get('user_id');
-        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        $trashMode = $this->request->getGet('trash') === '1';
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', $trashMode ? 1 : 0)->first();
         if (!$file || !is_file($file['storage_path'])) {
             return $this->response->setStatusCode(404);
         }
@@ -410,7 +411,7 @@ class Files extends BaseController
             }
         }
 
-        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview]);
+        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview, 'trashMode' => $trashMode]);
     }
 
     public function thumbnail(int $id)
@@ -461,7 +462,8 @@ class Files extends BaseController
     public function previewContent(int $id)
     {
         $uid = (int) session()->get('user_id');
-        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        $trashMode = $this->request->getGet('trash') === '1';
+        $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', $trashMode ? 1 : 0)->first();
         if (!$file || !is_file($file['storage_path'])) return $this->response->setStatusCode(404);
 
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
