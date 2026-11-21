@@ -84,14 +84,93 @@ Migration tambahan:
 
 Updater menjalankan migration otomatis. Untuk manual: php spark migrate
 
-## Instalasi baru aaPanel
-1. Buat website dan database MySQL di aaPanel.
-2. Jalankan bash install-aapanel.sh sebagai root.
-3. Atur document root ke app-src/public.
-4. Pastikan PHP-FPM open_basedir mengizinkan direktori aplikasi dan private storage.
-5. Aktifkan SSL, jalankan migration, lalu buka /setup.
+## Instalasi baru pada server baru
 
-Panduan: docs/INSTALL-AA-PANEL.md.
+Panduan ini untuk memasang Pesona Cloud Drive dari awal pada VPS/server baru yang menggunakan Ubuntu dan aaPanel. Jalankan langkah-langkah berikut secara berurutan.
+
+### 1. Siapkan server dan aaPanel
+- Gunakan Ubuntu 22.04 atau 24.04 dan pasang aaPanel.
+- Pastikan domain/subdomain sudah diarahkan ke IP publik server melalui DNS (record A).
+- Buka panel aaPanel, lalu siapkan website untuk domain yang akan digunakan. Folder website boleh mengikuti default aaPanel.
+- Pastikan port 80 dan 443 dapat diakses agar verifikasi domain dan SSL berjalan.
+
+### 2. Siapkan PHP dan Composer
+Di aaPanel → App Store, pasang PHP 8.2 atau lebih baru (disarankan PHP 8.3/8.4) dan aktifkan ekstensi:
+- `intl`, `mbstring`, `mysqli`/MySQLnd
+- `fileinfo`, `curl`, `gd`
+
+Pasang/siapkan Composer 2, Git, dan rsync. Pastikan perintah `php` dan `composer` bisa dijalankan dari terminal SSH. PHP CLI harus memakai versi 8.2+ yang sama atau kompatibel dengan PHP-FPM website. Periksa dengan:
+
+```bash
+php -v
+php -m
+composer --version
+git --version
+rsync --version
+```
+
+Installer tidak memasang aaPanel, PHP, Composer, atau database server secara otomatis; komponen tersebut harus disiapkan terlebih dahulu.
+
+### 3. Buat database
+Di aaPanel → Database → Add database:
+- Buat database MySQL/MariaDB untuk Pesona Cloud Drive.
+- Buat/ gunakan user database khusus aplikasi.
+- Simpan nama database, username, dan password. Data ini akan diminta oleh installer.
+- Host database default installer adalah `localhost` dan port `3306`.
+
+Jangan memakai password kosong.
+
+### 4. Jalankan installer
+Login ke server melalui SSH sebagai `root`, lalu jalankan:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/install-aapanel.sh | bash
+```
+
+Installer akan meminta informasi berikut:
+- Domain aplikasi, misalnya `drive.domainanda.com`.
+- Direktori aplikasi (default: `/www/wwwroot/DOMAIN/app-src`).
+- Direktori source Git (default: `/opt/pesona-cloud-drive-source`).
+- Nama database, username, dan password database.
+- Direktori private storage (default: `/www/wwwroot/DOMAIN-private`).
+
+Masukkan domain dan kredensial database yang sudah dibuat. Catat direktori aplikasi dan private storage yang ditampilkan installer. Private storage berada di luar document root agar file pengguna tidak dapat diakses langsung melalui URL.
+
+### 5. Atur website aaPanel
+Setelah installer selesai:
+1. Buka Website → domain aplikasi → Site directory / Running directory.
+2. Atur document root menjadi direktori aplikasi ditambah `/public`, contoh:
+   `/www/wwwroot/drive.domainanda.com/app-src/public`.
+3. Pastikan website menggunakan versi PHP yang sudah disiapkan.
+4. Pastikan pengaturan `open_basedir` mengizinkan direktori aplikasi dan private storage. Jangan membatasi akses hanya ke folder `public`.
+5. Aktifkan SSL Let's Encrypt untuk domain dan pastikan website dapat dibuka melalui HTTPS.
+6. Pastikan direktori `writable` dan private storage dapat ditulis oleh user PHP/web server. Installer mencoba mengatur kepemilikan ke user `www` atau `www-data`; sesuaikan jika instalasi aaPanel menggunakan user lain.
+
+### 6. Jalankan database migration dan buat admin pertama
+Installer menyiapkan file aplikasi dan `.env`, tetapi database migration dijalankan setelah database tersedia. Melalui SSH:
+
+```bash
+cd /www/wwwroot/DOMAIN/app-src
+php spark migrate
+```
+
+Ganti `DOMAIN` dengan domain yang dipakai atau gunakan direktori aplikasi khusus yang Anda masukkan saat instalasi.
+
+Setelah migration berhasil, buka:
+
+```
+https://DOMAIN/setup
+```
+
+Ikuti halaman setup untuk membuat akun administrator pertama. Setelah admin berhasil dibuat, login dan periksa fitur manajemen pengguna serta upload file.
+
+### 7. Pengaturan lanjutan
+- Konfigurasikan SMTP pada file `.env` jika ingin menggunakan fitur lupa/reset password melalui email. Lihat bagian **Konfigurasi email reset password**.
+- Untuk preview dokumen Office, pasang LibreOffice: `apt install libreoffice`.
+- Untuk upload file besar, ikuti bagian **Upload file berukuran besar (aaPanel)** dan sesuaikan batas Nginx/PHP.
+- Buat backup database dan direktori private storage secara rutin.
+
+Panduan teknis tambahan: [docs/INSTALL-AA-PANEL.md](docs/INSTALL-AA-PANEL.md).
 
 ## Batasan dan keamanan
 - Preview video saat ini mengirim file melalui response PHP biasa; untuk video besar sebaiknya memakai internal redirect (Nginx X-Accel-Redirect) agar hemat memori dan mendukung range request.
