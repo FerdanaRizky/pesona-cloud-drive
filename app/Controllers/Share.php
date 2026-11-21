@@ -143,8 +143,9 @@ class Share extends BaseController
             'token_hash' => hash('sha256', $token), 'token_ciphertext' => service('encrypter')->encrypt($token), 'permission' => 'viewer',
             'expires_at' => $expiresAt, 'created_at' => date('Y-m-d H:i:s'),
         ]);
+        $shareId = (int) db_connect()->insertID();
         $this->log($uid, 'file.share', 'Membuat tautan berbagi: ' . $file['original_name']);
-        return redirect()->to('/shares')->with('share_id', (int) db_connect()->insertID())->with('message', 'Tautan berbagi berhasil dibuat.');
+        return redirect()->to('/shares')->with('share_id', $shareId)->with('message', 'Tautan berbagi berhasil dibuat.');
     }
 
     public function revoke(int $id)
