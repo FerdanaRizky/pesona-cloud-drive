@@ -73,7 +73,7 @@ class Share extends BaseController
                         ->with('share_id', $id)
                         ->with('message', 'Link berbagi berhasil ditampilkan kembali.');
                 }
-            } catch (\\Throwable $e) {
+            } catch (\Throwable $e) {
                 // If legacy ciphertext cannot be decrypted (for example, after an app-key change),
                 // rotate it below and persist a fresh encrypted token.
             }
