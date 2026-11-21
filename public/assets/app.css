@@ -2490,3 +2490,63 @@ html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gr
 .user-create-modal-content .password-input-wrap>.password-inline-toggle svg{
   display:block!important;width:19px!important;height:19px!important;
 }
+
+
+/* Final password field alignment: keep the visibility control inside the input row. */
+.user-create-modal-content .password-input-wrap{
+  display:flex!important;
+  position:relative!important;
+  align-items:stretch!important;
+  width:100%!important;
+  height:48px!important;
+  min-height:48px!important;
+  overflow:hidden!important;
+  border:1px solid var(--bs-border-color)!important;
+  border-radius:10px!important;
+  background:var(--bs-form-control-bg,var(--bs-body-bg))!important;
+}
+.user-create-modal-content .password-input-wrap>input.form-control{
+  position:relative!important;
+  display:block!important;
+  flex:1 1 auto!important;
+  width:1%!important;
+  min-width:0!important;
+  height:46px!important;
+  min-height:46px!important;
+  padding:10px 14px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.user-create-modal-content .password-input-wrap>.password-inline-toggle{
+  position:static!important;
+  inset:auto!important;
+  display:flex!important;
+  flex:0 0 50px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:50px!important;
+  min-width:50px!important;
+  max-width:50px!important;
+  height:46px!important;
+  min-height:46px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid var(--bs-border-color)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--bs-secondary-color)!important;
+  box-shadow:none!important;
+}
+.user-create-modal-content .password-input-wrap>.password-inline-toggle svg{
+  display:block!important;width:19px!important;height:19px!important;
+}
+.user-create-modal-content .required-label::after{
+  content:" *"!important;
+  display:inline!important;
+  color:#e5484d!important;
+  font-weight:800!important;
+  margin-left:2px!important;
+}
