@@ -1080,3 +1080,6 @@ html[data-bs-theme="light"] .drive-file-visual{background:#f4f7fc}
  #driveViewRoot[data-drive-view="grid"] .drive-file-visual{height:112px}
  .drive-file-cell{gap:9px}
 }
+
+.drive-file-preview-fallback{display:none;align-items:center;justify-content:center;width:100%;height:100%;font-size:1rem;font-weight:850;letter-spacing:.08em;color:var(--bs-primary);background:var(--bs-tertiary-bg)}
+.drive-file-visual.preview-failed .drive-file-preview-fallback{display:flex}
