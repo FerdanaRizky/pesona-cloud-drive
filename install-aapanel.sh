@@ -62,15 +62,30 @@ else
     git clone "$REPO" "$SOURCE_DIR"
 fi
 
-if [[ ! -f "$APP_DIR/spark" ]]; then
-    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
-        echo "[ERROR] APP_DIR sudah berisi file dan bukan instalasi CodeIgniter. Tidak ada file yang dihapus."
+# Ensure the CodeIgniter framework skeleton exists. A previous interrupted
+# install may leave only spark (or only some directories) in APP_DIR. Complete
+# missing framework files from a temporary appstarter without overwriting any
+# existing user configuration or data.
+if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -d "$APP_DIR/public" ]]; then
+    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
+        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
+        echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
         exit 1
     fi
-    composer create-project codeigniter4/appstarter "$APP_DIR" --no-interaction
+    mkdir -p "$APP_DIR"
+    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
+    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
+    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
+    rsync -a --ignore-existing "$BOOTSTRAP_DIR/app/" "$APP_DIR/"
+    rm -rf "$BOOTSTRAP_DIR"
+    trap - EXIT
 fi
 
-[[ -f "$APP_DIR/spark" && -d "$APP_DIR/app" && -d "$APP_DIR/public" ]] || { echo "[ERROR] Struktur CodeIgniter tidak lengkap."; exit 1; }
+[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
+    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah proses pemulihan."
+    echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
+    exit 1
+}
 rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
