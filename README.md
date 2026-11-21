@@ -142,7 +142,7 @@ Setelah installer selesai:
 2. Atur document root menjadi direktori aplikasi ditambah `/public`, contoh:
    `/www/wwwroot/drive.domainanda.com/app-src/public`.
 3. Pastikan website menggunakan versi PHP yang sudah disiapkan.
-4. Pastikan pengaturan `open_basedir` mengizinkan direktori aplikasi dan private storage. Jangan membatasi akses hanya ke folder `public`.
+4. Installer otomatis menyesuaikan `open_basedir` pada `app-src/public/.user.ini` agar CodeIgniter dapat membaca `app/`, `vendor/`, `.env`, dan private storage. Jika pengaturan Anti-XSS/Base directory limit aaPanel mengunci nilai tersebut di tingkat PHP-FPM, tambahkan direktori `app-src/`, private storage, dan `/tmp/` ke whitelist aaPanel. Jangan membatasi akses hanya ke folder `public`.
 5. Aktifkan SSL Let's Encrypt untuk domain dan pastikan website dapat dibuka melalui HTTPS.
 6. Pastikan direktori `writable` dan private storage dapat ditulis oleh user PHP/web server. Installer mencoba mengatur kepemilikan ke user `www` atau `www-data`; sesuaikan jika instalasi aaPanel menggunakan user lain.
 
