@@ -943,3 +943,52 @@ html[data-bs-theme="light"] .share-link-panel,html[data-bs-theme="light"] .share
  .share-link-panel{max-width:100%}
  .share-expiry-panel{max-width:100%;min-width:0}
 }
+
+/* Share management: compact action menus, bulk controls and mobile layout */
+.share-management-card{border:1px solid #2c405e;border-radius:17px;background:linear-gradient(150deg,#14243b,#101b2d)}
+.share-management-table{min-width:850px;margin-bottom:0}
+.share-management-table th{font-size:.84rem;font-weight:750;white-space:nowrap;color:#d9e7fb;border-bottom-color:#30435f;padding:13px 10px}
+.share-management-table td{padding:12px 10px;vertical-align:middle;border-bottom-color:#2b3e59}
+.share-select-column{width:42px;text-align:center}
+.share-row-select,#selectAllShares{width:17px;height:17px;cursor:pointer;border-color:#6983a5;background-color:#0d192b}
+.share-file-name{display:flex;align-items:center;gap:9px;min-width:230px}
+.share-file-icon{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:rgba(65,126,220,.15);color:#8eb8ff}
+.share-file-icon svg,.share-actions-trigger svg,.share-actions-menu svg,.share-bulk-actions svg,.share-expiry-save svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.share-actions-trigger{display:grid;place-items:center;width:39px;height:39px;padding:0;border-radius:11px}
+.share-actions-menu{min-width:220px;padding:7px;border:1px solid #344965;border-radius:13px;background:#172943;box-shadow:0 15px 35px rgba(0,0,0,.28)}
+.share-actions-menu .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:#dce8f8;font-size:.86rem}
+.share-actions-menu .dropdown-item:hover{background:rgba(85,135,207,.16);color:#fff}
+.share-actions-menu .dropdown-item.text-danger{color:#ff929b!important}
+.share-expiry-panel{min-width:225px}
+.share-expiry-panel form{align-items:center}
+.share-expiry-save{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.share-bulk-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;border:1px solid #304766;border-radius:15px;background:linear-gradient(110deg,rgba(36,66,104,.5),rgba(17,31,51,.75))}
+.share-bulk-info{display:flex;flex-direction:column;gap:3px;min-width:180px}
+.share-bulk-info strong{font-size:.92rem}
+.share-bulk-info small{font-size:.76rem;color:#9eb3d0}
+.share-bulk-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.share-bulk-actions select{width:125px;min-height:36px;background:#0d192b;color:#edf4ff;border-color:#3a506f}
+.share-bulk-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border-radius:9px;font-weight:650}
+.share-bulk-actions .btn:disabled{opacity:.42;cursor:not-allowed}
+.share-link-panel{max-width:430px}
+.share-link-panel .form-control{min-width:0;font-size:.78rem}
+html[data-bs-theme="light"] .share-management-card{background:#fff;border-color:#e1e8f2}
+html[data-bs-theme="light"] .share-management-table th{color:#273b57;border-bottom-color:#e3eaf3}
+html[data-bs-theme="light"] .share-management-table td{border-bottom-color:#e8edf4}
+html[data-bs-theme="light"] .share-actions-menu{background:#fff;border-color:#e0e7f1}
+html[data-bs-theme="light"] .share-actions-menu .dropdown-item{color:#2c3e57}
+html[data-bs-theme="light"] .share-actions-menu .dropdown-item:hover{background:#eff5ff;color:#1e4f94}
+html[data-bs-theme="light"] .share-bulk-toolbar{background:linear-gradient(110deg,#f1f6ff,#fff);border-color:#dce6f4}
+html[data-bs-theme="light"] .share-bulk-info small{color:#71839c}
+html[data-bs-theme="light"] .share-bulk-actions select{background:#fff;color:#26364e;border-color:#d7e1ef}
+@media(max-width:767px){
+ .share-page-heading{align-items:flex-start!important}
+ .share-page-heading .share-back-button{width:100%;justify-content:center}
+ .share-bulk-toolbar{align-items:stretch;padding:12px}
+ .share-bulk-actions{display:grid;grid-template-columns:1fr 1fr}
+ .share-bulk-actions select{grid-column:1/-1;width:100%;min-height:40px}
+ .share-bulk-actions .btn{min-height:40px}
+ .share-management-card{padding:10px!important}
+ .share-table-wrap{overflow-x:auto}
+}
+@media(max-width:480px){.share-bulk-info{min-width:100%}.share-file-name{min-width:210px}}
