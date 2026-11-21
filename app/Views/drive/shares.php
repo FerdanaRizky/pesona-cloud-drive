@@ -116,6 +116,13 @@ document.addEventListener('DOMContentLoaded',function(){
  });
 });
 document.addEventListener('DOMContentLoaded',function(){
+ const shareViewRoot=document.getElementById('shareViewRoot'),shareViewButtons=document.querySelectorAll('[data-share-view]');
+ const savedShareView=localStorage.getItem('pcd-share-view')||'list';
+ function setShareView(view){if(!shareViewRoot)return;shareViewRoot.dataset.shareView=view;shareViewButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.shareView===view)));localStorage.setItem('pcd-share-view',view);}
+ shareViewButtons.forEach(button=>button.addEventListener('click',()=>setShareView(button.dataset.shareView)));
+ setShareView(savedShareView);
+});
+document.addEventListener('DOMContentLoaded',function(){
  const form=document.getElementById('bulkShareForm'),ids=document.getElementById('bulkShareIds'),count=document.getElementById('bulkShareCount'),all=document.getElementById('selectAllShares');
  const update=document.getElementById('bulkShareUpdate'),revoke=document.getElementById('bulkShareRevoke');
  if(!form||!ids)return;
