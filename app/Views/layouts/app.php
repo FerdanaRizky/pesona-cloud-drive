@@ -8,7 +8,11 @@
 </head>
 <body>
 <div class="app-shell">
-<?php $currentPath = trim(service('uri')->getPath(), '/'); ?>
+<?php
+$currentPath = trim((string) service('uri')->getPath(), '/');
+$currentPath = preg_replace('#^index\\.php/?#', '', $currentPath);
+$currentPath = trim($currentPath, '/');
+?>
 <aside class="sidebar" id="appSidebar">
 <a class="brand" href="/dashboard"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></a>
 <nav class="nav flex-column mt-4">
