@@ -39,7 +39,7 @@ document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventL
   title.textContent=action==='share'?'Bagikan file terpilih':'Pindahkan file terpilih';
   confirmButton.textContent=action==='share'?'Buat tautan':'Pindahkan file';
   selectionForm.dataset.pendingAction=action;
-  bootstrap.Modal.getOrCreateInstance(bulkModal).show();
+  const openDropdown=bootstrap.Dropdown.getInstance(this);openDropdown?.hide();bootstrap.Modal.getOrCreateInstance(bulkModal,{backdrop:true,keyboard:true,focus:true}).show();
   return;
  }
  if(action==='download'){
@@ -57,8 +57,21 @@ selectionForm?.addEventListener('submit',function(event){
  if(action==='move')this.action='/files/bulk-move';
  this.dataset.pendingAction='';
 });
-bulkModal?.addEventListener('hidden.bs.modal',()=>{selectionForm.dataset.pendingAction='';});
-document.getElementById('bulkActionConfirm')?.addEventListener('click',function(){const action=selectionForm.dataset.pendingAction;if(action==='share')selectionForm.action='/files/bulk-share';if(action==='move')selectionForm.action='/files/bulk-move';});
+bulkModal?.addEventListener('hidden.bs.modal',()=>{selectionForm.dataset.pendingAction='';selectionForm.action=<?= json_encode(site_url('files/bulk-trash')) ?>;document.body.classList.remove('modal-open');document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.remove());});
+document.getElementById('bulkActionConfirm')?.addEventListener('click',function(){
+ const action=selectionForm.dataset.pendingAction;
+ if(!action)return;
+ if(action==='move'){
+  const files=[...document.querySelectorAll('.drive-item-select:checked')].filter(box=>box.dataset.itemType==='file');
+  if(!files.length){alert('Pilih minimal satu file. Folder yang dipilih tidak dapat dipindahkan melalui aksi ini.');return;}
+  selectionForm.action=<?= json_encode(site_url('files/bulk-move')) ?>;
+ }else if(action==='share'){
+  const files=[...document.querySelectorAll('.drive-item-select:checked')].filter(box=>box.dataset.itemType==='file');
+  if(!files.length){alert('Pilih minimal satu file untuk dibagikan.');return;}
+  selectionForm.action=<?= json_encode(site_url('files/bulk-share')) ?>;
+ }
+ selectionForm.requestSubmit();
+});
 refreshSelection();
 const modalEl=document.getElementById('uploadModal');document.getElementById('openUploadPicker')?.addEventListener('click',function(){bootstrap.Modal.getOrCreateInstance(modalEl).show();});
 const uploadForm=document.querySelector('#uploadModal form'),uploadInput=document.getElementById('modalUploadInput'),uploadWrap=document.getElementById('uploadProgressWrap'),uploadFill=document.getElementById('uploadProgressFill'),uploadPercent=document.getElementById('uploadProgressPercent'),uploadLabel=document.getElementById('uploadProgressLabel'),uploadDetail=document.getElementById('uploadProgressDetail'),uploadSize=document.getElementById('uploadProgressSize'),uploadBar=document.getElementById('uploadProgressBar'),uploadStart=document.getElementById('startUploadButton'),uploadCancel=document.getElementById('uploadCancelButton');
