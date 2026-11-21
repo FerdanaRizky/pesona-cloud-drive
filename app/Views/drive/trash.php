@@ -24,6 +24,59 @@ $menuIcon = static function (string $name): string {
   <div class="d-flex align-items-center gap-2"><div class="view-switcher" role="group" aria-label="Tampilan sampah"><button type="button" class="view-switch-btn" data-trash-view="list" aria-pressed="true" title="Tampilan daftar">☷</button><button type="button" class="view-switch-btn" data-trash-view="grid" aria-pressed="false" title="Tampilan grid">▦</button></div><a class="btn btn-outline-secondary rounded-pill px-3" href="/files">← Kembali ke Drive</a></div>
 </div>
 <div class="trash-notice mb-4"><span class="trash-notice-icon">♲</span><div><strong>Item di sampah</strong><div class="small text-secondary">File masih menggunakan kuota sampai dihapus permanen. Penghapusan permanen tidak dapat dibatalkan.</div></div></div>
+
+<?php $filters = $filters ?? ['type'=>'','history'=>'','location'=>'','date_from'=>'','date_to'=>'']; ?>
+<form method="get" action="<?= site_url('trash') ?>" class="trash-filter-bar mb-4" id="trashFilters">
+  <div class="trash-filter-control">
+    <label class="visually-hidden" for="trashTypeFilter">Jenis item</label>
+    <select class="form-select" id="trashTypeFilter" name="type">
+      <option value="">Jenis</option>
+      <option value="folder" <?= $filters['type']==='folder'?'selected':'' ?>>Folder</option>
+      <option value="document" <?= $filters['type']==='document'?'selected':'' ?>>Dokumen</option>
+      <option value="spreadsheet" <?= $filters['type']==='spreadsheet'?'selected':'' ?>>Spreadsheet</option>
+      <option value="presentation" <?= $filters['type']==='presentation'?'selected':'' ?>>Presentasi</option>
+      <option value="image" <?= $filters['type']==='image'?'selected':'' ?>>Pics</option>
+      <option value="video" <?= $filters['type']==='video'?'selected':'' ?>>Video</option>
+      <option value="audio" <?= $filters['type']==='audio'?'selected':'' ?>>Audio</option>
+      <option value="archive" <?= $filters['type']==='archive'?'selected':'' ?>>Arsip</option>
+      <option value="other" <?= $filters['type']==='other'?'selected':'' ?>>Lainnya</option>
+    </select>
+  </div>
+  <div class="trash-filter-control">
+    <label class="visually-hidden" for="trashHistoryFilter">Riwayat tanggal</label>
+    <select class="form-select" id="trashHistoryFilter" name="history">
+      <option value="">Dihapus / diubah</option>
+      <option value="today" <?= $filters['history']==='today'?'selected':'' ?>>Hari ini</option>
+      <option value="7days" <?= $filters['history']==='7days'?'selected':'' ?>>7 hari terakhir</option>
+      <option value="30days" <?= $filters['history']==='30days'?'selected':'' ?>>30 hari terakhir</option>
+      <option value="this_year" <?= $filters['history']==='this_year'?'selected':'' ?>>Tahun ini (<?= date('Y') ?>)</option>
+      <option value="last_year" <?= $filters['history']==='last_year'?'selected':'' ?>>Tahun lalu (<?= date('Y')-1 ?>)</option>
+      <option value="range" <?= $filters['history']==='range'?'selected':'' ?>>Rentang tanggal...</option>
+    </select>
+  </div>
+  <div class="trash-filter-control trash-location-filter">
+    <label class="visually-hidden" for="trashLocationFilter">Lokasi folder awal</label>
+    <select class="form-select" id="trashLocationFilter" name="location">
+      <option value="">Semua lokasi</option>
+      <option value="0" <?= $filters['location']==='0'?'selected':'' ?>>Drive Saya (folder utama)</option>
+      <?php foreach (($folderOptions ?? []) as $folderOption): ?>
+        <option value="<?= (int)$folderOption['id'] ?>" <?= $filters['location']===(string)$folderOption['id']?'selected':'' ?>><?= esc($folderOption['name']) ?></option>
+      <?php endforeach ?>
+    </select>
+  </div>
+  <div class="trash-date-range <?= $filters['history']==='range'?'is-visible':'' ?>" id="trashDateRange">
+    <label class="visually-hidden" for="trashDateFrom">Dari tanggal</label>
+    <input class="form-control" type="date" id="trashDateFrom" name="date_from" value="<?= esc($filters['date_from']) ?>" aria-label="Dari tanggal">
+    <span class="text-secondary">—</span>
+    <label class="visually-hidden" for="trashDateTo">Sampai tanggal</label>
+    <input class="form-control" type="date" id="trashDateTo" name="date_to" value="<?= esc($filters['date_to']) ?>" aria-label="Sampai tanggal">
+  </div>
+  <button type="submit" class="btn btn-primary trash-filter-apply">Terapkan</button>
+  <?php if ($filters['type']!=='' || $filters['history']!=='' || $filters['location']!=='' || $filters['date_from']!=='' || $filters['date_to']!==''): ?>
+    <a class="btn btn-outline-secondary trash-filter-reset" href="<?= site_url('trash') ?>">Hapus filter</a>
+  <?php endif ?>
+</form>
+
 <div id="trashViewRoot" data-trash-view="list">
 <form id="bulkPurgeForm" method="post" action="/trash/bulk-purge" class="bulk-selection-bar trash-bulk-selection mb-3" aria-hidden="true"><?= csrf_field() ?><div id="trashSelectedIds"></div><div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearTrashSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="trashSelectionCount">0 item dipilih</strong></div><div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-trash-bulk-action="restore" title="Pulihkan" aria-label="Pulihkan"><?= $menuIcon('restore') ?></button><button type="button" class="selection-action-btn danger" data-trash-bulk-action="purge" title="Hapus permanen" aria-label="Hapus permanen"><?= $menuIcon('trash') ?></button><div class="dropdown floating-action-dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="trashBulkMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled><?= $menuIcon('more') ?></button><div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu"><button type="button" class="dropdown-item" data-trash-bulk-action="restore"><?= $menuIcon('restore') ?>Pulihkan</button><div class="dropdown-divider"></div><button type="button" class="dropdown-item text-danger" data-trash-bulk-action="purge"><?= $menuIcon('trash') ?>Hapus permanen</button></div></div></div></form>
 <div class="card p-3 p-lg-4 mb-4 trash-files-card">
@@ -101,6 +154,9 @@ document.addEventListener('DOMContentLoaded',function(){
   }
  }));
  refreshTrashSelection();
+ const historySelect=document.getElementById('trashHistoryFilter'),dateRange=document.getElementById('trashDateRange');
+ function toggleTrashDateRange(){dateRange?.classList.toggle('is-visible',historySelect?.value==='range');}
+ historySelect?.addEventListener('change',toggleTrashDateRange);toggleTrashDateRange();
  const root=document.getElementById('trashViewRoot'),buttons=document.querySelectorAll('[data-trash-view]');const saved=localStorage.getItem('pcd-trash-view')||'list';function setView(view){if(!root)return;root.dataset.trashView=view;buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.trashView===view)));localStorage.setItem('pcd-trash-view',view);}buttons.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.trashView)));setView(saved);
  document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown){
   const trigger=dropdown.querySelector('[data-bs-toggle="dropdown"]'),menu=dropdown.querySelector('.file-action-menu');if(!trigger||!menu)return;let placeholder=null;
