@@ -118,10 +118,15 @@ document.addEventListener('DOMContentLoaded',function(){
  const update=document.getElementById('bulkShareUpdate'),revoke=document.getElementById('bulkShareRevoke');
  if(!form||!ids)return;
  const boxes=()=>Array.from(document.querySelectorAll('.share-row-select'));
- function refresh(){const selected=boxes().filter(x=>x.checked);count.textContent=selected.length+' link dipilih';ids.innerHTML='';selected.forEach(x=>{const input=document.createElement('input');input.type='hidden';input.name='share_ids[]';input.value=x.value;ids.appendChild(input)});update.disabled=revoke.disabled=selected.length===0;if(all){all.checked=boxes().length>0&&selected.length===boxes().length;all.indeterminate=selected.length>0&&selected.length<boxes().length;}}
+ function refresh(){const selected=boxes().filter(x=>x.checked);count.textContent=selected.length+' link dipilih';ids.innerHTML='';selected.forEach(x=>{const input=document.createElement('input');input.type='hidden';input.name='share_ids[]';input.value=x.value;ids.appendChild(input)});update.disabled=revoke.disabled=selected.length===0;form.classList.toggle('is-selection-active',selected.length>0);form.setAttribute('aria-hidden',selected.length?'false':'true');if(all){all.checked=boxes().length>0&&selected.length===boxes().length;all.indeterminate=selected.length>0&&selected.length<boxes().length;}}
  boxes().forEach(x=>x.addEventListener('change',refresh));
  all?.addEventListener('change',()=>{boxes().forEach(x=>x.checked=all.checked);refresh()});
  update.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;form.action='/shares/bulk-update';form.submit()});
+
+ document.getElementById('clearShareSelection')?.addEventListener('click',()=>{boxes().forEach(x=>x.checked=false);refresh();});
+ document.getElementById('shareUpdateIcon')?.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;document.getElementById('bulkShareExpiry').focus();});
+ document.getElementById('shareRevokeIcon')?.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;if(!confirm('Cabut semua link yang dipilih? Tautan tidak dapat digunakan lagi.'))return;form.action='/shares/bulk-revoke';form.submit();});
+
  revoke.addEventListener('click',()=>{if(!boxes().some(x=>x.checked))return;if(!confirm('Cabut semua link yang dipilih? Tautan tidak dapat digunakan lagi.'))return;form.action='/shares/bulk-revoke';form.submit()});
 
  // Row click selects a share; double click opens its saved URL panel.
