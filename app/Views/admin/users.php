@@ -4,23 +4,25 @@
   <div><div class="page-eyebrow">ADMINISTRASI WORKSPACE</div><h1 class="h3 mb-1">Manajemen Pengguna</h1><p class="text-secondary mb-0">Kelola akun, kapasitas penyimpanan, status akses, dan keamanan pengguna.</p></div>
   <div class="users-head-icon">♙</div>
 </div>
-<div class="row g-3 mb-4">
-  <div class="col-sm-4"><div class="user-metric-card"><span class="metric-icon metric-blue">♙</span><div><div class="muted-label">Total akun</div><div class="metric-value"><?= (int)$stats['total'] ?></div></div></div></div>
-  <div class="col-sm-4"><div class="user-metric-card"><span class="metric-icon metric-green">✓</span><div><div class="muted-label">Akun aktif</div><div class="metric-value"><?= (int)$stats['active'] ?></div></div></div></div>
-  <div class="col-sm-4"><div class="user-metric-card"><span class="metric-icon metric-purple">▤</span><div><div class="muted-label">Penyimpanan digunakan</div><div class="metric-value"><?= number_format($stats['storage']/1073741824,2) ?> <small>GB</small></div></div></div></div>
+<div class="row g-3 mb-4 users-metrics-grid">
+  <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-blue">♙</span><div><div class="muted-label">Total akun</div><div class="metric-value"><?= (int)$stats['total'] ?></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-green">✓</span><div><div class="muted-label">Akun aktif</div><div class="metric-value"><?= (int)$stats['active'] ?></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-orange">⏸</span><div><div class="muted-label">Akun nonaktif</div><div class="metric-value"><?= (int)$stats['inactive'] ?></div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="user-metric-card"><span class="metric-icon metric-purple">▤</span><div><div class="muted-label">Penyimpanan digunakan</div><div class="metric-value"><?= number_format($stats['storage']/1073741824,2) ?> <small>GB</small></div></div></div></div>
 </div>
-<div class="card user-create-card p-3 p-lg-4 mb-4">
+<div class="d-flex justify-content-end mb-3"><button class="btn create-user-open-button" type="button" data-bs-toggle="collapse" data-bs-target="#createUserPanel" aria-expanded="false" aria-controls="createUserPanel"><span class="create-user-open-icon">＋</span> Tambah pengguna</button></div>
+<div class="collapse mb-4" id="createUserPanel"><div class="card user-create-card p-3 p-lg-4">
   <div class="d-flex align-items-center gap-3 mb-3"><div class="create-user-icon">＋</div><div><h2 class="h5 mb-1">Tambah pengguna baru</h2><p class="small text-secondary mb-0">Buat akun dan tentukan kuota penyimpanan awal.</p></div></div>
-  <form method="post" action="/admin/users/create" class="row g-3 create-user-form">
+  <form method="post" action="/admin/users/create" class="create-user-form">
     <?= csrf_field() ?>
-    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="new_user_name">Nama lengkap</label><input class="form-control" id="new_user_name" name="name" maxlength="120" value="<?= esc(old('name')) ?>" placeholder="Nama pengguna" required></div>
-    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="new_user_email">Alamat email</label><input class="form-control" id="new_user_email" type="email" name="email" maxlength="190" value="<?= esc(old('email')) ?>" placeholder="nama@email.com" required></div>
-    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="new_user_phone">Nomor WhatsApp</label><input class="form-control" id="new_user_phone" type="tel" name="phone" inputmode="numeric" maxlength="20" value="<?= esc(old('phone')) ?>" placeholder="6281234567890" required><div class="form-text">Format internasional.</div></div>
-    <div class="col-12 col-md-6 col-xl-3"><label class="form-label" for="new_user_password">Password sementara</label><div class="input-group"><input class="form-control" id="new_user_password" type="password" name="password" minlength="12" autocomplete="new-password" placeholder="Minimal 12 karakter" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_user_password" aria-label="Tampilkan password sementara" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
-    <div class="col-12 col-md-4 col-xl-3"><label class="form-label" for="new_user_quota">Kuota penyimpanan (GB)</label><input class="form-control quota-number-input" id="new_user_quota" type="text" inputmode="numeric" pattern="[0-9]{1,5}" name="quota_gb" maxlength="5" autocomplete="off" value="<?= esc(old('quota_gb') ?: '10') ?>" required><div class="form-text">Masukkan angka 1–10.000 GB.</div></div>
-    <div class="col-12 col-md-6 col-xl-3 d-flex align-items-end"><button class="btn create-user-submit w-100" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Buat pengguna</span></button></div>
+    <div class="create-user-field"><label class="form-label" for="new_user_name">Nama lengkap</label><input class="form-control" id="new_user_name" name="name" maxlength="120" value="<?= esc(old('name')) ?>" placeholder="Nama pengguna" required></div>
+    <div class="create-user-field"><label class="form-label" for="new_user_email">Alamat email</label><input class="form-control" id="new_user_email" type="email" name="email" maxlength="190" value="<?= esc(old('email')) ?>" placeholder="nama@email.com" required></div>
+    <div class="create-user-field"><label class="form-label" for="new_user_phone">Nomor WhatsApp</label><input class="form-control" id="new_user_phone" type="tel" name="phone" inputmode="numeric" maxlength="20" value="<?= esc(old('phone')) ?>" placeholder="6281234567890" required><div class="form-text">Format internasional.</div></div>
+    <div class="create-user-field"><label class="form-label" for="new_user_password">Password sementara</label><div class="input-group"><input class="form-control" id="new_user_password" type="password" name="password" minlength="12" autocomplete="new-password" placeholder="Minimal 12 karakter" required><button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_user_password" aria-label="Tampilkan password sementara" aria-pressed="false"><svg class="password-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+    <div class="create-user-field"><label class="form-label" for="new_user_quota">Kuota penyimpanan (GB)</label><input class="form-control quota-number-input" id="new_user_quota" type="text" inputmode="numeric" pattern="[0-9]{1,5}" name="quota_gb" maxlength="5" autocomplete="off" value="<?= esc(old('quota_gb') ?: '10') ?>" required><div class="form-text">Masukkan angka 1–10.000 GB.</div></div>
+    <div class="create-user-actions"><button class="btn create-user-submit w-100" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Buat pengguna</span></button></div>
   </form>
-</div>
+</div></div>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><div><h2 class="h5 mb-1">Daftar pengguna</h2><p class="small text-secondary mb-0">Atur akses dan keamanan setiap akun.</p></div><span class="users-count-pill"><?= count($users) ?> akun terdaftar</span></div>
 <div class="row g-3">
 <?php foreach ($users as $u): ?>
