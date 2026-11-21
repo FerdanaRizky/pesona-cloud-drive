@@ -31,7 +31,25 @@
         <div class="user-card-avatar <?= $u['role']==='admin'?'avatar-admin':'' ?>"><?= esc(strtoupper(substr((string)$u['name'],0,1))) ?></div>
         <div class="min-width-0"><div class="d-flex align-items-center flex-wrap gap-2"><strong class="user-card-name"><?= esc($u['name']) ?></strong><?php if ((int)$u['id']===(int)session()->get('user_id')): ?><span class="badge text-bg-primary">Anda</span><?php endif ?></div><div class="small text-secondary text-break"><?= esc($u['email']) ?></div></div>
       </div>
-      <div class="d-flex flex-column align-items-end gap-2"><span class="role-pill <?= $u['role']==='admin'?'role-admin':'role-user' ?>"><?= esc(ucfirst($u['role'])) ?></span><span class="status-pill <?= $u['status']==='active'?'status-active':'status-suspended' ?>"><i></i><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></span></div>
+      <div class="user-card-status-area">
+        <span class="role-pill <?= $u['role']==='admin'?'role-admin':'role-user' ?>"><?= esc(ucfirst($u['role'])) ?></span>
+        <div class="user-status-inline">
+          <span class="status-pill <?= $u['status']==='active'?'status-active':'status-suspended' ?>"><i></i><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></span>
+          <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
+          <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form user-status-switch-inline" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+            <?= csrf_field() ?>
+            <label class="account-switch" title="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>" aria-label="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>">
+              <input type="checkbox" <?= $u['status']==='active'?'checked':'' ?> onchange="if(confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')) this.form.requestSubmit(); else this.checked=<?= $u['status']==='active'?'true':'false' ?>;">
+              <span class="account-switch-track"><span class="account-switch-thumb"></span></span>
+            </label>
+          </form>
+          <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" class="user-delete-inline-form" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Penghapusan hanya tersedia jika pengguna belum memiliki file atau folder.')">
+            <?= csrf_field() ?>
+            <button class="user-delete-icon-btn" type="submit" title="Hapus pengguna" aria-label="Hapus pengguna"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M5.5 7l1 13h11l1-13M9 7V4h6v3"/></svg></button>
+          </form>
+          <?php else: ?><span class="status-self-label">Akun Anda</span><?php endif ?>
+        </div>
+      </div>
     </div>
     <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= esc(ucfirst($u['role'])) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     <div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">WhatsApp</span><strong><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div>
@@ -50,22 +68,7 @@
         <button class="btn btn-sm btn-outline-warning mt-2">Reset password</button>
         <?php if (!empty($u['must_change_password'])): ?><span class="small text-warning ms-2">Wajib ganti password</span><?php endif ?>
       </form>
-      <div class="user-account-actions user-account-actions-modern">
-        <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
-          <?= csrf_field() ?>
-          <span class="status-switch-copy"><strong><?= $u['status']==='active'?'Akun aktif':'Akun nonaktif' ?></strong><small><?= $u['status']==='active'?'Pengguna dapat masuk dan mengakses file.':'Akses pengguna sedang dinonaktifkan.' ?></small></span>
-          <label class="account-switch" title="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>">
-            <input type="checkbox" <?= $u['status']==='active'?'checked':'' ?> <?= (int)$u['id']===(int)session()->get('user_id')?'disabled':'' ?> onchange="if(this.form.reportValidity() && confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')) this.form.requestSubmit(); else this.checked=<?= $u['status']==='active'?'true':'false' ?>;">
-            <span class="account-switch-track"><span class="account-switch-thumb"></span></span>
-          </label>
-        </form>
-        <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-        <form method="post" action="/admin/users/delete/<?= (int)$u['id'] ?>" class="user-delete-form" onsubmit="return confirm('Hapus akun <?= esc($u['name'], 'js') ?> secara permanen? Penghapusan hanya tersedia jika pengguna belum memiliki file atau folder.')">
-          <?= csrf_field() ?>
-          <button class="btn btn-sm btn-outline-danger" type="submit"><span aria-hidden="true">⌫</span> Hapus pengguna</button>
-        </form>
-        <?php endif ?>
-      </div>
+
     </div>
   </article>
 </div>
