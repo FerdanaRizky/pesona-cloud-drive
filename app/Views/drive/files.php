@@ -94,17 +94,19 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
   </div>
   
 </div>
+</form>
+
 <div class="modal fade" id="bulkActionModal" tabindex="-1" aria-hidden="true">
  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="bulkActionModalTitle">Aksi item terpilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
   <div class="modal-body">
-   <div id="bulkShareField" class="d-none"><label class="form-label" for="bulkShareExpiry">Masa berlaku tautan</label><select class="form-select" name="expires_days" id="bulkShareExpiry"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select><div class="form-text">Tautan akan dibuat untuk file yang dipilih. Folder yang dipilih tidak diproses sebagai file.</div></div>
-   <div id="bulkMoveField" class="d-none"><label class="form-label" for="bulkMoveFolder">Pilih folder tujuan</label><select class="form-select" name="parent_id" id="bulkMoveFolder"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $targetFolder): ?><option value="<?= (int)$targetFolder['id'] ?>"><?= esc($targetFolder['name']) ?></option><?php endforeach ?></select><div class="form-text">File yang dipilih akan dipindahkan ke folder tujuan. Folder yang dipilih tidak dipindahkan.</div></div>
+   <div id="bulkShareField" class="d-none"><label class="form-label" for="bulkShareExpiry">Masa berlaku tautan</label><select class="form-select" name="expires_days" id="bulkShareExpiry" form="bulkActionForm"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select><div class="form-text">Tautan akan dibuat untuk file yang dipilih. Folder yang dipilih tidak diproses sebagai file.</div></div>
+   <div id="bulkMoveField" class="d-none"><label class="form-label" for="bulkMoveFolder">Pilih folder tujuan</label><select class="form-select" name="parent_id" id="bulkMoveFolder" form="bulkActionForm"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $targetFolder): ?><option value="<?= (int)$targetFolder['id'] ?>"><?= esc($targetFolder['name']) ?></option><?php endforeach ?></select><div class="form-text">File yang dipilih akan dipindahkan ke folder tujuan. Folder yang dipilih tidak dipindahkan.</div></div>
   </div>
-  <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="submit" id="bulkActionConfirm" class="btn btn-primary">Lanjutkan</button></div>
+  <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="button" id="bulkActionConfirm" class="btn btn-primary">Lanjutkan</button></div>
  </div></div>
 </div>
-</form>
+
 
 
 
