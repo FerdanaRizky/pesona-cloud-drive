@@ -30,6 +30,21 @@ class Files extends BaseController
         if ($term !== '') $fileQuery->like('original_name', $term);
         $files = $fileQuery->orderBy('original_name', 'ASC')->findAll(200);
 
+        // Mark only files that already have at least one saved share record.
+        // The share token itself is encrypted and persisted by Share::create/bulkShare.
+        $sharedFileIds = [];
+        if ($files) {
+            $fileIds = array_map(static fn($file) => (int) $file['id'], $files);
+            $shareRows = db_connect()->table('file_shares')
+                ->select('file_id')->where('owner_id', $uid)->whereIn('file_id', $fileIds)
+                ->groupBy('file_id')->get()->getResultArray();
+            $sharedFileIds = array_fill_keys(array_map(static fn($row) => (int) $row['file_id'], $shareRows), true);
+        }
+        foreach ($files as &$fileRow) {
+            $fileRow['has_share'] = isset($sharedFileIds[(int) $fileRow['id']]);
+        }
+        unset($fileRow);
+
         $breadcrumbs = [];
         $cursor = $current;
         while ($cursor) {
