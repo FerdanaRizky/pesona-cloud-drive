@@ -181,13 +181,14 @@ document.addEventListener('DOMContentLoaded', function () {
         buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dashboardViewButton === view)));
         localStorage.setItem('pcd-dashboard-view', view);
     };
-    buttons.forEach(button => button.addEventListener('click', () => setView(button.dataset.dashboardViewButton)));
+    buttons.forEach(button => button.addEventListener('click', () => { setView(button.dataset.dashboardViewButton); refresh(); }));
     setView(saved);
 
     // Same interaction as File Saya: click selects, double-click opens.
     const getItem = target => target.closest('[data-dashboard-selectable]');
-    const isControl = target => !!target.closest('button,a,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu');
-    const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')];
+    const isControl = target => !!target.closest('button,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu');
+    const itemKey = item => item.dataset.itemType + ':' + item.dataset.itemId;
+    const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')].filter(item => item.getClientRects().length > 0);
     const selected = new Set();
     let anchor = null;
     const bar = document.getElementById('dashboardSelectionBar');
@@ -195,12 +196,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const clear = document.getElementById('dashboardClearSelection');
     const refresh = () => {
         getItems().forEach(item => {
-            const active = selected.has(item);
+            const active = selected.has(itemKey(item));
             item.classList.toggle('is-dashboard-selected', active);
             item.setAttribute('aria-selected', String(active));
         });
         const total = selected.size;
-        const files = [...selected].filter(item => item.dataset.itemType === 'file').length;
+        const files = [...selected].filter(key => key.startsWith('file:')).length;
         count.textContent = total + ' item dipilih (' + files + ' file, ' + (total - files) + ' folder)';
         bar.classList.toggle('is-active', total > 0);
         bar.setAttribute('aria-hidden', String(total === 0));
@@ -210,13 +211,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.shiftKey && anchor && items.includes(anchor)) {
             if (!event.ctrlKey && !event.metaKey) selected.clear();
             const from = items.indexOf(anchor), to = items.indexOf(item);
-            items.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(entry => selected.add(entry));
+            items.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(entry => selected.add(itemKey(entry)));
         } else if (event.ctrlKey || event.metaKey) {
-            selected.has(item) ? selected.delete(item) : selected.add(item);
+            const key = itemKey(item);
+            selected.has(key) ? selected.delete(key) : selected.add(key);
             anchor = item;
         } else {
             selected.clear();
-            selected.add(item);
+            selected.add(itemKey(item));
             anchor = item;
         }
         refresh();
