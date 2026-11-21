@@ -36,7 +36,7 @@
         <div class="user-status-inline">
           <span class="status-pill <?= $u['status']==='active'?'status-active':'status-suspended' ?>"><i></i><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></span>
           <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
-          <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form user-status-switch-inline" onsubmit="return confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')">
+          <form method="post" action="/admin/users/toggle-status/<?= (int)$u['id'] ?>" class="user-status-switch-form user-status-switch-inline">
             <?= csrf_field() ?>
             <label class="account-switch" title="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>" aria-label="<?= $u['status']==='active'?'Nonaktifkan akun':'Aktifkan akun' ?>">
               <input type="checkbox" <?= $u['status']==='active'?'checked':'' ?> onchange="if(confirm('<?= $u['status']==='active'?'Nonaktifkan':'Aktifkan' ?> akun <?= esc($u['name'], 'js') ?>?')) this.form.requestSubmit(); else this.checked=<?= $u['status']==='active'?'true':'false' ?>;">
