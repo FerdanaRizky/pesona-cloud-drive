@@ -149,7 +149,7 @@ $previewUrl = '/files/preview/' . (int) $f['id'];
 <div class="drive-file-visual drive-file-visual--<?= esc($kind, 'attr') ?>">
 <?php if ($previewable): ?>
 <a class="drive-file-preview-link" href="<?= $previewUrl ?>" aria-label="Buka preview <?= esc($f['original_name'], 'attr') ?>">
-<img src="/files/thumbnail/<?= (int) $f['id'] ?>" alt="Preview <?= esc($f['original_name'], 'attr') ?>" loading="lazy" onerror="this.closest('.drive-file-visual').classList.add('preview-failed');this.remove()">
+<img src="/files/thumbnail/<?= (int) $f['id'] ?>" alt="Preview <?= esc($f['original_name'], 'attr') ?>" loading="lazy" onerror="this.closest('.drive-file-visual').classList.add('preview-failed');this.remove()"><span class="drive-file-preview-fallback"><?= esc($kindLabel) ?></span>
 </a>
 <?php else: ?>
 <div class="drive-file-type-art" aria-hidden="true">
