@@ -45,9 +45,9 @@
 </div>
 </header>
 <div class="content-wrap">
-<?php if (session()->getFlashdata('message')): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
+<?php if (session()->getFlashdata('message') && service('uri')->getPath() !== 'shares'): ?><div class="alert alert-success"><?= esc(session()->getFlashdata('message')) ?></div><?php endif ?>
 <?php if (session()->getFlashdata('error')): ?><div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div><?php endif ?>
-<?php if (session()->getFlashdata('share_link')): ?><div class="alert alert-info d-flex flex-wrap align-items-center gap-2"><span>Link berbagi:</span><a class="text-break" href="<?= esc(session()->getFlashdata('share_link')) ?>" target="_blank" rel="noopener"><?= esc(session()->getFlashdata('share_link')) ?></a></div><?php endif ?>
+<?php if (session()->getFlashdata('share_link') && service('uri')->getPath() !== 'shares'): ?><div class="alert alert-info d-flex flex-wrap align-items-center gap-2"><span>Link berbagi:</span><a class="text-break" href="<?= esc(session()->getFlashdata('share_link')) ?>" target="_blank" rel="noopener"><?= esc(session()->getFlashdata('share_link')) ?></a></div><?php endif ?>
 <?php if ($bulkShareLinks = session()->getFlashdata('share_links')): ?><div class="alert alert-info"><strong>Link berbagi berhasil dibuat</strong><ul class="mb-0 mt-2"><?php foreach ($bulkShareLinks as $shareItem): ?><li class="mb-1"><span><?= esc($shareItem['name']) ?>:</span> <a class="text-break" href="<?= esc($shareItem['url']) ?>" target="_blank" rel="noopener"><?= esc($shareItem['url']) ?></a></li><?php endforeach ?></ul></div><?php endif ?>
 <?php if (session()->getFlashdata('errors')): ?><div class="alert alert-danger"><ul class="mb-0"><?php foreach (session()->getFlashdata('errors') as $error): ?><li><?= esc($error) ?></li><?php endforeach ?></ul></div><?php endif ?>
 <?= $this->renderSection('content') ?>
