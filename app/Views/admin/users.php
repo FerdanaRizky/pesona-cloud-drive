@@ -82,8 +82,31 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
     </div>
-    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
+    <div class="user-profile-panel mb-3"><div class="control-heading mb-2">Profil pengguna</div><div class="user-profile-summary"><div class="user-profile-detail"><span class="profile-detail-label">Nama lengkap</span><strong><?= esc($u['name']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Email akun</span><strong class="text-break"><?= esc($u['email']) ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Nomor WhatsApp</span><strong class="user-phone-value"><?= !empty($u['phone']) ? esc($u['phone']) : 'Belum ditambahkan' ?> <button type="button" class="user-phone-edit-button" data-bs-toggle="modal" data-bs-target="#editPhoneModal<?= (int)$u['id'] ?>" title="Ubah nomor WhatsApp" aria-label="Ubah nomor WhatsApp pengguna <?= esc($u['name'], 'attr') ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Peran akun</span><strong><?= $u['role']==='admin'?'Superadmin':'User' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Status akun</span><strong><?= $u['status']==='active'?'Aktif':'Ditangguhkan' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($u['created_at']) ? esc(date('d M Y', strtotime($u['created_at']))) : '—' ?></strong></div><div class="user-profile-detail"><span class="profile-detail-label">ID pengguna</span><strong>#<?= (int)$u['id'] ?></strong></div></div></div>
     
+    <div class="modal fade" id="editPhoneModal<?= (int)$u['id'] ?>" tabindex="-1" aria-labelledby="editPhoneModalLabel<?= (int)$u['id'] ?>" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>">
+            <?= csrf_field() ?>
+            <input type="hidden" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editPhoneModalLabel<?= (int)$u['id'] ?>">Ubah Nomor WhatsApp</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <label class="form-label" for="edit_phone_<?= (int)$u['id'] ?>">Nomor WhatsApp pengguna</label>
+              <input class="form-control" id="edit_phone_<?= (int)$u['id'] ?>" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>" required>
+              <div class="form-text">Gunakan format internasional, contoh 6281234567890.</div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-primary">Simpan nomor</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="user-storage-block">
       <div class="d-flex justify-content-between align-items-center mb-2"><span class="small text-secondary">Penyimpanan terpakai</span><strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong></div>
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
@@ -107,7 +130,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <?php endif ?>
       <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-setting-form">
         <?= csrf_field() ?><div class="control-heading">Akses & kuota</div>
-        <div class="mb-3"><label class="form-label small" for="user_phone_<?= (int)$u['id'] ?>">Nomor WhatsApp profil</label><input class="form-control form-control-sm" id="user_phone_<?= (int)$u['id'] ?>" type="tel" name="phone" inputmode="numeric" maxlength="20" placeholder="6281234567890" value="<?= esc($u['phone'] ?? '') ?>"><div class="form-text">Format internasional, contoh 6281234567890.</div></div><div class="quota-edit-group"><label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label><div class="quota-edit-row"><input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required><button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button></div><div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div></div>
+<div class="quota-edit-group"><label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label><div class="quota-edit-row"><input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required><button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button></div><div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div></div>
       </form>
       <form method="post" action="/admin/users/reset-password/<?= (int)$u['id'] ?>" class="user-password-form">
         <?= csrf_field() ?><div class="control-heading">Keamanan password</div>
@@ -122,7 +145,14 @@ document.addEventListener('DOMContentLoaded',function(){
 <?php endforeach ?>
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
-<style>.user-profile-panel{border:1px solid var(--bs-border-color);border-radius:10px;padding:12px}.user-profile-panel .user-profile-summary{margin-top:0}</style>
+<style>
+.user-profile-panel{border:1px solid var(--bs-border-color);border-radius:10px;padding:12px}
+.user-profile-panel .user-profile-summary{margin-top:0}
+.user-phone-value{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+.user-phone-edit-button{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;padding:4px;border:1px solid var(--bs-border-color);border-radius:7px;background:transparent;color:var(--bs-secondary-color);vertical-align:middle;cursor:pointer}
+.user-phone-edit-button:hover{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
+.user-phone-edit-button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
 
 <script>
 (function(){
