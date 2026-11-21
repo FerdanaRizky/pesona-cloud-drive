@@ -2281,3 +2281,15 @@ html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-
  #trashFilters .trash-filter-apply,#trashFilters .trash-filter-reset{width:100%}
 }
 @media(max-width:420px){#trashFilters.trash-filter-bar{grid-template-columns:1fr}#trashFilters .trash-date-range{grid-column:1}}
+
+
+/* Shift-click is a range-selection gesture, never a text-selection gesture. */
+html.drive-shift-selecting [data-dashboard-selectable],
+html.drive-shift-selecting .file-manager-list-row,
+html.drive-shift-selecting .file-manager-file-card,
+html.drive-shift-selecting .file-manager-folder-card,
+html.drive-shift-selecting tr.file-row,
+html.drive-shift-selecting .folder-tile{
+ -webkit-user-select:none!important;
+ user-select:none!important;
+}
