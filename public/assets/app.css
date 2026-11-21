@@ -2170,3 +2170,17 @@ html[data-bs-theme="light"] .dashboard-file-list tbody tr:hover{background:#f1f6
 html[data-bs-theme="light"] .dashboard-folder-card.is-dashboard-selected,
 html[data-bs-theme="light"] .dashboard-file-card.is-dashboard-selected{background:#d9ebff!important}
 html[data-bs-theme="light"] .dashboard-file-list-row.is-dashboard-selected{background:#c6e5ff!important}
+
+
+/* Dashboard selection toolbar mirrors File Saya bulk-selection controls. */
+.dashboard-selection-bar{width:100%;margin:0 0 16px;flex-wrap:wrap}
+.dashboard-selection-bar .dashboard-selection-clear{margin-left:0;width:36px;height:36px;padding:0;font-size:22px;line-height:1}
+.dashboard-selection-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+.dashboard-selection-actions .selection-action-btn{width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:var(--bs-emphasis-color);font-size:21px}
+.dashboard-selection-actions .selection-action-btn:hover{background:var(--bs-secondary-bg)}
+.dashboard-selection-actions .bulk-menu-trigger{width:38px;height:38px;padding:0;border:0!important;border-radius:10px;background:transparent!important;color:var(--bs-emphasis-color)!important;font-size:22px}
+.dashboard-selection-actions .bulk-menu-trigger:disabled{opacity:.45}
+.dashboard-selectable-item.is-dashboard-selected .dashboard-file-title,
+.dashboard-selectable-item.is-dashboard-selected .dashboard-list-filename,
+.dashboard-selectable-item.is-dashboard-selected .dashboard-card-name{color:var(--bs-primary)}
+.dashboard-file-list-row.dashboard-selectable-item{cursor:pointer}
