@@ -48,10 +48,91 @@ class Trash extends BaseController
         }
         unset($folder);
 
+        // Trash filters: item type, deletion/update history, and original parent folder.
+        $typeFilter = trim((string) $this->request->getGet('type'));
+        $historyFilter = trim((string) $this->request->getGet('history'));
+        $locationFilter = trim((string) $this->request->getGet('location'));
+        $dateFrom = trim((string) $this->request->getGet('date_from'));
+        $dateTo = trim((string) $this->request->getGet('date_to'));
+
+        $validTypes = ['folder', 'document', 'spreadsheet', 'presentation', 'image', 'video', 'audio', 'archive', 'other'];
+        if (!in_array($typeFilter, $validTypes, true)) $typeFilter = '';
+        $validHistory = ['today', '7days', '30days', 'this_year', 'last_year', 'range'];
+        if (!in_array($historyFilter, $validHistory, true)) $historyFilter = '';
+        if ($locationFilter !== '' && (!ctype_digit($locationFilter) || ((int) $locationFilter > 0 && !isset($folderMap[(int) $locationFilter])))) $locationFilter = '';
+
+        $extensionGroups = [
+            'document' => ['pdf','doc','docx','odt','rtf','txt'],
+            'spreadsheet' => ['xls','xlsx','csv','ods'],
+            'presentation' => ['ppt','pptx','odp'],
+            'image' => ['jpg','jpeg','png','gif','webp','bmp','svg','heic','tif','tiff'],
+            'video' => ['mp4','m4v','mov','avi','mkv','webm','mpeg','mpg'],
+            'audio' => ['mp3','wav','ogg','m4a','aac','flac'],
+            'archive' => ['zip','rar','7z','tar','gz','bz2'],
+        ];
+        $matchesType = static function (array $item, string $type) use ($extensionGroups): bool {
+            if ($type === '' ) return true;
+            if ($type === 'folder') return false;
+            $ext = strtolower((string) ($item['extension'] ?? pathinfo((string) ($item['original_name'] ?? ''), PATHINFO_EXTENSION)));
+            $group = 'other';
+            foreach ($extensionGroups as $name => $extensions) {
+                if (in_array($ext, $extensions, true)) { $group = $name; break; }
+            }
+            return $group === $type;
+        };
+        $cutoff = null;
+        $now = new \\DateTimeImmutable('today');
+        switch ($historyFilter) {
+            case 'today': $cutoff = $now; break;
+            case '7days': $cutoff = $now->modify('-6 days'); break;
+            case '30days': $cutoff = $now->modify('-29 days'); break;
+            case 'this_year': $cutoff = $now->setDate((int) $now->format('Y'), 1, 1); break;
+            case 'last_year':
+                $cutoff = $now->modify('-1 year')->setDate((int) $now->modify('-1 year')->format('Y'), 1, 1);
+                $dateTo = $now->modify('-1 year')->setDate((int) $now->modify('-1 year')->format('Y'), 12, 31)->format('Y-m-d');
+                break;
+        }
+        $dateValid = static function (array $item) use ($cutoff, $historyFilter, $dateFrom, $dateTo): bool {
+            $raw = $item['trashed_at'] ?? $item['updated_at'] ?? null;
+            if (!$raw) return false;
+            try { $date = new \\DateTimeImmutable((string) $raw); } catch (\\Throwable $e) { return false; }
+            if ($historyFilter !== 'range' && $cutoff && $date < $cutoff) return false;
+            if ($historyFilter === 'last_year' && $date->format('Y-m-d') > $dateTo) return false;
+            if ($historyFilter === 'range') {
+                if ($dateFrom !== '' && $date->format('Y-m-d') < $dateFrom) return false;
+                if ($dateTo !== '' && $date->format('Y-m-d') > $dateTo) return false;
+            }
+            return true;
+        };
+        $matchesLocation = static function (array $item) use ($locationFilter): bool {
+            return $locationFilter === '' || (int) ($item['parent_id'] ?? 0) === (int) $locationFilter;
+        };
+
+        $files = array_values(array_filter($files, static fn(array $item): bool =>
+            $typeFilter !== 'folder' && $matchesType($item, $typeFilter) && $dateValid($item) && $matchesLocation($item)
+        ));
+        if ($typeFilter !== '' && $typeFilter !== 'folder') $folders = [];
+        if ($typeFilter === 'folder') $files = [];
+        $folders = array_values(array_filter($folders, static fn(array $item): bool =>
+            ($typeFilter === '' || $typeFilter === 'folder') && $dateValid($item) && $matchesLocation($item)
+        ));
+
+        // Folder choices include trashed parents so users can filter by the original location.
+        $folderOptions = [];
+        foreach ($allFolders as $folderOption) {
+            $folderOptions[] = [
+                'id' => (int) $folderOption['id'],
+                'name' => $folderPath((int) $folderOption['id']),
+            ];
+        }
+        usort($folderOptions, static fn(array $a, array $b): int => strnatcasecmp($a['name'], $b['name']));
+
         return view('drive/trash', [
             'title' => 'Sampah',
             'files' => $files,
             'folders' => $folders,
+            'folderOptions' => $folderOptions,
+            'filters' => ['type' => $typeFilter, 'history' => $historyFilter, 'location' => $locationFilter, 'date_from' => $dateFrom, 'date_to' => $dateTo],
         ]);
     }
 
