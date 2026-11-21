@@ -881,3 +881,15 @@ html[data-bs-theme="light"] .profile-edit-icon{background:#f0f5ff;border-color:#
  .profile-password-action{align-items:flex-start;flex-direction:column;padding:14px}
  .profile-password-action .btn{width:100%;justify-content:center}
 }
+
+/* Compact three-dot actions for share management */
+.share-actions-trigger{width:38px;height:36px;padding:0;display:inline-grid;place-items:center;border-radius:10px;font-size:1.45rem;line-height:1}
+.share-actions-menu{min-width:205px;padding:7px;border:1px solid var(--bs-border-color);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.share-actions-menu .dropdown-item{padding:9px 11px;border-radius:8px;font-size:.88rem}
+.share-actions-menu form{margin:0}
+.share-link-panel{max-width:440px}
+.share-link-panel[hidden]{display:none!important}
+.share-expiry-panel{min-width:220px}
+.share-expiry-panel .form-select{min-width:105px}
+.share-row>td{vertical-align:middle}
+@media(max-width:767px){.share-actions-trigger{width:42px;height:40px}.share-expiry-panel{min-width:190px}.share-link-panel{max-width:100%}}
