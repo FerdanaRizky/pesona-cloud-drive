@@ -14,6 +14,21 @@
   <div class="user-profile-detail"><span class="profile-detail-label">Bergabung</span><strong><?= !empty($user['created_at']) ? esc(date('d M Y',strtotime($user['created_at']))) : '—' ?></strong></div>
   <div class="user-profile-detail"><span class="profile-detail-label">Password terakhir diubah</span><strong><?= !empty($user['password_changed_at']) ? esc(date('d M Y, H:i',strtotime($user['password_changed_at']))) : 'Belum tercatat' ?></strong></div>
  </div>
+ <section class="profile-storage-card mt-3" aria-labelledby="profileStorageTitle">
+  <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+   <div><h2 class="h5 mb-1" id="profileStorageTitle">Penyimpanan akun</h2><small class="text-secondary">Ringkasan kapasitas penyimpanan Anda.</small></div>
+   <span class="profile-storage-icon" aria-hidden="true">▤</span>
+  </div>
+  <div class="profile-storage-values">
+   <div><span class="profile-detail-label">Penyimpanan digunakan</span><strong><?= number_format(((int)($user['used_bytes'] ?? 0))/1073741824,2) ?> GB</strong></div>
+   <div><span class="profile-detail-label">Kuota akun</span><strong><?= number_format(((int)($user['quota_bytes'] ?? 0))/1073741824,1) ?> GB</strong></div>
+   <div><span class="profile-detail-label">Sisa penyimpanan</span><strong><?= number_format(max(0,((int)($user['quota_bytes'] ?? 0)-(int)($user['used_bytes'] ?? 0)))/1073741824,2) ?> GB</strong></div>
+  </div>
+  <div class="progress profile-storage-progress mt-3" role="progressbar" aria-label="Penggunaan penyimpanan" aria-valuenow="<?= min(100,round((int)($user['used_bytes'] ?? 0)/max(1,(int)($user['quota_bytes'] ?? 1))*100)) ?>" aria-valuemin="0" aria-valuemax="100">
+   <div class="progress-bar" style="width:<?= min(100,round((int)($user['used_bytes'] ?? 0)/max(1,(int)($user['quota_bytes'] ?? 1))*100)) ?>%"></div>
+  </div>
+  <small class="text-secondary"><?= min(100,round((int)($user['used_bytes'] ?? 0)/max(1,(int)($user['quota_bytes'] ?? 1))*100)) ?>% kapasitas digunakan</small>
+ </section>
  <div class="profile-password-action"><div><strong>Password akun</strong><small class="d-block text-secondary">Perbarui password untuk menjaga keamanan akun.</small></div><button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><svg class="profile-action-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L19.8 7.7a2.1 2.1 0 0 0-3-3L4 16.5Z"/><path d="m15.5 6.5 3 3"/></svg> Ubah Password</button></div>
 </div>
 
