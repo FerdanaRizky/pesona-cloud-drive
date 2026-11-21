@@ -1614,3 +1614,31 @@ html[data-bs-theme="light"] #driveViewRoot[data-drive-view="list"] .drive-size-l
  #driveViewRoot .drive-files-card tbody tr.file-row,
  #driveViewRoot .folder-tile{transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
 }
+
+
+/* Click-to-select / double-click-to-open feedback across Drive, Trash and Shares */
+#driveViewRoot[data-drive-view="list"] .drive-files-card tbody tr.file-row,
+#trashViewRoot .trash-files-card tbody tr.file-row,
+#trashViewRoot .trash-folders-card tbody tr.file-row,
+.share-management-card tbody tr.share-row{cursor:pointer}
+#trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected,
+#trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected,
+.share-management-card tbody tr.share-row.is-drive-selected{
+ background:rgba(91,141,239,.20)!important;
+ box-shadow:inset 3px 0 0 #68a5f5
+}
+#trashViewRoot .trash-files-card tbody tr.file-row:hover,
+#trashViewRoot .trash-folders-card tbody tr.file-row:hover,
+.share-management-card tbody tr.share-row:hover{background:rgba(91,141,239,.09)!important}
+#trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected td,
+#trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected td,
+.share-management-card tbody tr.share-row.is-drive-selected td{border-color:rgba(105,157,235,.22)!important}
+#trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected .fw-semibold,
+#trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected .fw-semibold,
+.share-management-card tbody tr.share-row.is-drive-selected .fw-semibold{color:#c5e0ff}
+html[data-bs-theme="light"] #trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected,
+html[data-bs-theme="light"] #trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected,
+html[data-bs-theme="light"] .share-management-card tbody tr.share-row.is-drive-selected{background:#d7ebff!important;box-shadow:inset 3px 0 0 #3984dc}
+html[data-bs-theme="light"] #trashViewRoot .trash-files-card tbody tr.file-row.is-drive-selected .fw-semibold,
+html[data-bs-theme="light"] #trashViewRoot .trash-folders-card tbody tr.file-row.is-drive-selected .fw-semibold,
+html[data-bs-theme="light"] .share-management-card tbody tr.share-row.is-drive-selected .fw-semibold{color:#174f91}
