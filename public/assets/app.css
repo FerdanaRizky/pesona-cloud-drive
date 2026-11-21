@@ -780,3 +780,27 @@ html[data-bs-theme="light"] .user-profile-panel .user-profile-summary{background
  .quota-edit-row{gap:7px}
  .quota-save-button{min-width:88px}
 }
+
+/* Keep the application top navigation fixed in view while every page scrolls */
+.main-content>.topbar{
+ position:sticky;
+ top:0;
+ z-index:1000;
+ min-height:72px;
+ background:rgba(14,23,38,.96);
+ border-bottom:1px solid #263247;
+ box-shadow:0 8px 22px rgba(0,0,0,.12);
+ isolation:isolate;
+}
+.main-content>.topbar .dropdown-menu{z-index:1010}
+html[data-bs-theme="light"] .main-content>.topbar{
+ background:rgba(255,255,255,.96);
+ border-bottom-color:#e1e7f0;
+ box-shadow:0 8px 22px rgba(28,45,70,.08);
+}
+@supports ((backdrop-filter:blur(10px)) or (-webkit-backdrop-filter:blur(10px))){
+ .main-content>.topbar{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+}
+@media(max-width:991px){
+ .main-content>.topbar{top:0;min-height:64px;padding-top:8px;padding-bottom:8px}
+}
