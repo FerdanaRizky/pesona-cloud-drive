@@ -2263,3 +2263,21 @@ html[data-bs-theme="dark"] #driveViewRoot .bulk-selection-bar .selection-action-
 #trashViewRoot .trash-original-location .menu-action-icon{width:17px;height:17px;flex:0 0 17px;margin:0;opacity:.8}
 #trashViewRoot .trash-original-location span:last-child{overflow:hidden;text-overflow:ellipsis}
 @media(max-width:767px){#trashViewRoot .trash-files-card .table,#trashViewRoot .trash-folders-card .table{min-width:760px}}
+
+
+/* Trash filters: compact Google Drive-style filter controls */
+#trashFilters.trash-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0;margin:0 0 18px}
+#trashFilters .trash-filter-control{flex:0 1 190px;min-width:155px}
+#trashFilters .form-select,#trashFilters .form-control{min-height:42px;border-radius:11px;border-color:var(--bs-border-color);background-color:var(--bs-body-bg);color:var(--bs-body-color);font-size:.9rem}
+#trashFilters .trash-location-filter{flex:1 1 250px;max-width:360px}
+#trashFilters .trash-filter-apply,#trashFilters .trash-filter-reset{min-height:42px;border-radius:11px;padding-inline:16px;white-space:nowrap}
+#trashFilters .trash-date-range{display:none;align-items:center;gap:8px;flex:1 1 310px;min-width:260px}
+#trashFilters .trash-date-range.is-visible{display:flex}
+#trashFilters .trash-date-range .form-control{min-width:0;flex:1 1 0}
+@media(max-width:767px){
+ #trashFilters.trash-filter-bar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #trashFilters .trash-filter-control,#trashFilters .trash-location-filter{min-width:0;max-width:none;width:100%;flex:auto}
+ #trashFilters .trash-date-range{grid-column:1/-1;min-width:0;width:100%}
+ #trashFilters .trash-filter-apply,#trashFilters .trash-filter-reset{width:100%}
+}
+@media(max-width:420px){#trashFilters.trash-filter-bar{grid-template-columns:1fr}#trashFilters .trash-date-range{grid-column:1}}
