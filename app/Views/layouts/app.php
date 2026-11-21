@@ -62,6 +62,6 @@ $currentPath = trim($currentPath, '/');
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/app.js?v=20261121-shift-range-selection-v1"></script>
+<script src="/assets/app.js?v=20261121-sidebar-active-route-v2"></script>
 </body>
 </html>
