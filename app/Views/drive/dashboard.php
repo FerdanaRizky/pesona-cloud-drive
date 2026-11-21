@@ -15,7 +15,12 @@ $formatActivityDate = static function ($value) {
         <a class="dashboard-info-link" href="/files" title="Kelola semua file" aria-label="Kelola semua file">ⓘ</a>
     </div>
 
-    <section class="dashboard-section dashboard-folder-section">
+    <div class="dashboard-selection-bar" id="dashboardSelectionBar" aria-live="polite" aria-hidden="true">
+    <span class="dashboard-selection-check" aria-hidden="true">✓</span>
+    <strong id="dashboardSelectionCount">0 item dipilih</strong>
+    <button type="button" id="dashboardClearSelection" class="dashboard-selection-clear">Batal pilih</button>
+</div>
+<section class="dashboard-section dashboard-folder-section">
         <div class="dashboard-section-heading">
             <h2><span aria-hidden="true">⌄</span> Folder yang disarankan</h2>
             <a href="/files" class="dashboard-see-all">Lihat semua</a>
@@ -23,7 +28,7 @@ $formatActivityDate = static function ($value) {
         <?php if (!empty($folders)): ?>
         <div class="dashboard-folder-grid">
             <?php foreach ($folders as $folder): ?>
-            <article class="dashboard-folder-card">
+            <article class="dashboard-folder-card dashboard-selectable-item" data-dashboard-selectable data-item-type="folder" data-item-id="<?= (int) $folder['id'] ?>" tabindex="0" role="option" aria-selected="false">
                 <a class="dashboard-folder-main" href="/files?folder=<?= (int) $folder['id'] ?>">
                     <span class="dashboard-folder-icon" aria-hidden="true">📁</span>
                     <span class="dashboard-card-name" title="<?= esc($folder['name'], 'attr') ?>"><?= esc($folder['name']) ?></span>
@@ -83,7 +88,7 @@ $formatActivityDate = static function ($value) {
                     $locationName = (string) ($file['dashboard_location'] ?? 'Drive Saya');
                     $fileUrl = in_array($kind, ['image','pdf','word','sheet','slides'], true) ? '/files/preview/' . (int) $file['id'] : '/files/download/' . (int) $file['id'];
                 ?>
-                    <tr>
+                    <tr class="dashboard-selectable-item dashboard-file-list-row" data-dashboard-selectable data-item-type="file" data-item-id="<?= (int) $file['id'] ?>" tabindex="0" role="option" aria-selected="false">
                         <td>
                             <a class="dashboard-list-name" href="<?= esc($fileUrl, 'attr') ?>">
                                 <span class="dashboard-file-kind dashboard-file-kind--<?= esc($kind, 'attr') ?>" aria-hidden="true"><?= esc($label) ?></span>
@@ -129,7 +134,7 @@ $formatActivityDate = static function ($value) {
                 elseif (in_array($ext, ['php','js','ts','html','css','json','xml','py','sh','sql'], true)) { $kind='code'; $label='CODE'; }
                 $openUrl = $previewable ? '/files/preview/' . (int) $file['id'] : '/files/download/' . (int) $file['id'];
             ?>
-            <article class="dashboard-file-card">
+            <article class="dashboard-file-card dashboard-selectable-item" data-dashboard-selectable data-item-type="file" data-item-id="<?= (int) $file['id'] ?>" tabindex="0" role="option" aria-selected="false">
                 <div class="dashboard-file-card-head">
                     <span class="dashboard-file-kind dashboard-file-kind--<?= esc($kind, 'attr') ?>" aria-hidden="true">
                         <?php if ($image): ?>▧<?php elseif ($kind === 'sheet'): ?>▤<?php elseif ($kind === 'video'): ?>▷<?php elseif ($kind === 'archive'): ?>▣<?php elseif ($kind === 'pdf'): ?>PDF<?php else: ?>▤<?php endif ?>
@@ -178,6 +183,66 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     buttons.forEach(button => button.addEventListener('click', () => setView(button.dataset.dashboardViewButton)));
     setView(saved);
+
+    // Same interaction as File Saya: click selects, double-click opens.
+    const getItem = target => target.closest('[data-dashboard-selectable]');
+    const isControl = target => !!target.closest('button,a,input,select,textarea,form,.dropdown,[data-bs-toggle],.dropdown-menu');
+    const getItems = () => [...root.querySelectorAll('[data-dashboard-selectable]')];
+    const selected = new Set();
+    let anchor = null;
+    const bar = document.getElementById('dashboardSelectionBar');
+    const count = document.getElementById('dashboardSelectionCount');
+    const clear = document.getElementById('dashboardClearSelection');
+    const refresh = () => {
+        getItems().forEach(item => {
+            const active = selected.has(item);
+            item.classList.toggle('is-dashboard-selected', active);
+            item.setAttribute('aria-selected', String(active));
+        });
+        const total = selected.size;
+        const files = [...selected].filter(item => item.dataset.itemType === 'file').length;
+        count.textContent = total + ' item dipilih (' + files + ' file, ' + (total - files) + ' folder)';
+        bar.classList.toggle('is-active', total > 0);
+        bar.setAttribute('aria-hidden', String(total === 0));
+    };
+    const choose = (item, event) => {
+        const items = getItems();
+        if (event.shiftKey && anchor && items.includes(anchor)) {
+            if (!event.ctrlKey && !event.metaKey) selected.clear();
+            const from = items.indexOf(anchor), to = items.indexOf(item);
+            items.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(entry => selected.add(entry));
+        } else if (event.ctrlKey || event.metaKey) {
+            selected.has(item) ? selected.delete(item) : selected.add(item);
+            anchor = item;
+        } else {
+            selected.clear();
+            selected.add(item);
+            anchor = item;
+        }
+        refresh();
+    };
+    root.addEventListener('click', event => {
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        event.preventDefault();
+        choose(item, event);
+    });
+    root.addEventListener('dblclick', event => {
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        const link = item.querySelector('.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-list-name[href]');
+        if (link) {
+            event.preventDefault();
+            window.location.assign(link.href);
+        }
+    });
+    root.addEventListener('keydown', event => {
+        if ((event.key === 'Enter' || event.key === ' ') && getItem(event.target) && !isControl(event.target)) {
+            event.preventDefault();
+            choose(getItem(event.target), event);
+        }
+    });
+    clear?.addEventListener('click', () => { selected.clear(); anchor = null; refresh(); });
 });
 </script>
 <?= $this->endSection() ?>
