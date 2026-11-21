@@ -616,3 +616,22 @@ html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;colo
 .quota-save-button:active{transform:translateY(0)}
 .quota-save-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:420px){.quota-save-button{min-width:88px;padding:0 10px}}
+
+/* Refined create-user and quota controls */
+.create-user-form{align-items:flex-start}
+.create-user-form .form-label{font-size:.84rem;font-weight:650;margin-bottom:7px}
+.create-user-form .form-control{min-height:42px}
+.create-user-form .form-text{font-size:.74rem;line-height:1.45;margin-top:6px}
+.create-user-form .quota-number-input,
+.user-setting-form .quota-number-input{appearance:textfield;-moz-appearance:textfield}
+.create-user-form .quota-number-input::-webkit-inner-spin-button,
+.create-user-form .quota-number-input::-webkit-outer-spin-button,
+.user-setting-form .quota-number-input::-webkit-inner-spin-button,
+.user-setting-form .quota-number-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.create-user-submit{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:42px;padding:9px 18px;border:1px solid #397eea;border-radius:10px;background:linear-gradient(135deg,#347fe8,#6758df);color:#fff;font-size:.88rem;font-weight:750;letter-spacing:.01em;box-shadow:0 6px 16px rgba(48,111,220,.22);transition:transform .16s ease,box-shadow .16s ease,filter .16s ease}
+.create-user-submit:hover{color:#fff;filter:brightness(1.09);transform:translateY(-1px);box-shadow:0 9px 20px rgba(48,111,220,.3)}
+.create-user-submit:active{transform:translateY(0)}
+.create-user-submit svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.user-setting-form .quota-edit-row{gap:8px}
+.user-setting-form .quota-save-button{min-width:112px}
+@media(max-width:767px){.create-user-submit{max-width:260px}}
