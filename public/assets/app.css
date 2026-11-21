@@ -2628,3 +2628,25 @@ html[data-bs-theme="light"] .account-logout-icon{background:#fff0f2;color:#c83f6
   .topbar-actions { gap:6px; }
   .theme-toggle-btn { flex-basis:40px; width:40px; min-width:40px; height:40px; }
 }
+
+
+/* Icon-only theme switcher, consistent across desktop and mobile */
+.theme-toggle-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:42px; height:42px; min-width:42px; padding:0;
+  border-radius:14px; line-height:1; touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.theme-toggle-icon {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; font-size:23px; line-height:1;
+  font-family:"Segoe UI Symbol","Apple Symbols",sans-serif;
+}
+.theme-toggle-btn:focus-visible { outline:3px solid rgba(59,130,246,.45); outline-offset:2px; }
+@media (max-width: 767.98px) {
+  .theme-toggle-btn { flex:0 0 42px; width:42px; min-width:42px; height:42px; padding:0; }
+  .theme-toggle-caption { display:none !important; }
+}
+@media (max-width: 380px) {
+  .theme-toggle-btn { flex-basis:40px; width:40px; min-width:40px; height:40px; }
+}
