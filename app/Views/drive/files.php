@@ -28,7 +28,9 @@ selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
 document.getElementById('clearDriveSelection')?.addEventListener('click',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=false);refreshSelection();});
 const bulkModal=document.getElementById('bulkActionModal');
-document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventListener('click',function(){
+document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventListener('click',function(event){
+ event.preventDefault();
+ if(this.classList.contains('selection-action-btn'))event.stopPropagation();
  const action=this.dataset.bulkAction,count=document.querySelectorAll('.drive-item-select:checked').length;
  if(!count)return;
  const shareField=document.getElementById('bulkShareField'),moveField=document.getElementById('bulkMoveField'),title=document.getElementById('bulkActionModalTitle'),confirmButton=document.getElementById('bulkActionConfirm');
@@ -42,11 +44,11 @@ document.querySelectorAll('[data-bulk-action]').forEach(button=>button.addEventL
  }
  if(action==='download'){
   if(!confirm('Unduh file yang dipilih? Folder yang dipilih akan dilewati.'))return;
-  selectionForm.action='/files/bulk-download';selectionForm.submit();return;
+  selectionForm.action='/files/bulk-download';selectionForm.requestSubmit();return;
  }
  if(action==='trash'){
   if(!confirm('Pindahkan semua file dan folder terpilih ke Sampah?'))return;
-  selectionForm.action='/files/bulk-trash';selectionForm.submit();
+  selectionForm.action='/files/bulk-trash';selectionForm.requestSubmit();
  }
 }));
 selectionForm?.addEventListener('submit',function(event){
@@ -79,7 +81,7 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 <?= csrf_field() ?>
 <div id="bulkSelectedIds"></div>
 <div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearDriveSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="bulkSelectionCount">0 item dipilih</strong></div>
-<div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-bulk-action="share" title="Bagikan" aria-label="Bagikan">♧</button><button type="button" class="selection-action-btn" data-bulk-action="download" title="Download" aria-label="Download">↓</button><button type="button" class="selection-action-btn" data-bulk-action="move" title="Pindahkan" aria-label="Pindahkan">↗</button><button type="button" class="selection-action-btn" data-bulk-action="trash" title="Pindahkan ke Sampah" aria-label="Pindahkan ke Sampah">▤</button>
+<div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-bulk-action="share" title="Bagikan" aria-label="Bagikan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg></button><button type="button" class="selection-action-btn" data-bulk-action="download" title="Download" aria-label="Download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></button><button type="button" class="selection-action-btn" data-bulk-action="move" title="Pindahkan" aria-label="Pindahkan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3z"/><path d="M12 12v5m-3-3 3 3 3-3"/></svg></button><button type="button" class="selection-action-btn danger" data-bulk-action="trash" title="Pindahkan ke Sampah" aria-label="Pindahkan ke Sampah"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg></button>
   <div class="dropdown floating-action-dropdown">
     <button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="bulkActionsMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button>
     <div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
@@ -87,7 +89,7 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
       <button type="button" class="dropdown-item" data-bulk-action="download">↓ Download</button>
       <button type="button" class="dropdown-item" data-bulk-action="move">↗ Pindah ke folder</button>
       <div class="dropdown-divider"></div>
-      <button type="button" class="dropdown-item text-danger" data-bulk-action="trash">⌫ Pindahkan ke Sampah</button>
+      <button type="button" class="dropdown-item text-danger" data-bulk-action="trash"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>Pindahkan ke Sampah</button>
     </div>
   </div>
   
