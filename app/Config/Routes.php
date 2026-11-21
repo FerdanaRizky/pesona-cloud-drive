@@ -25,6 +25,7 @@ $routes->get('files', 'Files::index', ['filter' => 'auth']);
 $routes->get('search', 'Files::search', ['filter' => 'auth']);
 $routes->get('files/preview/(:num)', 'Files::preview/$1', ['filter' => 'auth']);
 $routes->get('files/preview-content/(:num)', 'Files::previewContent/$1', ['filter' => 'auth']);
+$routes->get('files/thumbnail/(:num)', 'Files::thumbnail/$1', ['filter' => 'auth']);
 $routes->get('trash', 'Trash::index', ['filter' => 'auth']);
 $routes->post('trash/file/restore/(:num)', 'Trash::restoreFile/$1', ['filter' => 'auth']);
 $routes->post('trash/folder/restore/(:num)', 'Trash::restoreFolder/$1', ['filter' => 'auth']);
