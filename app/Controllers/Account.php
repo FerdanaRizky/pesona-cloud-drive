@@ -30,7 +30,7 @@ class Account extends BaseController
   db_connect()->table('activity_logs')->insert(['user_id'=>$uid,'action'=>'account.profile_update','details'=>'Memperbarui '.implode(' dan ',$details).' melalui profil.','ip_address'=>$this->request->getIPAddress(),'created_at'=>date('Y-m-d H:i:s')]);
   return redirect()->to('/account/profile')->with('message','Perubahan '.implode(' dan ',$details).' berhasil disimpan.');
  }
- public function password(){return redirect()->to('/account/profile#ubah-password');}
+ public function password(){return view('account/password',['title'=>'Ubah Password']);}
  public function updatePassword(){
   $rules=['current_password'=>'required','password'=>'required|min_length[12]','password_confirm'=>'required|matches[password]'];
   if(!$this->validate($rules))return redirect()->to('/account/profile#ubah-password')->withInput()->with('errors',$this->validator->getErrors());
