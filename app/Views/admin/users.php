@@ -89,23 +89,12 @@ document.addEventListener('DOMContentLoaded',function(){
         <span class="small text-secondary">Penyimpanan terpakai</span>
         <div class="d-flex align-items-center gap-2">
           <strong class="small"><?= number_format(((int)$u['used_bytes'])/1073741824,2) ?> / <?= number_format(((int)$u['quota_bytes'])/1073741824,1) ?> GB</strong>
-          <button class="user-quota-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#quotaEditor<?= (int)$u['id'] ?>" aria-expanded="false" aria-controls="quotaEditor<?= (int)$u['id'] ?>" title="Ubah kuota penyimpanan" aria-label="Ubah kuota penyimpanan pengguna <?= esc($u['name'], 'attr') ?>">
+          <button class="user-quota-toggle" type="button" data-bs-toggle="modal" data-bs-target="#editQuotaModal" data-user-id="<?= (int)$u['id'] ?>" data-user-name="<?= esc($u['name'], 'attr') ?>" data-user-quota="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" title="Ubah kuota penyimpanan" aria-label="Ubah kuota penyimpanan pengguna <?= esc($u['name'], 'attr') ?>">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
           </button>
         </div>
       </div>
       <div class="progress user-storage-progress"><div class="progress-bar" style="width:<?= min(100,(int)round(((int)$u['used_bytes']/max(1,(int)$u['quota_bytes']))*100)) ?>%"></div></div>
-      <div class="collapse user-quota-collapse mt-3" id="quotaEditor<?= (int)$u['id'] ?>">
-        <form method="post" action="/admin/users/update/<?= (int)$u['id'] ?>" class="user-quota-edit-form">
-          <?= csrf_field() ?>
-          <label class="form-label small" for="user_quota_<?= (int)$u['id'] ?>">Kuota penyimpanan (GB)</label>
-          <div class="user-quota-edit-row">
-            <input class="form-control form-control-sm quota-number-input" id="user_quota_<?= (int)$u['id'] ?>" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" autocomplete="off" name="quota_gb" value="<?= (int)floor(((int)$u['quota_bytes'])/1073741824) ?>" required>
-            <button class="btn quota-save-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5"/><path d="M20 12a8 8 0 1 1-2.34-5.66"/></svg><span>Simpan</span></button>
-          </div>
-          <div class="form-text">Masukkan kapasitas dalam GB (1–10.000).</div>
-        </form>
-      </div>
     </div>
     <div class="user-card-controls">
       <?php if ((int)$u['id'] !== (int)session()->get('user_id')): ?>
@@ -137,6 +126,46 @@ document.addEventListener('DOMContentLoaded',function(){
 <?php endforeach ?>
 <?php if (!$users): ?><div class="col-12"><div class="empty-users"><span>♙</span><strong>Belum ada pengguna</strong><small>Buat akun pengguna pertama melalui formulir di atas.</small></div></div><?php endif ?>
 </div>
+<div class="modal fade" id="editQuotaModal" tabindex="-1" aria-labelledby="editQuotaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" id="editQuotaForm" action="/admin/users/update/0">
+        <?= csrf_field() ?>
+        <input type="hidden" name="phone" id="editQuotaPhone" value="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editQuotaModalLabel">Ubah Kuota Penyimpanan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="editQuotaInput">Kuota penyimpanan (GB)</label>
+          <input class="form-control quota-number-input" id="editQuotaInput" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" name="quota_gb" required>
+          <div class="form-text">Masukkan kapasitas dalam GB (1–10.000). Kuota tidak boleh lebih kecil daripada ruang yang sudah digunakan.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan kuota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const modal = document.getElementById('editQuotaModal');
+  const form = document.getElementById('editQuotaForm');
+  const quota = document.getElementById('editQuotaInput');
+  const title = document.getElementById('editQuotaModalLabel');
+  if (!modal || !form || !quota || !title) return;
+  modal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    if (!trigger) return;
+    const userId = trigger.getAttribute('data-user-id');
+    form.action = '/admin/users/update/' + encodeURIComponent(userId);
+    quota.value = trigger.getAttribute('data-user-quota') || '';
+    title.textContent = 'Ubah Kuota — ' + (trigger.getAttribute('data-user-name') || 'Pengguna');
+  });
+});
+</script>
 <div class="modal fade" id="editPhoneModal" tabindex="-1" aria-labelledby="editPhoneModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -189,12 +218,9 @@ document.addEventListener('DOMContentLoaded', function () {
 .user-quota-toggle{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;padding:5px;border:1px solid var(--bs-border-color);border-radius:8px;background:transparent;color:var(--bs-secondary-color);cursor:pointer}
 .user-quota-toggle:hover,.user-quota-toggle[aria-expanded="true"]{color:var(--bs-primary);border-color:var(--bs-primary);background:rgba(var(--bs-primary-rgb),.08)}
 .user-quota-toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.user-quota-edit-form{padding:14px;border:1px solid var(--bs-border-color);border-radius:12px;background:var(--bs-tertiary-bg,rgba(127,145,170,.06))}
-.user-quota-edit-row{display:grid;grid-template-columns:minmax(70px,.55fr) minmax(110px,1fr);gap:10px}
-.user-quota-edit-row .form-control,.user-quota-edit-row .quota-save-button{min-height:42px;border-radius:10px}
 #userCardsGrid .user-card-controls{display:block}
 #userCardsGrid .user-password-form{width:100%;height:auto}
-@media(max-width:420px){.user-quota-edit-row{grid-template-columns:minmax(0,1fr) auto}.user-quota-edit-row .quota-save-button{min-width:104px}}
+
 </style>
 
 <script>
