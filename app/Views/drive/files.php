@@ -89,126 +89,70 @@ modalEl?.addEventListener('hidden.bs.modal',function(){if(uploadRunning&&uploadA
 document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown){const trigger=dropdown.querySelector('[data-bs-toggle="dropdown"]'),menu=dropdown.querySelector('.file-action-menu');if(!trigger||!menu)return;let placeholder=null;dropdown.addEventListener('shown.bs.dropdown',function(){placeholder=document.createComment('action-menu-position');menu.parentNode.insertBefore(placeholder,menu);document.body.appendChild(menu);const rect=trigger.getBoundingClientRect(),menuWidth=Math.min(Math.max(menu.offsetWidth,210),window.innerWidth-24),menuHeight=Math.min(menu.scrollHeight,window.innerHeight-24);let left=Math.max(12,Math.min(rect.right-menuWidth,window.innerWidth-menuWidth-12));let top=rect.bottom+8;if(top+menuHeight>window.innerHeight-12)top=Math.max(12,rect.top-menuHeight-8);menu.style.position='fixed';menu.style.left=left+'px';menu.style.top=top+'px';menu.style.right='auto';menu.style.bottom='auto';menu.style.transform='none';menu.style.zIndex='2000';});dropdown.addEventListener('hidden.bs.dropdown',function(){if(placeholder&&placeholder.parentNode){placeholder.parentNode.insertBefore(menu,placeholder);placeholder.remove();}menu.removeAttribute('style');placeholder=null;});});document.querySelectorAll('[data-file-action]').forEach(function(button){button.addEventListener('click',function(){const kind=this.dataset.fileAction,form=document.getElementById('fileActionForm'),title=document.getElementById('fileActionTitle'),submit=document.getElementById('fileActionSubmit'),rename=document.getElementById('renameField'),move=document.getElementById('moveField'),share=document.getElementById('shareField');form.action=this.dataset.url;rename.classList.toggle('d-none',kind!=='rename');move.classList.toggle('d-none',kind!=='move');share.classList.toggle('d-none',kind!=='share');if(kind==='rename'){title.textContent='Ganti Nama File';submit.textContent='Simpan Nama';document.getElementById('actionFileName').value=this.dataset.name||'';document.getElementById('actionFileName').maxLength=Number(this.dataset.maxlength||255);}if(kind==='move'){title.textContent='Pindah Folder';submit.textContent='Pindahkan File';const select=document.getElementById('actionFolder');select.innerHTML='<option value="0">Drive utama</option>';(JSON.parse(this.dataset.folders||'[]')).forEach(function(folder){const option=document.createElement('option');option.value=folder.id;option.textContent=folder.name;select.appendChild(option);});}if(kind==='share'){title.textContent='Bagi Tautan';submit.textContent='Buat Tautan';}bootstrap.Modal.getOrCreateInstance(document.getElementById('fileActionModal')).show();});});});</script>
 
 <div id="driveViewRoot" data-drive-view="list">
-
 <form id="bulkActionForm" method="post" action="<?= esc(site_url('files/bulk-trash'), 'attr') ?>" class="bulk-selection-bar mb-3" aria-hidden="true">
-<?= csrf_field() ?>
-<div id="bulkSelectedIds"></div>
+<?= csrf_field() ?><div id="bulkSelectedIds"></div>
 <div class="bulk-selection-info"><button type="button" class="selection-clear-icon" id="clearDriveSelection" aria-label="Batalkan pilihan" title="Batalkan pilihan">×</button><strong id="bulkSelectionCount">0 item dipilih</strong></div>
-<div class="bulk-action-controls"><button type="button" class="selection-action-btn" data-bulk-action="share" title="Bagikan" aria-label="Bagikan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg></button><button type="button" class="selection-action-btn" data-bulk-action="download" title="Download" aria-label="Download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></button><button type="button" class="selection-action-btn" data-bulk-action="move" title="Pindahkan" aria-label="Pindahkan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3z"/><path d="M12 12v5m-3-3 3 3 3-3"/></svg></button><button type="button" class="selection-action-btn danger" data-bulk-action="trash" title="Pindahkan ke Sampah" aria-label="Pindahkan ke Sampah"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg></button>
-  <div class="dropdown floating-action-dropdown">
-    <button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="bulkActionsMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button>
-    <div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
-      <button type="button" class="dropdown-item" data-bulk-action="share"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg>Bagikan</button>
-      <button type="button" class="dropdown-item" data-bulk-action="download"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg>Download</button>
-      <button type="button" class="dropdown-item" data-bulk-action="move"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h7l2 2h9v11H3z"/><path d="M12 12v5m-3-3 3 3 3-3"/></svg>Pindah ke folder</button>
-      <div class="dropdown-divider"></div>
-      <button type="button" class="dropdown-item text-danger" data-bulk-action="trash"><svg class="menu-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>Pindahkan ke Sampah</button>
-    </div>
-  </div>
-  
-</div>
-</form>
+<div class="bulk-action-controls">
+<button type="button" class="selection-action-btn" data-bulk-action="share" title="Bagikan" aria-label="Bagikan">↗</button>
+<button type="button" class="selection-action-btn" data-bulk-action="download" title="Download" aria-label="Download">↓</button>
+<button type="button" class="selection-action-btn" data-bulk-action="move" title="Pindahkan" aria-label="Pindahkan">▣</button>
+<button type="button" class="selection-action-btn danger" data-bulk-action="trash" title="Pindahkan ke Sampah" aria-label="Pindahkan ke Sampah">⌫</button>
+<div class="dropdown floating-action-dropdown"><button type="button" class="btn action-menu-trigger bulk-menu-trigger" id="bulkActionsMenu" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi item terpilih" disabled>⋮</button>
+<div class="dropdown-menu dropdown-menu-end file-action-menu bulk-action-menu">
+<button type="button" class="dropdown-item" data-bulk-action="share">Bagikan</button><button type="button" class="dropdown-item" data-bulk-action="download">Download</button><button type="button" class="dropdown-item" data-bulk-action="move">Pindah ke folder</button><div class="dropdown-divider"></div><button type="button" class="dropdown-item text-danger" data-bulk-action="trash">Pindahkan ke Sampah</button>
+</div></div></div></form>
 
-<div class="modal fade" id="bulkActionModal" tabindex="-1" aria-hidden="true">
- <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title" id="bulkActionModalTitle">Aksi item terpilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
-  <div class="modal-body">
-   <div id="bulkShareField" class="d-none"><label class="form-label" for="bulkShareExpiry">Masa berlaku tautan</label><select class="form-select" name="expires_days" id="bulkShareExpiry" form="bulkActionForm"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select><div class="form-text">Tautan akan dibuat untuk file yang dipilih. Folder yang dipilih tidak diproses sebagai file.</div></div>
-   <div id="bulkMoveField" class="d-none"><label class="form-label" for="bulkMoveFolder">Pilih folder tujuan</label><select class="form-select" name="parent_id" id="bulkMoveFolder" form="bulkActionForm"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $targetFolder): ?><option value="<?= (int)$targetFolder['id'] ?>"><?= esc($targetFolder['name']) ?></option><?php endforeach ?></select><div class="form-text">File yang dipilih akan dipindahkan ke folder tujuan. Folder yang dipilih tidak dipindahkan.</div></div>
-  </div>
-  <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="button" id="bulkActionConfirm" class="btn btn-primary">Lanjutkan</button></div>
- </div></div>
-</div>
-
-
-
-
-<div class="card p-3 drive-files-card"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Drive Saya<?= !empty($term) ? " — hasil pencarian" : "" ?></h2><span class="small text-secondary"><?= count($folders) + count($files) ?> item</span></div>
-<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr>
-<th class="selection-column"><input type="checkbox" class="form-check-input" id="selectAllFiles" aria-label="Pilih semua item"></th>
-<th>Nama</th><th>Jenis file</th><th>Pemilik</th><th>History perubahan</th><th>Lokasi folder</th><th>Ukuran file</th><th class="text-end">Aksi</th>
-</tr></thead><tbody>
+<section class="dashboard-section dashboard-folder-section file-manager-folder-section">
+<div class="dashboard-section-heading"><h2><span aria-hidden="true">⌄</span> Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div>
+<?php if (!empty($folders)): ?><div class="dashboard-folder-grid">
 <?php foreach ($folders as $folder): ?>
-<tr class="file-row folder-list-row">
-<td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="folder" value="<?= (int) $folder['id'] ?>" aria-label="Pilih folder <?= esc($folder['name'], 'attr') ?>"></td>
-<td><div class="drive-file-cell folder-list-cell"><span class="folder-list-icon" aria-hidden="true">📁</span><div class="drive-file-meta min-width-0"><div class="drive-file-name fw-medium"><a class="text-reset text-decoration-none" href="/files?folder=<?= (int) $folder['id'] ?>"><?= esc($folder['name']) ?></a></div><small class="text-secondary drive-file-mime">Folder</small></div></div></td>
-<td><span class="drive-type-label">Folder</span></td>
-<td><span class="drive-owner-label"><?= esc(session()->get('name') ?: 'Saya') ?></span></td>
-<td><span class="drive-history-label"><?= !empty($folder['updated_at']) ? esc(date('d-m-Y H:i', strtotime($folder['updated_at']))) : 'Belum ada perubahan' ?></span></td>
-<td><span class="drive-location-label" title="<?= esc($currentLocation ?? 'Drive Saya', 'attr') ?>"><?= esc($currentLocation ?? 'Drive Saya') ?></span></td>
-<td><span class="drive-size-label">—</span></td>
-<td class="text-end"><div class="dropdown folder-actions floating-action-dropdown">
-<button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Pilihan aksi folder">⋮</button>
-<div class="dropdown-menu dropdown-menu-end file-action-menu">
-<button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button>
-<form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
+<article class="dashboard-folder-card dashboard-selectable-item file-manager-folder-card">
+<input type="checkbox" class="form-check-input drive-item-select file-manager-card-select" data-item-type="folder" value="<?= (int) $folder['id'] ?>" aria-label="Pilih folder <?= esc($folder['name'], 'attr') ?>">
+<a class="dashboard-folder-main" href="/files?folder=<?= (int) $folder['id'] ?>"><span class="dashboard-folder-icon" aria-hidden="true">📁</span><span class="dashboard-card-name" title="<?= esc($folder['name'], 'attr') ?>"><?= esc($folder['name']) ?></span></a>
+<div class="dropdown floating-action-dropdown"><button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>">⋮</button>
+<div class="dropdown-menu dropdown-menu-end file-action-menu"><a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>">Buka folder</a><button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120">✎ Ganti nama</button><form method="post" action="/files/folders/delete/<?= (int) $folder['id'] ?>" onsubmit="return confirm('Hapus folder kosong ini?')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form></div></div>
+</article>
+<?php endforeach ?></div><?php else: ?><div class="dashboard-empty">Belum ada folder di lokasi ini.</div><?php endif ?>
+</section>
+
+<section class="dashboard-section dashboard-files-section file-manager-files-section">
+<div class="dashboard-section-heading dashboard-files-heading"><h2><span aria-hidden="true">⌄</span> File<?= !empty($term) ? ' — hasil pencarian' : '' ?></h2><div class="dashboard-heading-actions"><span class="small text-secondary"><?= count($files) ?> file</span><div class="view-switcher dashboard-view-switcher" role="group" aria-label="Tampilan file"><button type="button" class="view-switch-btn" data-drive-view="list" aria-pressed="true" title="Tampilan daftar">☰</button><button type="button" class="view-switch-btn" data-drive-view="grid" aria-pressed="false" title="Tampilan grid">▦</button></div></div></div>
+
+<?php if (!empty($files)): ?>
+<div class="dashboard-file-list-wrap file-manager-list-wrap"><table class="dashboard-file-list file-manager-list"><thead><tr><th class="file-manager-select-heading"><input type="checkbox" class="form-check-input" id="selectAllFiles" aria-label="Pilih semua file"></th><th>Nama</th><th>Jenis file</th><th>History perubahan</th><th>Lokasi folder</th><th>Ukuran file</th><th class="dashboard-list-action-heading">Aksi</th></tr></thead><tbody>
+<?php foreach ($files as $f):
+$fileExt=strtolower((string)($f['extension']??''));$fileMime=strtolower((string)($f['mime_type']??''));$isImage=str_starts_with($fileMime,'image/')&&in_array($fileExt,['jpg','jpeg','png','gif','webp'],true);$isPdf=$fileMime==='application/pdf'||$fileExt==='pdf';$isOffice=in_array($fileExt,['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'],true);$previewable=$isImage||$isPdf||$isOffice;$kind='file';$kindLabel=strtoupper($fileExt?:'FILE');
+if(in_array($fileExt,['doc','docx','odt'],true)){$kind='word';$kindLabel='DOC';}elseif(in_array($fileExt,['xls','xlsx','ods','csv'],true)){$kind='sheet';$kindLabel='XLS';}elseif(in_array($fileExt,['ppt','pptx','odp'],true)){$kind='slides';$kindLabel='PPT';}elseif($isPdf){$kind='pdf';$kindLabel='PDF';}elseif($isImage){$kind='image';$kindLabel='IMG';}elseif(in_array($fileExt,['mp4','m4v','mov','webm','ogv','avi','mkv'],true)){$kind='video';$kindLabel='VIDEO';}elseif(in_array($fileExt,['mp3','wav','ogg','m4a','flac','aac'],true)){$kind='audio';$kindLabel='AUDIO';}elseif(in_array($fileExt,['zip','rar','7z','tar','gz','bz2'],true)){$kind='archive';$kindLabel='ZIP';}elseif(in_array($fileExt,['php','js','ts','html','css','json','xml','py','sh','sql'],true)){$kind='code';$kindLabel='CODE';}
+$previewUrl='/files/preview/'.(int)$f['id'];$openUrl=$previewable?$previewUrl:'/files/download/'.(int)$f['id'];
+?>
+<tr class="dashboard-file-list-row file-manager-list-row"><td class="file-manager-select-cell"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="file" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'],'attr') ?>"></td>
+<td><a class="dashboard-list-name" href="<?= esc($openUrl,'attr') ?>"><span class="dashboard-file-kind dashboard-file-kind--<?= esc($kind,'attr') ?>" aria-hidden="true"><?= esc($kindLabel) ?></span><span class="dashboard-list-filename" title="<?= esc($f['original_name'],'attr') ?>"><?= !empty($f['is_starred'])?'★ ':'' ?><?= esc($f['original_name']) ?></span></a></td>
+<td><span class="drive-type-label" title="<?= esc($f['mime_type'],'attr') ?>"><?= esc(strtoupper($fileExt?:'FILE')) ?><small class="d-block text-secondary"><?= esc($fileMime?:'Tipe tidak diketahui') ?></small></span></td>
+<td><span class="dashboard-list-history"><?= !empty($f['updated_at'])?esc(date('d-m-Y H:i',strtotime($f['updated_at']))):'Belum ada perubahan' ?><small class="d-block text-secondary"><?= !empty($f['created_at'])&&!empty($f['updated_at'])&&$f['created_at']===$f['updated_at']?'Diunggah':'Terakhir diperbarui' ?></small></span></td>
+<td><span class="dashboard-list-location" title="<?= esc($currentLocation??'Drive Saya','attr') ?>">📁 <span><?= esc($currentLocation??'Drive Saya') ?></span></span></td>
+<td><span class="drive-size-label"><?= number_format(((int)$f['size_bytes'])/1048576,2) ?> MB</span></td>
+<td class="dashboard-list-action-cell"><div class="dropdown floating-action-dropdown"><button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi file">⋮</button><div class="dropdown-menu dropdown-menu-end file-action-menu">
+<?php if($previewable): ?><a class="dropdown-item" href="<?= esc($previewUrl,'attr') ?>">◉ Preview</a><?php endif ?><a class="dropdown-item" href="/files/download/<?= (int)$f['id'] ?>">↓ Unduh</a><button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/rename/<?= (int)$f['id'] ?>" data-name="<?= esc($f['original_name'],'attr') ?>">✎ Ganti nama</button><button type="button" class="dropdown-item" data-file-action="move" data-url="/files/move/<?= (int)$f['id'] ?>" data-folders="<?= esc(json_encode($allFolders??$folders),'attr') ?>">↗ Pindah folder</button><button type="button" class="dropdown-item" data-file-action="share" data-url="/files/share/<?= (int)$f['id'] ?>">♧ Bagi tautan</button><form method="post" action="/files/star/<?= (int)$f['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($f['is_starred'])?'text-warning':'' ?>"><?= !empty($f['is_starred'])?'★ Hapus favorit':'★ Tambahkan favorit' ?></button></form><?php if(!empty($f['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int)$f['id'] ?>" onsubmit="return confirm('Cabut semua tautan berbagi untuk file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?><div class="dropdown-divider"></div><form method="post" action="/files/delete/<?= (int)$f['id'] ?>" onsubmit="return confirm('Hapus file ini? File akan dipindahkan ke Sampah.')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
 </div></div></td></tr>
 <?php endforeach ?>
-<?php foreach ($files as $f): ?>
-<tr class="file-row"><td class="selection-column"><input type="checkbox" class="form-check-input drive-item-select" data-item-type="file" value="<?= (int) $f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'], 'attr') ?>"></td><td>
-<div class="drive-file-cell">
-<?php
-$fileExt = strtolower((string) ($f['extension'] ?? ''));
-$fileMime = strtolower((string) ($f['mime_type'] ?? ''));
-$isImage = str_starts_with($fileMime, 'image/') && in_array($fileExt, ['jpg','jpeg','png','gif','webp'], true);
-$isPdf = $fileMime === 'application/pdf' || $fileExt === 'pdf';
-$isOffice = in_array($fileExt, ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true);
-$previewable = $isImage || $isPdf || $isOffice;
-$kind = 'file';
-$kindLabel = strtoupper($fileExt ?: 'FILE');
-if (in_array($fileExt, ['doc','docx','odt'], true)) { $kind='word'; $kindLabel='DOC'; }
-elseif (in_array($fileExt, ['xls','xlsx','ods','csv'], true)) { $kind='sheet'; $kindLabel='XLS'; }
-elseif (in_array($fileExt, ['ppt','pptx','odp'], true)) { $kind='slides'; $kindLabel='PPT'; }
-elseif ($isPdf) { $kind='pdf'; $kindLabel='PDF'; }
-elseif ($isImage) { $kind='image'; $kindLabel='IMG'; }
-elseif (in_array($fileExt, ['mp4','m4v','mov','webm','ogv','avi','mkv'], true)) { $kind='video'; $kindLabel='VIDEO'; }
-elseif (in_array($fileExt, ['mp3','wav','ogg','m4a','flac','aac'], true)) { $kind='audio'; $kindLabel='AUDIO'; }
-elseif (in_array($fileExt, ['zip','rar','7z','tar','gz','bz2'], true)) { $kind='archive'; $kindLabel='ZIP'; }
-elseif (in_array($fileExt, ['txt','md','rtf'], true)) { $kind='text'; $kindLabel='TEXT'; }
-elseif (in_array($fileExt, ['php','js','ts','html','css','json','xml','py','sh','sql'], true)) { $kind='code'; $kindLabel='CODE'; }
-$previewUrl = '/files/preview/' . (int) $f['id'];
+</tbody></table></div>
+
+<div class="dashboard-file-grid file-manager-grid">
+<?php foreach ($files as $f):
+$fileExt=strtolower((string)($f['extension']??''));$fileMime=strtolower((string)($f['mime_type']??''));$isImage=str_starts_with($fileMime,'image/')&&in_array($fileExt,['jpg','jpeg','png','gif','webp'],true);$isPdf=$fileMime==='application/pdf'||$fileExt==='pdf';$isOffice=in_array($fileExt,['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'],true);$previewable=$isImage||$isPdf||$isOffice;$kind='file';$kindLabel=strtoupper($fileExt?:'FILE');
+if(in_array($fileExt,['doc','docx','odt'],true)){$kind='word';$kindLabel='DOC';}elseif(in_array($fileExt,['xls','xlsx','ods','csv'],true)){$kind='sheet';$kindLabel='XLS';}elseif(in_array($fileExt,['ppt','pptx','odp'],true)){$kind='slides';$kindLabel='PPT';}elseif($isPdf){$kind='pdf';$kindLabel='PDF';}elseif($isImage){$kind='image';$kindLabel='IMG';}elseif(in_array($fileExt,['mp4','m4v','mov','webm','ogv','avi','mkv'],true)){$kind='video';$kindLabel='VIDEO';}elseif(in_array($fileExt,['mp3','wav','ogg','m4a','flac','aac'],true)){$kind='audio';$kindLabel='AUDIO';}elseif(in_array($fileExt,['zip','rar','7z','tar','gz','bz2'],true)){$kind='archive';$kindLabel='ZIP';}elseif(in_array($fileExt,['php','js','ts','html','css','json','xml','py','sh','sql'],true)){$kind='code';$kindLabel='CODE';}
+$openUrl=($isImage||$isPdf||$isOffice)?'/files/preview/'.(int)$f['id']:'/files/download/'.(int)$f['id'];
 ?>
-<div class="drive-file-visual drive-file-visual--<?= esc($kind, 'attr') ?>">
-<?php if ($previewable): ?>
-<a class="drive-file-preview-link" href="<?= $previewUrl ?>" aria-label="Buka preview <?= esc($f['original_name'], 'attr') ?>">
-<img src="/files/thumbnail/<?= (int) $f['id'] ?>" alt="Preview <?= esc($f['original_name'], 'attr') ?>" loading="lazy" onerror="this.closest('.drive-file-visual').classList.add('preview-failed');this.remove()"><span class="drive-file-preview-fallback"><?= esc($kindLabel) ?></span>
-</a>
-<?php else: ?>
-<div class="drive-file-type-art" aria-hidden="true">
-<?php if ($kind==='video'): ?><svg viewBox="0 0 48 48"><rect x="5" y="10" width="38" height="28" rx="6"/><path d="m20 17 12 7-12 7z"/></svg>
-<?php elseif ($kind==='audio'): ?><svg viewBox="0 0 48 48"><path d="M27 9v23a7 7 0 1 1-4-6.3V15l16-4v17a7 7 0 1 1-4-6.3V9z"/></svg>
-<?php elseif ($kind==='archive'): ?><svg viewBox="0 0 48 48"><path d="M9 8h30v32H9zM9 15h30M20 8v7m8-7v7m-8 8h8v5h-8z"/></svg>
-<?php elseif ($kind==='code'): ?><svg viewBox="0 0 48 48"><path d="m18 15-10 9 10 9m12-18 10 9-10 9M27 11l-6 26"/></svg>
-<?php elseif ($kind==='word'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8"/><path d="m17 23 3 12 4-9 4 9 3-12"/></svg>
-<?php elseif ($kind==='sheet'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M17 21h16M17 27h16M17 33h16M25 21v17"/></svg>
-<?php elseif ($kind==='slides'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M18 22h14v10H18zM25 32v5"/></svg>
-<?php elseif ($kind==='pdf'): ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8"/><path d="M17 30h14M17 25h14"/></svg>
-<?php else: ?><svg viewBox="0 0 48 48"><path d="M13 5h16l8 8v30H13zM29 5v9h8M18 24h14M18 30h14"/></svg><?php endif ?>
-<span><?= esc($kindLabel) ?></span>
-</div>
-<?php endif ?>
-</div>
-<div class="drive-file-meta min-width-0">
-<div class="drive-file-name fw-medium"><?php if (!empty($f['is_starred'])): ?><span class="text-warning" aria-label="Favorit">★ </span><?php endif ?>
-<a class="text-reset text-decoration-none" href="<?= $previewable ? $previewUrl : '/files/download/' . (int) $f['id'] ?>"><?= esc($f['original_name']) ?></a></div>
-<small class="text-secondary drive-file-mime"><?= esc($f['mime_type']) ?></small>
-</div>
-</div>
-</td><td><span class="drive-type-label" title="<?= esc($f['mime_type'], 'attr') ?>"><?= esc(strtoupper($fileExt ?: 'FILE')) ?><small class="d-block text-secondary"><?= esc($fileMime ?: 'Tipe tidak diketahui') ?></small></span></td><td><span class="drive-owner-label"><?= esc(session()->get('name') ?: 'Saya') ?></span></td><td><span class="drive-history-label"><?= !empty($f['updated_at']) ? esc(date('d-m-Y H:i', strtotime($f['updated_at']))) : 'Belum ada perubahan' ?><small class="d-block text-secondary"><?= !empty($f['created_at']) && !empty($f['updated_at']) && $f['created_at'] === $f['updated_at'] ? 'Diunggah' : 'Terakhir diperbarui' ?></small></span></td><td><span class="drive-location-label" title="<?= esc($currentLocation ?? 'Drive Saya', 'attr') ?>"><?= esc($currentLocation ?? 'Drive Saya') ?></span></td><td><span class="drive-size-label"><?= number_format(((int) $f['size_bytes']) / 1048576, 2) ?> MB</span></td><td class="text-end"><div class="dropdown file-actions-dropdown floating-action-dropdown">
-<button class="btn btn-sm btn-outline-secondary action-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Pilihan aksi file">⋮</button>
-<div class="dropdown-menu dropdown-menu-end file-action-menu">
-<?php if (in_array($f['mime_type'], ['image/jpeg','image/png','image/gif','image/webp','application/pdf','video/mp4','video/webm','video/ogg'], true)): ?><a class="dropdown-item" href="/files/preview/<?= (int) $f['id'] ?>">◉ Preview</a><?php endif ?>
-<a class="dropdown-item" href="/files/download/<?= (int) $f['id'] ?>">↓ Unduh</a>
-<button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/rename/<?= (int) $f['id'] ?>" data-name="<?= esc($f['original_name'], 'attr') ?>">✎ Ganti nama</button>
-<button type="button" class="dropdown-item" data-file-action="move" data-url="/files/move/<?= (int) $f['id'] ?>" data-folders="<?= esc(json_encode($allFolders ?? $folders), 'attr') ?>">↗ Pindah folder</button>
-<button type="button" class="dropdown-item" data-file-action="share" data-url="/files/share/<?= (int) $f['id'] ?>">♧ Bagi tautan</button>
-<form method="post" action="/files/star/<?= (int) $f['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($f['is_starred']) ? 'text-warning' : '' ?>"><?= !empty($f['is_starred']) ? '★ Hapus favorit' : '★ Tambahkan favorit' ?></button></form>
-<?php if (!empty($f['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int) $f['id'] ?>" onsubmit="return confirm('Cabut semua tautan berbagi untuk file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?>
-<div class="dropdown-divider"></div>
-<form method="post" action="/files/delete/<?= (int) $f['id'] ?>" onsubmit="return confirm('Hapus file ini? File akan dipindahkan ke Sampah.')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
-</div></div>
-<?php endforeach ?>
-<?php if (!$files && !$folders): ?><tr><td colspan="8" class="text-center text-secondary py-4">Belum ada file di folder ini.</td></tr><?php endif ?>
-</tbody></table></div></div>
+<article class="dashboard-file-card dashboard-selectable-item file-manager-file-card">
+<input type="checkbox" class="form-check-input drive-item-select file-manager-card-select" data-item-type="file" value="<?= (int)$f['id'] ?>" aria-label="Pilih <?= esc($f['original_name'],'attr') ?>">
+<div class="dashboard-file-card-head"><span class="dashboard-file-kind dashboard-file-kind--<?= esc($kind,'attr') ?>" aria-hidden="true"><?= esc($kindLabel) ?></span><a class="dashboard-file-title" href="<?= esc($openUrl,'attr') ?>" title="<?= esc($f['original_name'],'attr') ?>"><?= esc($f['original_name']) ?></a><div class="dropdown floating-action-dropdown"><button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Aksi file">⋮</button><div class="dropdown-menu dropdown-menu-end file-action-menu">
+<?php if($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int)$f['id'] ?>">◉ Preview</a><?php endif ?><a class="dropdown-item" href="/files/download/<?= (int)$f['id'] ?>">↓ Unduh</a><button type="button" class="dropdown-item" data-file-action="rename" data-url="/files/rename/<?= (int)$f['id'] ?>" data-name="<?= esc($f['original_name'],'attr') ?>">✎ Ganti nama</button><button type="button" class="dropdown-item" data-file-action="move" data-url="/files/move/<?= (int)$f['id'] ?>" data-folders="<?= esc(json_encode($allFolders??$folders),'attr') ?>">↗ Pindah folder</button><button type="button" class="dropdown-item" data-file-action="share" data-url="/files/share/<?= (int)$f['id'] ?>">♧ Bagi tautan</button><form method="post" action="/files/star/<?= (int)$f['id'] ?>"><?= csrf_field() ?><button class="dropdown-item <?= !empty($f['is_starred'])?'text-warning':'' ?>"><?= !empty($f['is_starred'])?'★ Hapus favorit':'★ Tambahkan favorit' ?></button></form><?php if(!empty($f['has_share'])): ?><form method="post" action="/files/share/revoke/<?= (int)$f['id'] ?>" onsubmit="return confirm('Cabut semua tautan berbagi untuk file ini?')"><?= csrf_field() ?><button class="dropdown-item text-info">⛓ Cabut tautan berbagi</button></form><?php endif ?><div class="dropdown-divider"></div><form method="post" action="/files/delete/<?= (int)$f['id'] ?>" onsubmit="return confirm('Hapus file ini? File akan dipindahkan ke Sampah.')"><?= csrf_field() ?><button class="dropdown-item text-danger">⌫ Hapus</button></form>
+</div></div></div>
+<a class="dashboard-file-preview dashboard-file-preview--<?= esc($kind,'attr') ?>" href="<?= esc($openUrl,'attr') ?>" aria-label="Buka <?= esc($f['original_name'],'attr') ?>">
+<?php if($previewable): ?><img src="/files/thumbnail/<?= (int)$f['id'] ?>" alt="Preview <?= esc($f['original_name'],'attr') ?>" loading="lazy" onerror="this.closest('.dashboard-file-preview').classList.add('is-fallback');this.remove()"><span class="dashboard-preview-fallback"><?= esc($kindLabel) ?></span><?php else: ?><span class="dashboard-file-art-icon"><?= $kind==='video'?'▷':($kind==='audio'?'♫':($kind==='archive'?'▣':'▤')) ?></span><span class="dashboard-file-art-label"><?= esc($kindLabel) ?></span><?php endif ?>
+</a><div class="dashboard-file-activity"><span class="dashboard-avatar" aria-hidden="true"><?= esc(mb_strtoupper(mb_substr((string)(session()->get('name')?:'A'),0,1))) ?></span><span><?= esc(session()->get('name')?:'Anda') ?> mengubahnya · <?= !empty($f['updated_at'])?esc(date('j M',strtotime($f['updated_at']))):'Baru saja' ?></span></div></article>
+<?php endforeach ?></div>
+<?php else: ?><div class="dashboard-empty">Belum ada file di folder ini.</div><?php endif ?>
+</section>
 </div><!-- /driveViewRoot -->
 <?= $this->endSection() ?>
