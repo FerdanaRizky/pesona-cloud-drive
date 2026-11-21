@@ -590,3 +590,18 @@ html[data-bs-theme=light] .profile-info-card .modal-content{background:#fff;colo
 .user-delete-form{margin:0;flex:0 0 auto}
 .user-delete-form .btn{white-space:nowrap}
 @media(max-width:575px){.user-account-actions-modern{align-items:stretch;flex-direction:column}.user-status-switch-form{width:100%}.user-delete-form,.user-delete-form .btn{width:100%}}
+
+/* Place user activation and deletion controls beside the account status */
+.user-card-status-area{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto}
+.user-status-inline{display:flex;align-items:center;justify-content:flex-end;gap:9px}
+.user-status-switch-inline{display:flex;align-items:center;margin:0}
+.user-status-switch-inline .account-switch{padding:2px}
+.user-status-switch-inline .account-switch-track{width:42px;height:24px;padding:2px}
+.user-status-switch-inline .account-switch-thumb{width:20px;height:20px}
+.user-status-switch-inline input:checked+.account-switch-track .account-switch-thumb{transform:translateX(18px)}
+.user-delete-inline-form{display:flex;margin:0}
+.user-delete-icon-btn{display:grid;place-items:center;width:29px;height:29px;border:1px solid rgba(220,70,80,.4);border-radius:8px;background:rgba(220,70,80,.08);color:#ed777f;cursor:pointer;transition:.18s ease}
+.user-delete-icon-btn:hover{background:#c93645;color:#fff;border-color:#c93645}
+.user-delete-icon-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.status-self-label{font-size:.72rem;color:var(--bs-secondary-color);padding:4px 7px}
+@media(max-width:575px){.user-card-status-area{align-items:flex-end}.user-status-inline{gap:6px}}
