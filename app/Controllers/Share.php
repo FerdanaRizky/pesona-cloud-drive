@@ -62,6 +62,42 @@ class Share extends BaseController
         return redirect()->to('/shares')->with('message', 'Link berbagi berhasil dicabut.');
     }
 
+
+    public function bulkUpdate()
+    {
+        $uid = (int) session()->get('user_id');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('share_ids')))));
+        $expiry = (string) $this->request->getPost('expires_days');
+        if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu link berbagi.');
+        if (!in_array($expiry, ['1', '7', '30', 'never'], true)) return redirect()->back()->with('error', 'Masa berlaku tidak valid.');
+        $expiresAt = $expiry === 'never' ? null : date('Y-m-d H:i:s', strtotime('+' . (int) $expiry . ' days'));
+        $db = db_connect(); $updated = 0;
+        foreach ($ids as $id) {
+            $share = $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->get()->getRowArray();
+            if (!$share) continue;
+            $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->update(['expires_at' => $expiresAt]);
+            $this->log($uid, 'file.share_update', 'Memperbarui masa berlaku link berbagi #' . $id);
+            $updated++;
+        }
+        return redirect()->to('/shares')->with('message', $updated . ' masa berlaku link berhasil diperbarui.');
+    }
+
+    public function bulkRevoke()
+    {
+        $uid = (int) session()->get('user_id');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('share_ids')))));
+        if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu link berbagi.');
+        $db = db_connect(); $revoked = 0;
+        foreach ($ids as $id) {
+            $share = $db->table('file_shares')->select('id')->where('id', $id)->where('owner_id', $uid)->get()->getRowArray();
+            if (!$share) continue;
+            $db->table('file_shares')->where('id', $id)->where('owner_id', $uid)->delete();
+            $this->log($uid, 'file.share_revoke', 'Mencabut link berbagi #' . $id);
+            $revoked++;
+        }
+        return redirect()->to('/shares')->with('message', $revoked . ' link berbagi berhasil dicabut.');
+    }
+
     public function create(int $id)
     {
         $uid = (int) session()->get('user_id');
