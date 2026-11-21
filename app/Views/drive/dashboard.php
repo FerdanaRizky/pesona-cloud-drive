@@ -83,8 +83,8 @@ $formatActivityDate = static function ($value) {
                     </span>
                     <a class="dashboard-file-title" href="<?= esc($openUrl, 'attr') ?>" title="<?= esc($file['original_name'], 'attr') ?>"><?= esc($file['original_name']) ?></a>
                     <div class="dropdown">
-                        <button class="dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
-                        <div class="dropdown-menu dropdown-menu-end">
+                        <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi file <?= esc($file['original_name'], 'attr') ?>">⋮</button>
+                        <div class="dropdown-menu dropdown-menu-end file-action-menu">
                             <?php if ($previewable): ?><a class="dropdown-item" href="/files/preview/<?= (int) $file['id'] ?>">Preview</a><?php endif ?>
                             <a class="dropdown-item" href="/files/download/<?= (int) $file['id'] ?>">Unduh</a>
                             <a class="dropdown-item" href="/files">Kelola di File Saya</a>
