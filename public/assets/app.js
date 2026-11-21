@@ -11,16 +11,28 @@ const driveRoot=document.getElementById('driveViewRoot');
 if(driveRoot){
  const getItemTarget=target=>target.closest('tr.file-row, .folder-tile');
  const isControl=target=>!!target.closest('button,input,select,textarea,form,.dropdown-menu,[data-bs-toggle],.file-action-menu,label.multi-select-control');
+ let driveSelectionAnchor=null;
+ const syncDriveSelection=all=>all.forEach(box=>box.dispatchEvent(new Event('change',{bubbles:true})));
  const selectDriveItem=(item,event)=>{
   const checkbox=item?.querySelector('.drive-item-select');
   if(!checkbox)return;
   const all=[...driveRoot.querySelectorAll('.drive-item-select')];
-  if(event?.ctrlKey||event?.metaKey){
+  const index=all.indexOf(checkbox);
+  if(event?.shiftKey&&driveSelectionAnchor){
+   const anchor=all.indexOf(driveSelectionAnchor);
+   if(anchor>=0){
+    if(!event.ctrlKey&&!event.metaKey)all.forEach(box=>box.checked=false);
+    const start=Math.min(anchor,index),end=Math.max(anchor,index);
+    all.slice(start,end+1).forEach(box=>box.checked=true);
+   }else{checkbox.checked=true;driveSelectionAnchor=checkbox;}
+  }else if(event?.ctrlKey||event?.metaKey){
    checkbox.checked=!checkbox.checked;
+   driveSelectionAnchor=checkbox;
   }else{
    all.forEach(box=>{box.checked=box===checkbox;});
+   driveSelectionAnchor=checkbox;
   }
-  all.forEach(box=>box.dispatchEvent(new Event('change',{bubbles:true})));
+  syncDriveSelection(all);
  };
  driveRoot.addEventListener('click',event=>{
   const item=getItemTarget(event.target);
