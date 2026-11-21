@@ -2293,3 +2293,32 @@ html.drive-shift-selecting .folder-tile{
  -webkit-user-select:none!important;
  user-select:none!important;
 }
+
+
+/* Strong, consistent active navigation state across all sidebar menus. */
+.sidebar .nav-link{position:relative;isolation:isolate;overflow:hidden}
+.sidebar .nav-link.active{
+ background:linear-gradient(105deg,rgba(48,112,218,.28) 0%,rgba(70,91,164,.20) 100%)!important;
+ border-color:rgba(104,157,248,.30)!important;
+ color:#f4f8ff!important;
+ font-weight:750!important;
+ box-shadow:inset 4px 0 0 #4388ff,0 5px 16px rgba(15,48,96,.16)!important;
+ transform:none!important;
+}
+.sidebar .nav-link.active::before{
+ content:"";
+ position:absolute;
+ left:0;top:8px;bottom:8px;width:4px;
+ border-radius:0 5px 5px 0;
+ background:linear-gradient(180deg,#63a4ff,#7667f2);
+}
+.sidebar .nav-link.active span{color:#f4f8ff!important}
+.sidebar .nav-link.active:hover{background:linear-gradient(105deg,rgba(48,112,218,.34),rgba(70,91,164,.25))!important}
+.sidebar .nav-link:not(.active):hover{background:rgba(94,135,202,.12)}
+html[data-bs-theme="light"] .sidebar .nav-link.active{
+ background:linear-gradient(105deg,#e1edff 0%,#edf1ff 100%)!important;
+ border-color:#c4d8fa!important;color:#174b9b!important;
+ box-shadow:inset 4px 0 0 #3679e8,0 4px 12px rgba(43,91,164,.08)!important;
+}
+html[data-bs-theme="light"] .sidebar .nav-link.active span{color:#174b9b!important}
+html[data-bs-theme="light"] .sidebar .nav-link.active:hover{background:linear-gradient(105deg,#d7e7ff,#e7ecff)!important}
