@@ -36,6 +36,8 @@ $routes->get('activity', 'Activity::index', ['filter' => 'auth']);
 $routes->get('shares', 'Share::index', ['filter' => 'auth']);
 $routes->post('shares/update/(:num)', 'Share::update/$1', ['filter' => 'auth']);
 $routes->post('shares/revoke/(:num)', 'Share::revokeOne/$1', ['filter' => 'auth']);
+$routes->post('shares/bulk-update', 'Share::bulkUpdate', ['filter' => 'auth']);
+$routes->post('shares/bulk-revoke', 'Share::bulkRevoke', ['filter' => 'auth']);
 $routes->post('files/share/(:num)', 'Share::create/$1', ['filter' => 'auth']);
 $routes->post('files/share/revoke/(:num)', 'Share::revoke/$1', ['filter' => 'auth']);
 $routes->get('s/(:segment)', 'Share::open/$1');
