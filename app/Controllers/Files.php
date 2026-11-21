@@ -374,15 +374,32 @@ class Files extends BaseController
 
     public function renameFolder(int $id)
     {
+        $uid = (int) session()->get('user_id');
+        $folderModel = new DriveFolderModel();
+        $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+
+        // Never redirect to the HTTP Referer here: browser requests can carry a
+        // thumbnail URL as Referer, which would send the user to /files/thumbnail/{id}.
+        $returnUrl = site_url('files');
+        if ($folder && !empty($folder['parent_id'])) {
+            $returnUrl .= '?folder=' . (int) $folder['parent_id'];
+        }
+
         $name = trim((string) $this->request->getPost('name'));
         if ($name === '' || mb_strlen($name) > 120 || str_contains($name, '/') || str_contains($name, chr(92))) {
-            return redirect()->back()->with('error', 'Nama folder tidak valid.');
+            return redirect()->to($returnUrl)->with('error', 'Nama folder tidak valid.');
         }
-        $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', (int) session()->get('user_id'))->where('is_trashed', 0)->first();
-        if (!$folder) return redirect()->back()->with('error', 'Folder tidak ditemukan.');
-        (new DriveFolderModel())->update($id, ['name' => $name]);
-        $this->logActivity((int) session()->get('user_id'), 'folder.rename', 'Mengubah nama folder menjadi: ' . $name);
-        return redirect()->back()->with('message', 'Nama folder diperbarui.');
+        if (!$folder) {
+            return redirect()->to($returnUrl)->with('error', 'Folder tidak ditemukan.');
+        }
+
+        $updated = $folderModel->update($id, ['name' => $name]);
+        if (!$updated) {
+            return redirect()->to($returnUrl)->with('error', 'Nama folder gagal diperbarui. Silakan coba kembali.');
+        }
+
+        $this->logActivity($uid, 'folder.rename', 'Mengubah nama folder menjadi: ' . $name);
+        return redirect()->to($returnUrl)->with('message', 'Nama folder diperbarui.');
     }
 
     public function deleteFolder(int $id)
