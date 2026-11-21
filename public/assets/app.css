@@ -2811,3 +2811,22 @@ html[data-bs-theme="light"] #userCardsGrid .user-action-disclosure[open]>summary
  border-color:#4388ff;
  box-shadow:0 0 0 .2rem rgba(67,136,255,.16);
 }
+
+
+/* Status action remains visible at all times; only role selection is collapsible. */
+#userCardsGrid .user-status-inline{
+ display:flex;align-items:center;justify-content:space-between;gap:14px;
+ min-width:0;padding:14px 16px;border:1px solid #2d4260;border-radius:16px;
+ background:rgba(24,42,67,.34);
+}
+#userCardsGrid .user-status-inline-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+#userCardsGrid .user-status-inline-copy strong{font-size:.92rem;color:var(--bs-body-color)}
+#userCardsGrid .user-status-inline-copy small{font-size:.8rem;color:var(--bs-secondary-color)}
+#userCardsGrid .user-status-inline-form{margin:0;padding:0;flex:0 0 auto}
+#userCardsGrid .user-status-inline-form .btn{min-height:40px;border-radius:10px;font-weight:650;white-space:nowrap}
+html[data-bs-theme="light"] #userCardsGrid .user-status-inline{background:#f7f9fc;border-color:#dfe7f2}
+@media(max-width:520px){
+ #userCardsGrid .user-status-inline{align-items:flex-start;flex-direction:column}
+ #userCardsGrid .user-status-inline-form{width:100%}
+ #userCardsGrid .user-status-inline-form .btn{width:100%}
+}
