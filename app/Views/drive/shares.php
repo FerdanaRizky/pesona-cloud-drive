@@ -5,7 +5,7 @@
  <div><div class="share-page-eyebrow">BERBAGI FILE</div><h1 class="h3 mb-1">Manajemen Link Berbagi</h1><p class="text-secondary mb-0">Kelola tautan, tampilkan kembali URL, perbarui masa berlaku, atau cabut akses.</p></div>
  <a class="btn btn-outline-secondary share-back-button" href="/files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18 9 12l6-6M9 12h12"/></svg>Kembali ke File</a>
 </div>
-<?php if ($generatedShareLink): ?><div class="alert alert-success"><div class="fw-semibold mb-2">Link berbagi siap digunakan</div><div class="input-group"><input class="form-control" id="newShareLink" readonly value="<?= esc($generatedShareLink) ?>"><button class="btn btn-outline-success" type="button" onclick="navigator.clipboard.writeText(document.getElementById('newShareLink').value).then(()=>this.textContent='Tersalin')">Salin</button></div></div><?php endif ?>
+
 <form id="bulkShareForm" method="post" class="share-bulk-toolbar mb-3">
 <?= csrf_field() ?><div id="bulkShareIds"></div>
 <div class="share-bulk-info"><strong id="bulkShareCount">0 link dipilih</strong><small>Pilih beberapa link untuk memperbarui masa berlaku atau mencabutnya sekaligus.</small></div>
