@@ -2998,3 +2998,39 @@ body.login-page{
 .login-version strong{color:#a9c7f5;font-weight:750}
 .login-copyright{color:#7186a5;font-size:.68rem;line-height:1.45;letter-spacing:.015em}
 @media(max-width:850px){.login-showcase-footer-wrap{display:none}}
+
+ 
+/* Sidebar footer: application version and copyright */
+.sidebar-footer{
+ margin-top:auto;
+ padding:18px 12px 4px;
+ border-top:1px solid #26364f;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ gap:5px;
+ color:#8292aa;
+ font-size:.7rem;
+ line-height:1.45;
+}
+.sidebar-app-version{color:#aebdd2;font-weight:650}
+.sidebar-app-version strong{
+ display:inline-block;
+ margin-left:4px;
+ padding:2px 6px;
+ border:1px solid rgba(113,151,208,.25);
+ border-radius:6px;
+ background:rgba(70,112,179,.12);
+ color:#9fc2f6;
+ font-size:.65rem;
+ font-weight:750;
+ letter-spacing:.02em;
+}
+.sidebar-copyright{color:#71829c;font-size:.67rem}
+html[data-bs-theme="light"] .sidebar-footer{border-color:#e1e7f0;color:#71819a}
+html[data-bs-theme="light"] .sidebar-app-version{color:#53647c}
+html[data-bs-theme="light"] .sidebar-app-version strong{background:#edf3ff;border-color:#dce6f5;color:#315b9a}
+html[data-bs-theme="light"] .sidebar-copyright{color:#8290a5}
+@media(max-width:991px){
+ .sidebar-footer{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+}
