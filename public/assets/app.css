@@ -2991,3 +2991,10 @@ body.login-page{
 .login-showcase-footer-wrap{display:flex;flex-direction:column;gap:7px;align-items:flex-start}
 .login-copyright{color:#7186a5;font-size:.68rem;line-height:1.45;letter-spacing:.015em}
 @media(max-width:850px){.login-showcase-footer-wrap{display:none}}
+
+/* Login version and copyright information in the lower-left showcase */
+.login-showcase-footer-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.login-version{display:flex;align-items:center;gap:5px;color:#8296b4;font-size:.7rem;letter-spacing:.035em}
+.login-version strong{color:#a9c7f5;font-weight:750}
+.login-copyright{color:#7186a5;font-size:.68rem;line-height:1.45;letter-spacing:.015em}
+@media(max-width:850px){.login-showcase-footer-wrap{display:none}}
