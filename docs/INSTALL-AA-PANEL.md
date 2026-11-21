@@ -15,9 +15,17 @@ CodeIgniter 4 memerlukan PHP 8.2+ serta ekstensi intl dan mbstring. Referensi: h
 3. Pastikan Composer tersedia di CLI dan versi PHP CLI sesuai PHP website.
 4. Jalankan `bash install-aapanel.sh`.
 5. Atur document root website ke direktori `app-src/public`, bukan root repository.
-6. Aktifkan SSL Let's Encrypt dan paksa HTTPS.
-7. Pastikan pengaturan PHP open_basedir mengizinkan seluruh direktori aplikasi, bukan hanya folder `public`. Minimal izinkan `app-src/`, `app-src/public/`, dan private storage. Pada aaPanel, pengaturan ini berkaitan dengan **Directory → Anti-XSS attack (Base directory limit)**.
-8. Setelah database siap, jalankan `php spark migrate`, lalu buka `/setup` untuk membuat administrator pertama.
+6. **Aktifkan URL rewrite CodeIgniter 4 di konfigurasi Nginx website.** Di dalam blok `server { ... }`, pastikan ada:
+   ```nginx
+   location / {
+       try_files $uri $uri/ /index.php?$query_string;
+   }
+   ```
+   Jika aaPanel sudah membuat blok `location /`, edit blok yang ada; jangan membuat duplikat `location /`. Test dan reload Nginx setelah menyimpan. Tanpa rewrite ini, URL seperti `/setup`, `/login`, dan `/dashboard` akan dicari sebagai file/folder fisik dan gagal.
+7. Aktifkan SSL Let's Encrypt dan paksa HTTPS.
+8. Pastikan pengaturan PHP open_basedir mengizinkan seluruh direktori aplikasi, bukan hanya folder `public`. Minimal izinkan `app-src/`, `app-src/public/`, dan private storage. Pada aaPanel, pengaturan ini berkaitan dengan **Directory → Anti-XSS attack (Base directory limit)**.
+9. Pastikan file `.env` dapat dibaca user PHP-FPM (umumnya `www`). Installer mengatur owner `www:www` dan permission `640`.
+10. Setelah database siap, jalankan `php spark migrate`, lalu buka `/setup` untuk membuat administrator pertama.
 
 ## Update aplikasi tanpa instal ulang
 Jalankan sebagai root:
