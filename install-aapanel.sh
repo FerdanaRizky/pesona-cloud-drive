@@ -155,6 +155,18 @@ fi
 rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
+
+# Deploy the official Pesona Cloud branding assets on every fresh installation.
+for asset in favicon.ico favicon-32.png apple-touch-icon.png pesona-cloud-logo.png; do
+    if [[ ! -f "$SOURCE_DIR/public/$asset" ]]; then
+        echo "[ERROR] Aset branding wajib tidak ditemukan: public/$asset"
+        exit 1
+    fi
+    install -m 644 "$SOURCE_DIR/public/$asset" "$APP_DIR/public/$asset"
+done
+# Views load the main logo from /assets/pesona-cloud-logo.png.
+install -m 644 "$SOURCE_DIR/public/pesona-cloud-logo.png" "$APP_DIR/public/assets/pesona-cloud-logo.png"
+
 cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
 
 cd "$APP_DIR"
