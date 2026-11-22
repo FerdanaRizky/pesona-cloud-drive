@@ -22,4 +22,4 @@
 <div class="login-simple-links"><a href="/forgot-password">Lupa password</a><a href="/register">Belum punya akun? Daftar</a></div>
 <div class="login-security-note"><span>◈</span> Akses pribadi dan aman untuk akun Anda</div>
 </div></section>
-</main><script src="/assets/app.js"></script><script src="/assets/app.js?v=20261122-auth-theme-responsive-v2" defer></script></body></html>
+</main><script src="/assets/app.js?v=20261122-auth-theme-clickfix-v3"></script><script src="/assets/app.js?v=20261122-auth-theme-clickfix-v3" defer></script></body></html>
