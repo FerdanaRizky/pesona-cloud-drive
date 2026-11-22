@@ -3097,3 +3097,35 @@ html[data-bs-theme="light"] .login-register-copy small{color:#71819a}
  .login-register-link{font-size:.8rem;gap:6px}
  .login-register-arrow{width:28px;height:28px}
 }
+
+
+/* Compact centered login layout inspired by the supplied reference */
+body.login-page{min-height:100vh;background:#f1f2f4!important;color:#172033;display:flex;align-items:center;justify-content:center;padding:24px 14px}
+.login-simple-stage{width:100%;display:flex;justify-content:center;align-items:center}
+.login-simple-card{width:min(100%,500px);padding:42px 34px 28px;background:#fff;border:1px solid #e9ebef;border-radius:23px;box-shadow:0 18px 55px rgba(23,32,51,.10)}
+.login-simple-brand{display:flex;align-items:center;justify-content:center;gap:11px;margin:0 auto 36px;color:#172033;font-size:1.1rem;font-weight:850}
+.login-simple-brand .brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#4388f5,#6657df);font-weight:900;box-shadow:0 8px 20px rgba(69,117,228,.22)}
+.login-simple-brand small{display:block;color:#8792a3;font-size:.76rem;font-weight:550}
+.login-simple-heading{margin-bottom:28px;text-align:center}
+.login-simple-kicker{font-size:.68rem;font-weight:850;letter-spacing:.16em;color:#477fe1}
+.login-simple-heading h1{margin:9px 0 7px;font-size:1.65rem;font-weight:850;letter-spacing:-.045em;color:#172033}
+.login-simple-heading p{margin:0;color:#8993a3;font-size:.88rem;line-height:1.55}
+.login-simple-card .form-label{display:block;margin-bottom:8px;color:#202b3d;font-size:.84rem;font-weight:700}
+.login-simple-card .form-control{min-height:52px;border:1px solid #d9dee7;border-radius:12px!important;background:#fff;color:#172033;font-size:.92rem;box-shadow:none}
+.login-simple-card .form-control::placeholder{color:#a4adba}
+.login-simple-card .form-control:focus{border-color:#5488ec;box-shadow:0 0 0 3px rgba(67,127,229,.12)}
+.login-simple-card .login-password-group .form-control{border-radius:12px 0 0 12px!important}
+.login-simple-card .login-password-group .toggle-password{width:52px;border:1px solid #d9dee7;border-left:0;border-radius:0 12px 12px 0!important;background:#fff;color:#8793a5}
+.login-simple-card .password-eye-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.login-simple-submit{display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border:0;border-radius:13px;background:#f04418;color:#fff;font-size:.98rem;font-weight:800;box-shadow:0 10px 23px rgba(240,68,24,.2);transition:background .15s,transform .15s}
+.login-simple-submit:hover,.login-simple-submit:focus{background:#dc3811;color:#fff;transform:translateY(-1px)}
+.login-simple-submit span{font-size:1.15rem}
+.login-simple-divider{display:flex;align-items:center;gap:14px;margin:25px 0 18px;color:#a3adbd;font-size:.82rem}
+.login-simple-divider:before,.login-simple-divider:after{content:"";height:1px;flex:1;background:#e3e6eb}
+.login-simple-links{display:grid;gap:15px;text-align:center}
+.login-simple-links a{color:#ef461b;text-decoration:none;font-size:.9rem;font-weight:650}
+.login-simple-links a:hover{text-decoration:underline}
+.login-simple-footer{margin-top:35px;text-align:center;color:#a0a8b5;font-size:.7rem}
+.login-simple-card .alert{border-radius:11px;font-size:.85rem}
+@media(max-width:480px){body.login-page{padding:12px}.login-simple-card{padding:32px 22px 24px;border-radius:20px}.login-simple-brand{margin-bottom:29px}.login-simple-heading h1{font-size:1.45rem}.login-simple-card .form-control{min-height:50px}}
+@media(prefers-reduced-motion:reduce){.login-simple-submit{transition:none}}
