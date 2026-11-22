@@ -3213,3 +3213,82 @@ body.login-page{min-height:100vh;background:radial-gradient(ellipse at 12% 18%,r
  .reset-modal-card{animation:resetModalEnter .22s ease-out both}
  @keyframes resetModalEnter{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 }
+
+/* Auth pages follow the saved application theme (pcd-theme) */
+html[data-bs-theme="light"] body.login-page,
+html[data-bs-theme="light"] body.login-bg{background:radial-gradient(ellipse at 12% 18%,rgba(87,145,230,.17),transparent 35%),radial-gradient(ellipse at 90% 82%,rgba(143,119,226,.13),transparent 35%),#edf3fb!important;color:#1d2b43}
+html[data-bs-theme="light"] .login-stage{background:rgba(255,255,255,.88);border-color:#d7e2f1;box-shadow:0 28px 85px rgba(38,62,96,.16)}
+html[data-bs-theme="light"] .login-showcase{background:radial-gradient(ellipse at 75% 30%,rgba(73,127,222,.2),transparent 40%),linear-gradient(145deg,#e6effd,#dce8f8 72%);border-right-color:#d2deef}
+html[data-bs-theme="light"] .login-brand{color:#17243a}
+html[data-bs-theme="light"] .login-brand small{color:#647894}
+html[data-bs-theme="light"] .login-showcase-copy h1{color:#17243a}
+html[data-bs-theme="light"] .login-showcase-copy h1 span{color:#397fe5}
+html[data-bs-theme="light"] .login-showcase-copy p{color:#536781}
+html[data-bs-theme="light"] .login-feature-list{color:#344963}
+html[data-bs-theme="light"] .login-feature-list div span{background:rgba(43,164,122,.13);color:#16845e}
+html[data-bs-theme="light"] .login-showcase-footer{color:#637895}
+html[data-bs-theme="light"] .login-panel-heading h2{color:#17243a}
+html[data-bs-theme="light"] .login-panel-heading p{color:#657894}
+html[data-bs-theme="light"] .login-card .form-label{color:#344761}
+html[data-bs-theme="light"] .login-card .form-control,
+html[data-bs-theme="light"] .login-simple-card .form-control{background:#fff;border-color:#cbd8e8;color:#17243a}
+html[data-bs-theme="light"] .login-card .form-control::placeholder,
+html[data-bs-theme="light"] .login-simple-card .form-control::placeholder{color:#8999ae}
+html[data-bs-theme="light"] .login-password-group .toggle-password,
+html[data-bs-theme="light"] .login-simple-card .login-password-group .toggle-password{background:#f5f8fc;border-color:#cbd8e8;color:#647894}
+html[data-bs-theme="light"] .login-security-note{color:#687e99}
+html[data-bs-theme="light"] .login-security-note span{color:#397fe5}
+html[data-bs-theme="light"] .login-simple-divider{color:#75869c}
+html[data-bs-theme="light"] .login-simple-divider:before,
+html[data-bs-theme="light"] .login-simple-divider:after{background:#d6e0ed}
+html[data-bs-theme="light"] .login-simple-links a{color:#286bc5}
+html[data-bs-theme="light"] .login-simple-links a:hover{color:#174f9c}
+html[data-bs-theme="light"] .login-card .alert,
+html[data-bs-theme="light"] .login-simple-card .alert{color:#26364d}
+html[data-bs-theme="light"] .forgot-password-backdrop{opacity:.72}
+html[data-bs-theme="light"] .forgot-backdrop-placeholder div{background:#fff;border-color:#d4dfed}
+html[data-bs-theme="light"] .forgot-modal-overlay{background:rgba(28,43,65,.28);backdrop-filter:blur(6px)}
+html[data-bs-theme="light"] .forgot-modal-card{background:linear-gradient(145deg,#fff,#f5f8fd);border-color:#d8e3f1;box-shadow:0 28px 80px rgba(38,62,96,.24);color:#1d2b43}
+html[data-bs-theme="light"] .forgot-modal-heading h2{color:#17243a}
+html[data-bs-theme="light"] .forgot-modal-heading p{color:#657894}
+html[data-bs-theme="light"] .forgot-modal-card .form-label{color:#344761}
+html[data-bs-theme="light"] .forgot-modal-card .form-control,
+html[data-bs-theme="light"] .reset-modal-card .form-control{background:#fff;border-color:#cbd8e8;color:#17243a}
+html[data-bs-theme="light"] .forgot-modal-card .form-control::placeholder,
+html[data-bs-theme="light"] .reset-modal-card .form-control::placeholder{color:#8999ae}
+html[data-bs-theme="light"] .forgot-cancel-btn{background:#fff;border-color:#cbd8e8;color:#344761}
+html[data-bs-theme="light"] .forgot-cancel-btn:hover{background:#edf4fd;border-color:#9eb8da;color:#17243a}
+html[data-bs-theme="light"] .reset-password-hint{color:#687e99}
+html[data-bs-theme="light"] .reset-modal-card{background:radial-gradient(circle at 100% 0,rgba(79,125,211,.09),transparent 38%),linear-gradient(145deg,#fff 0%,#f4f8fe 78%);border-color:#d5e1f0}
+html[data-bs-theme="light"] .reset-modal-card .forgot-modal-heading .login-kicker{background:#edf4ff;border-color:#d8e6fa;color:#3973c2}
+html[data-bs-theme="light"] .reset-modal-card .forgot-modal-heading h2{color:#17243a}
+html[data-bs-theme="light"] .reset-modal-card .forgot-modal-heading p{color:#657894}
+html[data-bs-theme="light"] .reset-modal-card .login-password-group .toggle-password{background:#f5f8fc;border-color:#cbd8e8;color:#647894}
+html[data-bs-theme="light"] .reset-modal-card .reset-otp-input{color:#17243a}
+html[data-bs-theme="light"] .reset-modal-card .forgot-cancel-btn{background:#fff;color:#344761}
+html[data-bs-theme="light"] .login-simple-stage{color:#17243a}
+html[data-bs-theme="light"] .login-simple-card{background:#fff;border-color:#d8e3f1;box-shadow:0 24px 75px rgba(38,62,96,.14)}
+html[data-bs-theme="light"] .login-simple-brand{color:#17243a}
+html[data-bs-theme="light"] .login-simple-brand small{color:#657894}
+html[data-bs-theme="light"] .login-simple-heading h1{color:#17243a}
+html[data-bs-theme="light"] .login-simple-heading p{color:#657894}
+html[data-bs-theme="light"] .login-simple-card .form-label{color:#344761}
+html[data-bs-theme="light"] .login-simple-card .login-password-group .toggle-password{background:#f5f8fc;color:#647894;border-color:#cbd8e8}
+@media(max-width:850px){
+ .login-stage{width:min(620px,calc(100% - 28px));margin:18px auto;min-height:0}
+ .login-panel-wrap{padding:clamp(28px,6vw,48px) clamp(20px,6vw,40px)}
+ .login-card{max-width:480px}
+ .login-showcase{min-height:0}
+}
+@media(max-width:575px){
+ body.login-page{padding:0 0 env(safe-area-inset-bottom)}
+ .login-stage{width:calc(100% - 20px);margin:10px auto;border-radius:20px}
+ .login-panel-wrap{padding:30px 19px}
+ .login-panel-heading{margin-bottom:24px}
+ .login-panel-heading h2{font-size:clamp(1.35rem,6vw,1.6rem)}
+ .login-card .form-control{min-height:50px;font-size:16px}
+ .login-submit{min-height:51px}
+ .forgot-modal-overlay{padding: max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+ .forgot-modal-card{width:100%;max-height:calc(100svh - 24px);overflow-y:auto}
+}
+@media(hover:none){.login-submit:hover{transform:none}}
