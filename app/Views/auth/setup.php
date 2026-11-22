@@ -46,7 +46,7 @@ body.setup-page{min-height:100vh;min-height:100dvh;margin:0;overflow-x:hidden;ba
 <main class="setup-stage">
 <section class="setup-card">
 <header class="setup-heading text-center">
-<div class="setup-brand mx-auto mb-3" aria-hidden="true">P</div>
+<div class="setup-brand mx-auto mb-3"><img src="/assets/pesona-cloud-logo.png?v=20261123-pesona-brand" alt="Pesona Cloud" width="54" height="54" style="display:block;width:54px;height:54px;object-fit:contain"></div>
 <span class="setup-kicker">PESONA CLOUD DRIVE <span aria-hidden="true">•</span> SETUP AWAL</span>
 <h1>Siapkan Administrator</h1>
 <p>Buat akun administrator pertama untuk mulai mengelola file dan pengguna Pesona Cloud Drive.</p>
