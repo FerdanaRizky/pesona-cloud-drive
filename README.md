@@ -104,7 +104,9 @@ Private storage harus berada di luar document root website.
 
 ### **Tahap 4 — Konfigurasi website aaPanel**
 
-Atur document root menjadi:
+Installer terbaru akan mencoba mengatur document root vhost Nginx, rewrite `try_files`, `client_max_body_size 1100m`, dan `client_body_timeout 3600s` secara otomatis jika file vhost aaPanel ditemukan. Installer menjalankan `nginx -t` sebelum reload. Installer juga menyesuaikan batas upload pada `php.ini` aaPanel sesuai versi PHP CLI dan me-restart PHP-FPM jika service tersedia. Jika vhost atau service tidak ditemukan, installer menampilkan peringatan agar konfigurasi diperiksa manual.
+
+Untuk pemeriksaan manual atau jika otomatisasi tidak dapat dilakukan, atur document root menjadi:
 
 ```
 /www/wwwroot/cloud.domainanda.com/app-src/public
