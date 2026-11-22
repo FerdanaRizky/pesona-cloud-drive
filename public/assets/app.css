@@ -3337,3 +3337,30 @@ html[data-bs-theme="light"] .forgot-modal-card .toggle-password{background:#f5f8
 .brand img.brand-logo{display:block!important;width:43px!important;height:43px!important;min-width:43px;max-width:43px;object-fit:contain;object-position:center;flex:0 0 43px;opacity:1;visibility:visible;position:relative;z-index:1;background:transparent;border:0;box-shadow:none;border-radius:0}
 .login-brand img.brand-logo{width:48px!important;height:48px!important;min-width:48px;max-width:48px;flex-basis:48px}
 .login-mobile-mark.brand-logo{width:52px!important;height:52px!important;min-width:52px;max-width:52px;object-fit:contain}
+
+
+/* Registration form uses the same centered dialog layout as forgot-password. */
+.register-modal-overlay{padding:clamp(12px,3vw,28px);overflow-y:auto;overscroll-behavior:contain}
+.register-modal-card{position:relative;width:min(100%,540px);max-height:calc(100svh - 32px);overflow-y:auto;overscroll-behavior:contain;margin:auto;padding:clamp(22px,4vw,32px);scrollbar-width:thin;scrollbar-color:#405675 transparent}
+.register-modal-card .forgot-modal-heading{margin-bottom:22px}
+.register-modal-card .form-label{display:block;margin-bottom:8px;color:#c8d5e8;font-size:.86rem;font-weight:700}
+.register-modal-card .form-control{min-height:52px;border:1px solid #344966;border-radius:12px!important;background:#0b1525;color:#f5f8ff;box-shadow:none}
+.register-modal-card .form-control::placeholder{color:#657994}
+.register-modal-card .form-control:focus{border-color:#6297e8;background:#0b1525;color:#fff;box-shadow:0 0 0 4px rgba(73,133,220,.14)}
+.register-modal-card .form-text{margin-top:7px;color:#91a2bb;font-size:.78rem}
+.register-modal-card .login-password-group{flex-wrap:nowrap}
+.register-modal-card .login-password-group .form-control{border-radius:12px 0 0 12px!important}
+.register-modal-card .login-password-group .toggle-password{width:52px;min-width:52px;border:1px solid #344966;border-left:0;border-radius:0 12px 12px 0!important;background:#0b1525;color:#91a2bb}
+.register-modal-card .password-eye-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.register-submit{min-height:52px;margin-top:2px}
+.register-modal-footer{margin-top:20px;padding-top:17px;border-top:1px solid rgba(129,157,198,.18);text-align:center;color:#a9bad2;font-size:.88rem}
+.register-modal-footer a{color:#8db8ff;font-weight:750;text-decoration:none}
+.register-modal-footer a:hover{color:#c3d8ff;text-decoration:underline}
+.register-modal-card .alert{border-radius:11px;font-size:.86rem}
+@media(max-width:575px){.register-modal-overlay{padding:12px}.register-modal-card{max-height:calc(100svh - 24px);padding:23px 19px 20px;border-radius:19px}.register-modal-card .forgot-modal-heading{margin-bottom:18px}.register-modal-card .form-control{min-height:49px}.register-modal-card .mb-3{margin-bottom:15px!important}.register-modal-footer{margin-top:16px;padding-top:14px}}
+html[data-bs-theme=light] .register-modal-card{background:linear-gradient(145deg,#fff,#f5f8ff);color:#17243a;border-color:#dce5f2}
+html[data-bs-theme=light] .register-modal-card .forgot-modal-heading h2{color:#17243a}
+html[data-bs-theme=light] .register-modal-card .forgot-modal-heading p,html[data-bs-theme=light] .register-modal-card .form-label,html[data-bs-theme=light] .register-modal-footer{color:#52627a}
+html[data-bs-theme=light] .register-modal-card .form-control{background:#fff;color:#17243a;border-color:#d4deeb}
+html[data-bs-theme=light] .register-modal-card .form-control::placeholder{color:#8795a9}
+html[data-bs-theme=light] .register-modal-card .login-password-group .toggle-password{background:#f7f9fd;color:#60718a;border-color:#d4deeb}
