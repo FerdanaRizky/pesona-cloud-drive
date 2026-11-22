@@ -3102,7 +3102,7 @@ html[data-bs-theme="light"] .login-register-copy small{color:#71819a}
 /* Compact centered login layout inspired by the supplied reference */
 body.login-page{min-height:100vh;background:#f1f2f4!important;color:#172033;display:flex;align-items:center;justify-content:center;padding:24px 14px}
 .login-simple-stage{width:100%;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:28px 18px}
-.login-simple-card{width:min(100%,500px);padding:42px 34px 28px;background:linear-gradient(145deg,rgba(20,39,66,.98),rgba(13,25,43,.98));border:1px solid rgba(121,157,211,.22);border-radius:23px;box-shadow:0 24px 75px rgba(0,0,0,.38);backdrop-filter:blur(18px)}
+.login-simple-card{width:min(100%,500px);padding:42px 34px 28px;background:#111d30;border:1px solid #2a3b55;border-radius:23px;box-shadow:0 24px 75px rgba(0,0,0,.38)}
 .login-simple-brand{display:flex;align-items:center;justify-content:center;gap:11px;margin:0 auto 36px;color:#f3f7ff;font-size:1.1rem;font-weight:850}
 .login-simple-brand .brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#4388f5,#6657df);font-weight:900;box-shadow:0 8px 20px rgba(69,117,228,.22)}
 .login-simple-brand small{display:block;color:#9eafca;font-size:.76rem;font-weight:550}
@@ -3111,11 +3111,11 @@ body.login-page{min-height:100vh;background:#f1f2f4!important;color:#172033;disp
 .login-simple-heading h1{margin:9px 0 7px;font-size:1.65rem;font-weight:850;letter-spacing:-.045em;color:#f2f6ff}
 .login-simple-heading p{margin:0;color:#91a2bb;font-size:.88rem;line-height:1.55}
 .login-simple-card .form-label{display:block;margin-bottom:8px;color:#c8d5e8;font-size:.84rem;font-weight:700}
-.login-simple-card .form-control{min-height:52px;border:1px solid #344966;border-radius:12px!important;background:#0c192b;color:#f5f8ff;font-size:.92rem;box-shadow:none}
+.login-simple-card .form-control{min-height:52px;border:1px solid #34445e;border-radius:12px!important;background:#0b1525;color:#fff;font-size:.92rem;box-shadow:none}
 .login-simple-card .form-control::placeholder{color:#657994}
-.login-simple-card .form-control:focus{border-color:#6297e8;background:#0c192b;color:#f5f8ff;box-shadow:0 0 0 4px rgba(73,133,220,.14)}
+.login-simple-card .form-control:focus{border-color:#6297e8;background:#0b1525;color:#fff;box-shadow:0 0 0 4px rgba(73,133,220,.14)}
 .login-simple-card .login-password-group .form-control{border-radius:12px 0 0 12px!important}
-.login-simple-card .login-password-group .toggle-password{width:52px;border:1px solid #344966;border-left:0;border-radius:0 12px 12px 0!important;background:#0c192b;color:#91a2bb}
+.login-simple-card .login-password-group .toggle-password{width:52px;border:1px solid #34445e;border-left:0;border-radius:0 12px 12px 0!important;background:#0b1525;color:#91a2bb}
 .login-simple-card .password-eye-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .login-simple-submit{display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border:0;border-radius:13px;background:linear-gradient(110deg,#397fe5,#665cda);color:#fff;font-size:.98rem;font-weight:800;box-shadow:0 10px 23px rgba(53,112,216,.25);transition:background .15s,transform .15s}
 .login-simple-submit:hover,.login-simple-submit:focus{background:linear-gradient(110deg,#4b8ef0,#786be9);color:#fff;transform:translateY(-1px)}
