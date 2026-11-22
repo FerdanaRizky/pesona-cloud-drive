@@ -26,11 +26,18 @@ fi
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$REPO_DIR/public/assets/" "$APP_DIR/public/assets/"
 
-# Deploy favicon explicitly; the previous updater skipped public/favicon.ico.
-if [[ -f "$REPO_DIR/public/favicon.ico" ]]; then
-    install -D -m 644 "$REPO_DIR/public/favicon.ico" "$APP_DIR/public/favicon.ico"
-    echo "[INFO] Favicon diperbarui: $APP_DIR/public/favicon.ico"
-fi
+# Deploy all official branding assets from the repository.
+for asset in favicon.ico favicon-32.png apple-touch-icon.png pesona-cloud-logo.png; do
+    if [[ -f "$REPO_DIR/public/$asset" ]]; then
+        install -D -m 644 "$REPO_DIR/public/$asset" "$APP_DIR/public/$asset"
+        echo "[INFO] Branding diperbarui: $APP_DIR/public/$asset"
+    else
+        echo "[ERROR] Aset branding tidak ditemukan: public/$asset"
+        exit 1
+    fi
+done
+# Views reference the logo under /assets/.
+install -D -m 644 "$REPO_DIR/public/pesona-cloud-logo.png" "$APP_DIR/public/assets/pesona-cloud-logo.png"
 
 echo "[INFO] Memvalidasi dependency..."
 cd "$APP_DIR"
