@@ -3329,3 +3329,6 @@ html[data-bs-theme="light"] .forgot-modal-card .toggle-password{background:#f5f8
 .auth-theme-toggle{z-index:99999!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;position:fixed!important;isolation:isolate}
 .auth-theme-toggle span{pointer-events:none}
 .auth-theme-toggle:active{transform:scale(.94)}
+
+/* Pesona Cloud brand logo image */
+.brand-logo{display:block;width:43px;height:43px;object-fit:contain;flex:0 0 auto;background:transparent;border:0;border-radius:0;box-shadow:none}.login-brand .brand-logo{width:48px;height:48px}.login-mobile-mark.brand-logo{width:52px;height:52px;margin:0 auto 22px}.brand .brand-logo{width:52px;height:52px}
