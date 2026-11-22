@@ -18,4 +18,4 @@
 </form>
 </section>
 </div>
-<script src="/assets/app.js?v=20261122-auth-theme-responsive-v1" defer></script><script src="/assets/app.js?v=20261122-auth-theme-responsive-v2" defer></script></body></html>
+<script src="/assets/app.js?v=20261122-auth-theme-clickfix-v3" defer></script><script src="/assets/app.js?v=20261122-auth-theme-clickfix-v3" defer></script></body></html>
