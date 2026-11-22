@@ -11,16 +11,7 @@ STORAGE_DEFAULT="/www/wwwroot/$DOMAIN_DEFAULT-private"
 
 echo "=== $APP_NAME aaPanel installer ==="
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Jalankan sebagai root."; exit 1; }
-[[ -r /dev/tty && -w /dev/tty ]] || { echo "[ERROR] Terminal interaktif diperlukan. Jalankan: curl -fsSL URL | bash"; exit 1; }
-
-# Initialize every value before prompting; installer runs with nounset enabled.
-DOMAIN="$DOMAIN_DEFAULT"
-APP_DIR="$APP_DIR_DEFAULT"
-SOURCE_DIR="$SOURCE_DIR_DEFAULT"
-DB_NAME="$DB_NAME_DEFAULT"
-DB_USER="pcd_user"
-DB_PASS=""
-STORAGE="$STORAGE_DEFAULT"
+[[ -r /dev/tty && -w /dev/tty ]] || { echo "[ERROR] Terminal interaktif diperlukan."; exit 1; }
 
 prompt() {
     local target="$1" label="$2" default="$3" value=""
@@ -34,6 +25,14 @@ secret() {
     printf -v "$target" '%s' "$value"
 }
 
+DOMAIN="$DOMAIN_DEFAULT"
+APP_DIR="$APP_DIR_DEFAULT"
+SOURCE_DIR="$SOURCE_DIR_DEFAULT"
+DB_NAME="$DB_NAME_DEFAULT"
+DB_USER="pcd_user"
+DB_PASS=""
+STORAGE="$STORAGE_DEFAULT"
+
 prompt DOMAIN "Domain" "$DOMAIN_DEFAULT"
 prompt APP_DIR "Direktori aplikasi" "/www/wwwroot/$DOMAIN/app-src"
 prompt SOURCE_DIR "Direktori source Git" "$SOURCE_DIR_DEFAULT"
@@ -43,17 +42,15 @@ secret DB_PASS "Password MySQL"
 prompt STORAGE "Private storage path" "/www/wwwroot/$DOMAIN-private"
 
 [[ "$DOMAIN" =~ ^[A-Za-z0-9.-]+$ ]] || { echo "[ERROR] Format domain tidak valid."; exit 1; }
-[[ "$DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] || { echo "[ERROR] Nama database hanya boleh huruf, angka, underscore."; exit 1; }
+[[ "$DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] || { echo "[ERROR] Nama database tidak valid."; exit 1; }
 [[ -n "$DB_USER" && -n "$DB_PASS" ]] || { echo "[ERROR] Username dan password database wajib diisi."; exit 1; }
 [[ "$APP_DIR" != "/" && "$SOURCE_DIR" != "/" && "$STORAGE" != "/" ]] || { echo "[ERROR] Direktori root tidak boleh digunakan."; exit 1; }
 
 for bin in git composer rsync; do
-    command -v "$bin" >/dev/null 2>&1 || { echo "[ERROR] Perintah $bin tidak ditemukan. Pastikan tersedia di PATH."; exit 1; }
+    command -v "$bin" >/dev/null 2>&1 || { echo "[ERROR] Perintah $bin tidak ditemukan di PATH."; exit 1; }
 done
 
-# aaPanel often keeps its PHP CLI binaries outside the system PATH. Prefer an
-# aaPanel PHP version that has every required extension, instead of failing
-# against /usr/bin/php when the selected aaPanel PHP is correctly configured.
+# Select PHP CLI >= 8.2 with the extensions required by the application.
 PHP_CANDIDATES=()
 SYSTEM_PHP="$(command -v php 2>/dev/null || true)"
 [[ -n "$SYSTEM_PHP" ]] && PHP_CANDIDATES+=("$SYSTEM_PHP")
@@ -63,624 +60,19 @@ done
 
 PHP_BIN=""
 for candidate in "${PHP_CANDIDATES[@]}"; do
-    if "$candidate" -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);' >/dev/null 2>&1 &&
-       "$candidate" -m 2>/dev/null | grep -qi '^mysqli
-
-mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
-if [[ -d "$SOURCE_DIR/.git" ]]; then
-    git -C "$SOURCE_DIR" pull --ff-only
-else
-    git clone "$REPO" "$SOURCE_DIR"
-fi
-
-# Ensure the CodeIgniter framework skeleton exists. This site may already
-# contain the application, .env, and vendor but have no public/ directory.
-# Restore only missing framework entry-point files; never overwrite user data.
-if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
-    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
-        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
-        echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
-        exit 1
-    fi
-    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
-    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
-    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
-
-    # Fill missing top-level framework files only. Existing app code/config,
-    # .env, vendor, writable data, and uploads are left untouched.
-    mkdir -p "$APP_DIR"
-    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
-        if [[ ! -e "$APP_DIR/$item" && -e "$BOOTSTRAP_DIR/app/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
-        fi
-    done
-    for dir in app public tests writable; do
-        if [[ ! -d "$APP_DIR/$dir" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
-        fi
-    done
-    # A partially-created public directory may exist but lack the front
-    # controller. Copy only the missing entry-point files from appstarter.
-    mkdir -p "$APP_DIR/public"
-    for item in index.php .htaccess; do
-        if [[ ! -e "$APP_DIR/public/$item" && -e "$BOOTSTRAP_DIR/app/public/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
-        fi
-    done
-    rm -rf "$BOOTSTRAP_DIR"
-    trap - EXIT
-fi
-
-[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
-    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah pemulihan."
-    echo "[INFO] File yang wajib tersedia: spark, app/Config/Paths.php, public/index.php"
-    echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
-    exit 1
-}
-
-rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
-mkdir -p "$APP_DIR/public/assets"
-rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
-cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
-
-cd "$APP_DIR"
-composer install --no-dev --prefer-dist --optimize-autoloader
-
-if [[ ! -f .env ]]; then cp env .env; fi
-sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
-
-# Escape values for CodeIgniter dotenv single-quoted values.
-escape_env() {
-    local value="$1"
-    value="${value//\\/\\\\}"
-    value="${value//\'/\\\'}"
-    printf '%s' "$value"
-}
-DB_PASS_ESCAPED="$(escape_env "$DB_PASS")"
-cat >> .env <<EOF
-
-# Pesona Cloud Drive deployment settings
-CI_ENVIRONMENT = production
-app.baseURL = 'https://$DOMAIN/'
-app.forceGlobalSecureRequests = true
-database.default.hostname = 'localhost'
-database.default.database = '$DB_NAME'
-database.default.username = '$DB_USER'
-database.default.password = '$DB_PASS_ESCAPED'
-database.default.DBDriver = MySQLi
-database.default.port = 3306
-storage.privatePath = '$STORAGE'
-EOF
-chmod 640 .env
-mkdir -p "$STORAGE" writable/cache writable/logs writable/session
-chmod 750 "$STORAGE"
-if id www >/dev/null 2>&1; then
-    chown www:www .env
-    chown -R www:www "$STORAGE" writable
-elif id www-data >/dev/null 2>&1; then
-    chown www-data:www-data .env
-    chown -R www-data:www-data "$STORAGE" writable
-else
-    echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
-fi
-
-
-# aaPanel commonly creates an open_basedir restriction that only allows the
-# website document root (public/) and /tmp. CodeIgniter must also read app/,
-# vendor/, writable/, and its .env file. Extend existing .user.ini directives
-# without removing any paths already allowed by aaPanel.
-normalize_path() {
-    local p="$1"
-    [[ "$p" == */ ]] || p="$p/"
-    printf '%s' "$p"
-}
-APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
-STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
-ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
-# Configure app-local ini files only. aaPanel may mark .user.ini immutable
-# (chattr +i). Temporarily remove that flag when present, update safely, then
-# restore it so aaPanel's protection is preserved. Never touch website-level ini.
-PUBLIC_INI="$APP_DIR/public/.user.ini"
-if [[ ! -e "$PUBLIC_INI" ]]; then
-    if ! install -m 644 /dev/null "$PUBLIC_INI"; then
-        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir manual melalui aaPanel."
-        PUBLIC_INI=""
-    fi
-fi
-
-USER_INI_FILES=()
-for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
-    [[ -n "$ini" && -f "$ini" ]] || continue
-    duplicate=0
-    for existing in "${USER_INI_FILES[@]}"; do
-        [[ "$existing" == "$ini" ]] && duplicate=1
-    done
-    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
-done
-
-for ini in "${USER_INI_FILES[@]}"; do
-    tmp="$(mktemp)"
-    if ! awk -v required="$ALLOWED_REQUIRED" '
-      BEGIN { updated=0 }
-      /^[[:space:]]*open_basedir[[:space:]]*=/ {
-        line=$0
-        sub(/^[^=]*=[[:space:]]*/, "", line)
-        gsub(/[[:space:]"]/, "", line)
-        n=split(line, paths, ":")
-        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
-        m=split(required, extra, ":")
-        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
-        value=""
-        for (p in allowed) value=value (value=="" ? "" : ":") p
-        print "open_basedir=" value
-        updated=1
-        next
-      }
-      { print }
-      END { if (!updated) print "open_basedir=" required }
-    ' "$ini" > "$tmp"; then
-        echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
-        rm -f "$tmp"
-        continue
-    fi
-
-    immutable=0
-    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
-        immutable=1
-        if ! chattr -i "$ini"; then
-            echo "[WARN] Tidak dapat melepas atribut immutable pada $ini. Atur open_basedir manual melalui aaPanel."
-            rm -f "$tmp"
-            continue
-        fi
-    fi
-
-    if ! cat "$tmp" > "$ini"; then
-        echo "[WARN] Tidak dapat menulis $ini (izin/ACL). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS."
-        [[ "$immutable" -eq 1 ]] && chattr +i "$ini" 2>/dev/null || true
-        rm -f "$tmp"
-        continue
-    fi
-    rm -f "$tmp"
-    chmod 644 "$ini" 2>/dev/null || true
-    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
-    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
-    fi
-    if [[ "$immutable" -eq 1 ]]; then
-        chattr +i "$ini" || echo "[WARN] Gagal mengembalikan atribut immutable pada $ini."
-    fi
-    echo "[OK] open_basedir disesuaikan: $ini"
-done
-
-if [[ -z "$PUBLIC_INI" ]]; then
-    echo "[WARN] File public/.user.ini belum tersedia; konfigurasi open_basedir wajib diselesaikan melalui aaPanel."
-fi
-
-
-echo
-echo "[OK] Source Git : $SOURCE_DIR"
-echo "[OK] Aplikasi   : $APP_DIR"
-echo "[NEXT] Document root aaPanel: $APP_DIR/public"
-echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
-echo "[NEXT] Jalankan: cd '$APP_DIR' && php spark migrate"
-echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
-echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
- &&
-       "$candidate" -m 2>/dev/null | grep -qi '^intl
-
-mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
-if [[ -d "$SOURCE_DIR/.git" ]]; then
-    git -C "$SOURCE_DIR" pull --ff-only
-else
-    git clone "$REPO" "$SOURCE_DIR"
-fi
-
-# Ensure the CodeIgniter framework skeleton exists. This site may already
-# contain the application, .env, and vendor but have no public/ directory.
-# Restore only missing framework entry-point files; never overwrite user data.
-if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
-    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
-        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
-        echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
-        exit 1
-    fi
-    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
-    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
-    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
-
-    # Fill missing top-level framework files only. Existing app code/config,
-    # .env, vendor, writable data, and uploads are left untouched.
-    mkdir -p "$APP_DIR"
-    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
-        if [[ ! -e "$APP_DIR/$item" && -e "$BOOTSTRAP_DIR/app/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
-        fi
-    done
-    for dir in app public tests writable; do
-        if [[ ! -d "$APP_DIR/$dir" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
-        fi
-    done
-    # A partially-created public directory may exist but lack the front
-    # controller. Copy only the missing entry-point files from appstarter.
-    mkdir -p "$APP_DIR/public"
-    for item in index.php .htaccess; do
-        if [[ ! -e "$APP_DIR/public/$item" && -e "$BOOTSTRAP_DIR/app/public/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
-        fi
-    done
-    rm -rf "$BOOTSTRAP_DIR"
-    trap - EXIT
-fi
-
-[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
-    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah pemulihan."
-    echo "[INFO] File yang wajib tersedia: spark, app/Config/Paths.php, public/index.php"
-    echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
-    exit 1
-}
-
-rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
-mkdir -p "$APP_DIR/public/assets"
-rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
-cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
-
-cd "$APP_DIR"
-composer install --no-dev --prefer-dist --optimize-autoloader
-
-if [[ ! -f .env ]]; then cp env .env; fi
-sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
-
-# Escape values for CodeIgniter dotenv single-quoted values.
-escape_env() {
-    local value="$1"
-    value="${value//\\/\\\\}"
-    value="${value//\'/\\\'}"
-    printf '%s' "$value"
-}
-DB_PASS_ESCAPED="$(escape_env "$DB_PASS")"
-cat >> .env <<EOF
-
-# Pesona Cloud Drive deployment settings
-CI_ENVIRONMENT = production
-app.baseURL = 'https://$DOMAIN/'
-app.forceGlobalSecureRequests = true
-database.default.hostname = 'localhost'
-database.default.database = '$DB_NAME'
-database.default.username = '$DB_USER'
-database.default.password = '$DB_PASS_ESCAPED'
-database.default.DBDriver = MySQLi
-database.default.port = 3306
-storage.privatePath = '$STORAGE'
-EOF
-chmod 640 .env
-mkdir -p "$STORAGE" writable/cache writable/logs writable/session
-chmod 750 "$STORAGE"
-if id www >/dev/null 2>&1; then
-    chown www:www .env
-    chown -R www:www "$STORAGE" writable
-elif id www-data >/dev/null 2>&1; then
-    chown www-data:www-data .env
-    chown -R www-data:www-data "$STORAGE" writable
-else
-    echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
-fi
-
-
-# aaPanel commonly creates an open_basedir restriction that only allows the
-# website document root (public/) and /tmp. CodeIgniter must also read app/,
-# vendor/, writable/, and its .env file. Extend existing .user.ini directives
-# without removing any paths already allowed by aaPanel.
-normalize_path() {
-    local p="$1"
-    [[ "$p" == */ ]] || p="$p/"
-    printf '%s' "$p"
-}
-APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
-STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
-ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
-# Configure app-local ini files only. aaPanel may mark .user.ini immutable
-# (chattr +i). Temporarily remove that flag when present, update safely, then
-# restore it so aaPanel's protection is preserved. Never touch website-level ini.
-PUBLIC_INI="$APP_DIR/public/.user.ini"
-if [[ ! -e "$PUBLIC_INI" ]]; then
-    if ! install -m 644 /dev/null "$PUBLIC_INI"; then
-        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir manual melalui aaPanel."
-        PUBLIC_INI=""
-    fi
-fi
-
-USER_INI_FILES=()
-for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
-    [[ -n "$ini" && -f "$ini" ]] || continue
-    duplicate=0
-    for existing in "${USER_INI_FILES[@]}"; do
-        [[ "$existing" == "$ini" ]] && duplicate=1
-    done
-    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
-done
-
-for ini in "${USER_INI_FILES[@]}"; do
-    tmp="$(mktemp)"
-    if ! awk -v required="$ALLOWED_REQUIRED" '
-      BEGIN { updated=0 }
-      /^[[:space:]]*open_basedir[[:space:]]*=/ {
-        line=$0
-        sub(/^[^=]*=[[:space:]]*/, "", line)
-        gsub(/[[:space:]"]/, "", line)
-        n=split(line, paths, ":")
-        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
-        m=split(required, extra, ":")
-        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
-        value=""
-        for (p in allowed) value=value (value=="" ? "" : ":") p
-        print "open_basedir=" value
-        updated=1
-        next
-      }
-      { print }
-      END { if (!updated) print "open_basedir=" required }
-    ' "$ini" > "$tmp"; then
-        echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
-        rm -f "$tmp"
-        continue
-    fi
-
-    immutable=0
-    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
-        immutable=1
-        if ! chattr -i "$ini"; then
-            echo "[WARN] Tidak dapat melepas atribut immutable pada $ini. Atur open_basedir manual melalui aaPanel."
-            rm -f "$tmp"
-            continue
-        fi
-    fi
-
-    if ! cat "$tmp" > "$ini"; then
-        echo "[WARN] Tidak dapat menulis $ini (izin/ACL). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS."
-        [[ "$immutable" -eq 1 ]] && chattr +i "$ini" 2>/dev/null || true
-        rm -f "$tmp"
-        continue
-    fi
-    rm -f "$tmp"
-    chmod 644 "$ini" 2>/dev/null || true
-    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
-    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
-    fi
-    if [[ "$immutable" -eq 1 ]]; then
-        chattr +i "$ini" || echo "[WARN] Gagal mengembalikan atribut immutable pada $ini."
-    fi
-    echo "[OK] open_basedir disesuaikan: $ini"
-done
-
-if [[ -z "$PUBLIC_INI" ]]; then
-    echo "[WARN] File public/.user.ini belum tersedia; konfigurasi open_basedir wajib diselesaikan melalui aaPanel."
-fi
-
-
-echo
-echo "[OK] Source Git : $SOURCE_DIR"
-echo "[OK] Aplikasi   : $APP_DIR"
-echo "[NEXT] Document root aaPanel: $APP_DIR/public"
-echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
-echo "[NEXT] Jalankan: cd '$APP_DIR' && php spark migrate"
-echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
-echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
- &&
-       "$candidate" -m 2>/dev/null | grep -qi '^mbstring
-
-mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
-if [[ -d "$SOURCE_DIR/.git" ]]; then
-    git -C "$SOURCE_DIR" pull --ff-only
-else
-    git clone "$REPO" "$SOURCE_DIR"
-fi
-
-# Ensure the CodeIgniter framework skeleton exists. This site may already
-# contain the application, .env, and vendor but have no public/ directory.
-# Restore only missing framework entry-point files; never overwrite user data.
-if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
-    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
-        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
-        echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
-        exit 1
-    fi
-    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
-    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
-    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
-
-    # Fill missing top-level framework files only. Existing app code/config,
-    # .env, vendor, writable data, and uploads are left untouched.
-    mkdir -p "$APP_DIR"
-    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
-        if [[ ! -e "$APP_DIR/$item" && -e "$BOOTSTRAP_DIR/app/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
-        fi
-    done
-    for dir in app public tests writable; do
-        if [[ ! -d "$APP_DIR/$dir" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
-        fi
-    done
-    # A partially-created public directory may exist but lack the front
-    # controller. Copy only the missing entry-point files from appstarter.
-    mkdir -p "$APP_DIR/public"
-    for item in index.php .htaccess; do
-        if [[ ! -e "$APP_DIR/public/$item" && -e "$BOOTSTRAP_DIR/app/public/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
-        fi
-    done
-    rm -rf "$BOOTSTRAP_DIR"
-    trap - EXIT
-fi
-
-[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
-    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah pemulihan."
-    echo "[INFO] File yang wajib tersedia: spark, app/Config/Paths.php, public/index.php"
-    echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
-    exit 1
-}
-
-rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
-mkdir -p "$APP_DIR/public/assets"
-rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
-cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
-
-cd "$APP_DIR"
-composer install --no-dev --prefer-dist --optimize-autoloader
-
-if [[ ! -f .env ]]; then cp env .env; fi
-sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
-
-# Escape values for CodeIgniter dotenv single-quoted values.
-escape_env() {
-    local value="$1"
-    value="${value//\\/\\\\}"
-    value="${value//\'/\\\'}"
-    printf '%s' "$value"
-}
-DB_PASS_ESCAPED="$(escape_env "$DB_PASS")"
-cat >> .env <<EOF
-
-# Pesona Cloud Drive deployment settings
-CI_ENVIRONMENT = production
-app.baseURL = 'https://$DOMAIN/'
-app.forceGlobalSecureRequests = true
-database.default.hostname = 'localhost'
-database.default.database = '$DB_NAME'
-database.default.username = '$DB_USER'
-database.default.password = '$DB_PASS_ESCAPED'
-database.default.DBDriver = MySQLi
-database.default.port = 3306
-storage.privatePath = '$STORAGE'
-EOF
-chmod 640 .env
-mkdir -p "$STORAGE" writable/cache writable/logs writable/session
-chmod 750 "$STORAGE"
-if id www >/dev/null 2>&1; then
-    chown www:www .env
-    chown -R www:www "$STORAGE" writable
-elif id www-data >/dev/null 2>&1; then
-    chown www-data:www-data .env
-    chown -R www-data:www-data "$STORAGE" writable
-else
-    echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
-fi
-
-
-# aaPanel commonly creates an open_basedir restriction that only allows the
-# website document root (public/) and /tmp. CodeIgniter must also read app/,
-# vendor/, writable/, and its .env file. Extend existing .user.ini directives
-# without removing any paths already allowed by aaPanel.
-normalize_path() {
-    local p="$1"
-    [[ "$p" == */ ]] || p="$p/"
-    printf '%s' "$p"
-}
-APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
-STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
-ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
-# Configure app-local ini files only. aaPanel may mark .user.ini immutable
-# (chattr +i). Temporarily remove that flag when present, update safely, then
-# restore it so aaPanel's protection is preserved. Never touch website-level ini.
-PUBLIC_INI="$APP_DIR/public/.user.ini"
-if [[ ! -e "$PUBLIC_INI" ]]; then
-    if ! install -m 644 /dev/null "$PUBLIC_INI"; then
-        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir manual melalui aaPanel."
-        PUBLIC_INI=""
-    fi
-fi
-
-USER_INI_FILES=()
-for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
-    [[ -n "$ini" && -f "$ini" ]] || continue
-    duplicate=0
-    for existing in "${USER_INI_FILES[@]}"; do
-        [[ "$existing" == "$ini" ]] && duplicate=1
-    done
-    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
-done
-
-for ini in "${USER_INI_FILES[@]}"; do
-    tmp="$(mktemp)"
-    if ! awk -v required="$ALLOWED_REQUIRED" '
-      BEGIN { updated=0 }
-      /^[[:space:]]*open_basedir[[:space:]]*=/ {
-        line=$0
-        sub(/^[^=]*=[[:space:]]*/, "", line)
-        gsub(/[[:space:]"]/, "", line)
-        n=split(line, paths, ":")
-        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
-        m=split(required, extra, ":")
-        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
-        value=""
-        for (p in allowed) value=value (value=="" ? "" : ":") p
-        print "open_basedir=" value
-        updated=1
-        next
-      }
-      { print }
-      END { if (!updated) print "open_basedir=" required }
-    ' "$ini" > "$tmp"; then
-        echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
-        rm -f "$tmp"
-        continue
-    fi
-
-    immutable=0
-    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
-        immutable=1
-        if ! chattr -i "$ini"; then
-            echo "[WARN] Tidak dapat melepas atribut immutable pada $ini. Atur open_basedir manual melalui aaPanel."
-            rm -f "$tmp"
-            continue
-        fi
-    fi
-
-    if ! cat "$tmp" > "$ini"; then
-        echo "[WARN] Tidak dapat menulis $ini (izin/ACL). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS."
-        [[ "$immutable" -eq 1 ]] && chattr +i "$ini" 2>/dev/null || true
-        rm -f "$tmp"
-        continue
-    fi
-    rm -f "$tmp"
-    chmod 644 "$ini" 2>/dev/null || true
-    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
-    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
-    fi
-    if [[ "$immutable" -eq 1 ]]; then
-        chattr +i "$ini" || echo "[WARN] Gagal mengembalikan atribut immutable pada $ini."
-    fi
-    echo "[OK] open_basedir disesuaikan: $ini"
-done
-
-if [[ -z "$PUBLIC_INI" ]]; then
-    echo "[WARN] File public/.user.ini belum tersedia; konfigurasi open_basedir wajib diselesaikan melalui aaPanel."
-fi
-
-
-echo
-echo "[OK] Source Git : $SOURCE_DIR"
-echo "[OK] Aplikasi   : $APP_DIR"
-echo "[NEXT] Document root aaPanel: $APP_DIR/public"
-echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
-echo "[NEXT] Jalankan: cd '$APP_DIR' && php spark migrate"
-echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
-echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
-; then
+    if "$candidate" -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);' >/dev/null 2>&1 \
+       && "$candidate" -m 2>/dev/null | grep -qi '^mysqli$' \
+       && "$candidate" -m 2>/dev/null | grep -qi '^intl$' \
+       && "$candidate" -m 2>/dev/null | grep -qi '^mbstring$'; then
         PHP_BIN="$candidate"
         break
     fi
 done
-
 if [[ -z "$PHP_BIN" ]]; then
     echo "[ERROR] Tidak ditemukan PHP CLI versi 8.2+ dengan ekstensi mysqli, intl, dan mbstring."
-    echo "[INFO] PHP aaPanel yang umum digunakan: /www/server/php/84/bin/php"
-    echo "[INFO] Periksa modul dengan: /www/server/php/84/bin/php -m"
-    echo "[INFO] Aktifkan mysqli, intl, dan mbstring pada PHP CLI aaPanel, lalu jalankan ulang installer."
+    echo "[INFO] Periksa PHP aaPanel, misalnya /www/server/php/84/bin/php -m."
     exit 1
 fi
-
-# Make Composer use the same validated PHP binary for all subsequent commands.
 export PATH="$(dirname "$PHP_BIN"):$PATH"
 hash -r
 echo "[OK] PHP CLI: $PHP_BIN ($("$PHP_BIN" -r 'echo PHP_VERSION;'))"
@@ -692,49 +84,32 @@ else
     git clone "$REPO" "$SOURCE_DIR"
 fi
 
-# Ensure the CodeIgniter framework skeleton exists. This site may already
-# contain the application, .env, and vendor but have no public/ directory.
-# Restore only missing framework entry-point files; never overwrite user data.
+# Create a clean CodeIgniter skeleton only if the target is empty/missing.
 if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
     if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
         echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
-        echo "[NEXT] Gunakan direktori aplikasi kosong atau pindahkan file lama terlebih dahulu: $APP_DIR"
         exit 1
     fi
     BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
     trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
     composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
-
-    # Fill missing top-level framework files only. Existing app code/config,
-    # .env, vendor, writable data, and uploads are left untouched.
     mkdir -p "$APP_DIR"
     for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
-        if [[ ! -e "$APP_DIR/$item" && -e "$BOOTSTRAP_DIR/app/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
-        fi
+        [[ -e "$APP_DIR/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
     done
     for dir in app public tests writable; do
-        if [[ ! -d "$APP_DIR/$dir" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
-        fi
+        [[ -d "$APP_DIR/$dir" ]] || cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
     done
-    # A partially-created public directory may exist but lack the front
-    # controller. Copy only the missing entry-point files from appstarter.
     mkdir -p "$APP_DIR/public"
     for item in index.php .htaccess; do
-        if [[ ! -e "$APP_DIR/public/$item" && -e "$BOOTSTRAP_DIR/app/public/$item" ]]; then
-            cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
-        fi
+        [[ -e "$APP_DIR/public/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
     done
     rm -rf "$BOOTSTRAP_DIR"
     trap - EXIT
 fi
 
 [[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
-    echo "[ERROR] Struktur CodeIgniter masih belum lengkap setelah pemulihan."
-    echo "[INFO] File yang wajib tersedia: spark, app/Config/Paths.php, public/index.php"
-    echo "[INFO] Periksa akses tulis direktori: $APP_DIR"
-    exit 1
+    echo "[ERROR] Struktur CodeIgniter belum lengkap."; exit 1;
 }
 
 rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
@@ -744,11 +119,10 @@ cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
 
 cd "$APP_DIR"
 composer install --no-dev --prefer-dist --optimize-autoloader
+[[ -f .env ]] || cp env .env
 
-if [[ ! -f .env ]]; then cp env .env; fi
+# Replace only deployment keys, preserving unrelated .env settings.
 sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
-
-# Escape values for CodeIgniter dotenv single-quoted values.
 escape_env() {
     local value="$1"
     value="${value//\\/\\\\}"
@@ -773,6 +147,7 @@ EOF
 chmod 640 .env
 mkdir -p "$STORAGE" writable/cache writable/logs writable/session
 chmod 750 "$STORAGE"
+
 if id www >/dev/null 2>&1; then
     chown www:www .env
     chown -R www:www "$STORAGE" writable
@@ -780,36 +155,23 @@ elif id www-data >/dev/null 2>&1; then
     chown www-data:www-data .env
     chown -R www-data:www-data "$STORAGE" writable
 else
-    echo "[WARN] User web server tidak ditemukan; atur kepemilikan .env, storage, dan writable secara manual."
+    echo "[WARN] User web server tidak ditemukan; atur kepemilikan file secara manual."
 fi
 
-
-# aaPanel commonly creates an open_basedir restriction that only allows the
-# website document root (public/) and /tmp. CodeIgniter must also read app/,
-# vendor/, writable/, and its .env file. Extend existing .user.ini directives
-# without removing any paths already allowed by aaPanel.
+# Extend app-local open_basedir without removing existing allowed paths.
 normalize_path() {
     local p="$1"
     [[ "$p" == */ ]] || p="$p/"
     printf '%s' "$p"
 }
 APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
-STORAGE_ABS="$(mkdir -p "$STORAGE" && cd "$STORAGE" && pwd)"
+STORAGE_ABS="$(cd "$STORAGE" && pwd)"
 ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
-# Configure app-local ini files only. aaPanel may mark .user.ini immutable
-# (chattr +i). Temporarily remove that flag when present, update safely, then
-# restore it so aaPanel's protection is preserved. Never touch website-level ini.
 PUBLIC_INI="$APP_DIR/public/.user.ini"
-if [[ ! -e "$PUBLIC_INI" ]]; then
-    if ! install -m 644 /dev/null "$PUBLIC_INI"; then
-        echo "[WARN] Tidak dapat membuat $PUBLIC_INI. Atur open_basedir manual melalui aaPanel."
-        PUBLIC_INI=""
-    fi
-fi
-
+[[ -e "$PUBLIC_INI" ]] || install -m 644 /dev/null "$PUBLIC_INI"
 USER_INI_FILES=()
 for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
-    [[ -n "$ini" && -f "$ini" ]] || continue
+    [[ -f "$ini" ]] || continue
     duplicate=0
     for existing in "${USER_INI_FILES[@]}"; do
         [[ "$existing" == "$ini" ]] && duplicate=1
@@ -819,12 +181,12 @@ done
 
 for ini in "${USER_INI_FILES[@]}"; do
     tmp="$(mktemp)"
-    if ! awk -v required="$ALLOWED_REQUIRED" '
+    awk -v required="$ALLOWED_REQUIRED" '
       BEGIN { updated=0 }
       /^[[:space:]]*open_basedir[[:space:]]*=/ {
         line=$0
         sub(/^[^=]*=[[:space:]]*/, "", line)
-        gsub(/[[:space:]"]/, "", line)
+        gsub(/[[:space:]"]/ , "", line)
         n=split(line, paths, ":")
         for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
         m=split(required, extra, ":")
@@ -837,49 +199,27 @@ for ini in "${USER_INI_FILES[@]}"; do
       }
       { print }
       END { if (!updated) print "open_basedir=" required }
-    ' "$ini" > "$tmp"; then
-        echo "[WARN] Gagal membaca konfigurasi open_basedir: $ini"
-        rm -f "$tmp"
-        continue
-    fi
-
+    ' "$ini" > "$tmp"
     immutable=0
     if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
         immutable=1
-        if ! chattr -i "$ini"; then
-            echo "[WARN] Tidak dapat melepas atribut immutable pada $ini. Atur open_basedir manual melalui aaPanel."
-            rm -f "$tmp"
-            continue
-        fi
+        chattr -i "$ini"
     fi
-
-    if ! cat "$tmp" > "$ini"; then
-        echo "[WARN] Tidak dapat menulis $ini (izin/ACL). Dilewati; pastikan open_basedir mengizinkan $APP_DIR_ABS dan $STORAGE_ABS."
-        [[ "$immutable" -eq 1 ]] && chattr +i "$ini" 2>/dev/null || true
-        rm -f "$tmp"
-        continue
-    fi
+    cat "$tmp" > "$ini"
     rm -f "$tmp"
     chmod 644 "$ini" 2>/dev/null || true
     if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
     elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
     fi
-    if [[ "$immutable" -eq 1 ]]; then
-        chattr +i "$ini" || echo "[WARN] Gagal mengembalikan atribut immutable pada $ini."
-    fi
+    [[ "$immutable" -eq 1 ]] && chattr +i "$ini"
     echo "[OK] open_basedir disesuaikan: $ini"
 done
-
-if [[ -z "$PUBLIC_INI" ]]; then
-    echo "[WARN] File public/.user.ini belum tersedia; konfigurasi open_basedir wajib diselesaikan melalui aaPanel."
-fi
-
 
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
 echo "[OK] Aplikasi   : $APP_DIR"
 echo "[NEXT] Document root aaPanel: $APP_DIR/public"
 echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
-echo "[NEXT] Jalankan: cd '$APP_DIR' && php spark migrate"
+echo "[NEXT] Jalankan: cd '$APP_DIR' && '$PHP_BIN' spark migrate"
 echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
 echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
