@@ -52,11 +52,12 @@ done
 
 # Select PHP CLI >= 8.2 with the extensions required by the application.
 PHP_CANDIDATES=()
-SYSTEM_PHP="$(command -v php 2>/dev/null || true)"
-[[ -n "$SYSTEM_PHP" ]] && PHP_CANDIDATES+=("$SYSTEM_PHP")
+# Prefer aaPanel-managed PHP so CLI and PHP-FPM share the same configuration.
 for candidate in /www/server/php/*/bin/php; do
     [[ -x "$candidate" ]] && PHP_CANDIDATES+=("$candidate")
 done
+SYSTEM_PHP="$(command -v php 2>/dev/null || true)"
+[[ -n "$SYSTEM_PHP" ]] && PHP_CANDIDATES+=("$SYSTEM_PHP")
 
 PHP_BIN=""
 for candidate in "${PHP_CANDIDATES[@]}"; do
