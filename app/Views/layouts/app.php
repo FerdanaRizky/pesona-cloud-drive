@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico?v=32c0c067">
+<link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261123-pesona-brand"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20261123-pesona-brand"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20261123-pesona-brand">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/app.css?v=20261122-brandfix2" rel="stylesheet">
 <script>(function(){window.pcdToggleTheme=function(event){if(event){event.preventDefault();event.stopPropagation();}var root=document.documentElement;var next=root.getAttribute('data-bs-theme')==='dark'?'light':'dark';root.setAttribute('data-bs-theme',next);try{localStorage.setItem('pcd-theme',next);}catch(e){}var icon=document.getElementById('themeToggleIcon');var button=document.getElementById('themeToggle');if(icon)icon.textContent=next==='light'?'☀':'☾';if(button){button.setAttribute('aria-label','Tema '+(next==='light'?'terang':'gelap')+'. Klik untuk mengganti tema.');button.setAttribute('title','Beralih ke tema '+(next==='light'?'gelap':'terang'));}return false;};})();</script></head>
@@ -15,7 +15,7 @@ $currentPath = preg_replace('#^index\\.php/?#', '', $currentPath);
 $currentPath = trim($currentPath, '/');
 ?>
 <aside class="sidebar" id="appSidebar">
-<a class="brand" href="/dashboard"><img class="brand-logo" src="/assets/pesona-cloud-logo.png?v=20261122-brandfix2" alt="Pesona Cloud"><span>Pesona <small>Cloud Drive</small></span></a>
+<a class="brand" href="/dashboard"><img class="brand-logo" src="/assets/pesona-cloud-logo.png?v=20261123-pesona-brand" alt="Pesona Cloud"><span>Pesona <small>Cloud Drive</small></span></a>
 <nav class="nav flex-column mt-4">
 <a class="nav-link <?= $currentPath === 'dashboard' ? 'active' : '' ?>" href="/dashboard">⌂ <span>Dashboard</span></a>
 <a class="nav-link <?= in_array($currentPath, ['files', 'files/search'], true) ? 'active' : '' ?>" href="/files">▤ <span>File Saya</span></a>
