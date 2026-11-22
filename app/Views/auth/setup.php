@@ -11,7 +11,7 @@
 body.setup-page{min-height:100vh;min-height:100dvh;margin:0;overflow-x:hidden;background:radial-gradient(ellipse at 50% 0%,#1b3763 0%,#101d32 42%,#0b1220 78%);color:#e7edf7}
 .setup-stage{box-sizing:border-box;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:36px 20px}
 .setup-card{width:min(100%,510px);padding:clamp(22px,4vw,38px);background:rgba(17,29,48,.96);border:1px solid #2a3b55;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.3);min-width:0}
-.setup-brand{width:54px;height:54px;border-radius:17px;background:linear-gradient(135deg,#4388ff,#7658e8);display:grid;place-items:center;color:#fff;font-size:25px;font-weight:850;box-shadow:0 9px 24px rgba(67,136,255,.25)}
+.setup-brand{width:54px;height:54px;border-radius:0;background:transparent;display:grid;place-items:center;color:inherit;font-size:25px;font-weight:850;box-shadow:none;overflow:visible}.setup-brand img{display:block;width:54px;height:54px;object-fit:contain;background:transparent;border:0;box-shadow:none}
 .setup-kicker{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:99px;background:rgba(67,136,255,.12);border:1px solid rgba(112,159,241,.22);color:#9fc2ff;font-size:.72rem;font-weight:750;letter-spacing:.06em}
 .setup-heading h1{font-size:clamp(1.45rem,4vw,1.85rem);font-weight:800;letter-spacing:-.035em;margin:14px 0 7px}
 .setup-heading p{color:#9aabc3;font-size:.9rem;line-height:1.55;margin:0}
@@ -31,7 +31,7 @@ body.setup-page{min-height:100vh;min-height:100dvh;margin:0;overflow-x:hidden;ba
  body.setup-page{background:radial-gradient(ellipse at 50% 0%,#1b3763 0%,#0b1220 72%)}
  .setup-stage{align-items:flex-start;padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px))}
  .setup-card{padding:24px 19px 20px;border-radius:19px}
- .setup-brand{width:48px;height:48px;border-radius:15px;font-size:22px}
+ .setup-brand{width:48px;height:48px;border-radius:0;font-size:22px}.setup-brand img{width:48px;height:48px}
  .setup-form{margin-top:22px}
  .setup-form .mb-3{margin-bottom:17px!important}
  .setup-form .mb-4{margin-bottom:19px!important}
