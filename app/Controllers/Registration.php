@@ -1,7 +1,7 @@
 <?php
-namespace App\\Controllers;
-use App\\Models\\UserModel;
-use App\\Services\\GowaService;
+namespace App\Controllers;
+use App\Models\UserModel;
+use App\Services\GowaService;
 class Registration extends BaseController
 {
     public function form()
@@ -16,7 +16,7 @@ class Registration extends BaseController
         if(!$this->validate($rules)) return redirect()->back()->withInput()->with('errors',$this->validator->getErrors());
         $name=trim((string)$this->request->getPost('name'));
         $email=strtolower(trim((string)$this->request->getPost('email')));
-        $phone=preg_replace('/[\\s+().-]/','',(string)$this->request->getPost('phone'));
+        $phone=preg_replace('/[\s+().-]/','',(string)$this->request->getPost('phone'));
         if(!preg_match('/^[1-9][0-9]{8,14}$/',$phone)) return redirect()->back()->withInput()->with('error','Nomor WhatsApp tidak valid. Gunakan format internasional, contoh 6281234567890.');
         $db=db_connect();$now=date('Y-m-d H:i:s');$ip=$this->request->getIPAddress();
         if((new UserModel())->where('email',$email)->first()) return redirect()->back()->withInput()->with('error','Email sudah terdaftar. Silakan masuk atau gunakan email lain.');
@@ -33,7 +33,7 @@ class Registration extends BaseController
             'otp_hash'=>hash('sha256',$otp.':'.$email),'expires_at'=>date('Y-m-d H:i:s',time()+300),
             'used_at'=>null,'attempts'=>0,'ip_address'=>$ip,'created_at'=>$now
         ]);
-        $message="Pesona Cloud Drive\\n\\nKode OTP pendaftaran akun Anda: {$otp}\\nBerlaku 5 menit. Jangan berikan kode ini kepada siapa pun. Jika Anda tidak merasa mendaftar, abaikan pesan ini.";
+        $message="Pesona Cloud Drive\n\nKode OTP pendaftaran akun Anda: {$otp}\nBerlaku 5 menit. Jangan berikan kode ini kepada siapa pun. Jika Anda tidak merasa mendaftar, abaikan pesan ini.";
         if((new GowaService())->sendText($phone,$message)){
             session()->set('registration_email',$email);
             return redirect()->to('/register/verify')->with('message','Kode OTP telah dikirim ke WhatsApp Anda. Masukkan kode untuk menyelesaikan pendaftaran.');
