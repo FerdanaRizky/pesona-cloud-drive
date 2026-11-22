@@ -3129,3 +3129,26 @@ body.login-page{min-height:100vh;background:radial-gradient(ellipse at 12% 18%,r
 .login-simple-card .alert{border-radius:11px;font-size:.85rem}
 @media(max-width:480px){body.login-page{padding:0}.login-simple-stage{min-height:100svh;padding:16px 12px}.login-simple-card{padding:32px 22px 24px;border-radius:20px}.login-simple-brand{margin-bottom:29px}.login-simple-heading h1{font-size:1.45rem}.login-simple-card .form-control{min-height:50px}}
 @media(prefers-reduced-motion:reduce){.login-simple-submit{transition:none}}
+
+/* Forgot password modal layout - preserve Pesona dark theme */
+.forgot-password-page{position:relative;overflow-x:hidden}
+.forgot-password-backdrop{filter:blur(1px);opacity:.58;pointer-events:none}
+.forgot-password-backdrop .login-panel-wrap{opacity:.65}
+.forgot-backdrop-placeholder{display:grid;gap:18px;margin-top:25px}
+.forgot-backdrop-placeholder div{height:52px;border:1px solid #344966;border-radius:11px;background:#0c192b}
+.forgot-modal-overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,9,20,.58);backdrop-filter:blur(5px)}
+.forgot-modal-card{width:min(100%,510px);padding:30px 28px 26px;border:1px solid rgba(121,157,211,.24);border-radius:22px;background:linear-gradient(145deg,#14243b,#101b2d);box-shadow:0 28px 90px rgba(0,0,0,.55);color:#e7edf7}
+.forgot-modal-heading{margin-bottom:24px}
+.forgot-modal-heading h2{margin:9px 0 8px;color:#f2f6ff;font-size:1.45rem;font-weight:800;letter-spacing:-.035em}
+.forgot-modal-heading p{margin:0;color:#a9bad2;font-size:.92rem;line-height:1.6}
+.forgot-modal-card .form-label{margin-bottom:8px;color:#c8d5e8;font-size:.86rem;font-weight:700}
+.forgot-modal-card .form-control{min-height:54px;border:1px solid #344966;border-radius:12px;background:#0b1525;color:#f5f8ff}
+.forgot-modal-card .form-control::placeholder{color:#657994}
+.forgot-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.forgot-cancel-btn,.forgot-send-btn{min-height:52px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:750}
+.forgot-cancel-btn{border:1px solid #40516c;background:#17263b;color:#cbd8eb;text-decoration:none}
+.forgot-cancel-btn:hover{border-color:#6b8fc4;background:#1d304b;color:#fff}
+.forgot-send-btn{margin:0!important;border:0}
+.forgot-modal-card .alert{border-radius:11px;font-size:.86rem}
+@media(max-width:850px){.forgot-password-backdrop .login-showcase{display:none}.forgot-password-backdrop .login-stage{display:block}}
+@media(max-width:575px){.forgot-modal-overlay{padding:16px}.forgot-modal-card{padding:25px 20px 21px;border-radius:19px}.forgot-modal-heading h2{font-size:1.3rem}.forgot-modal-actions{gap:9px}.forgot-cancel-btn,.forgot-send-btn{min-height:50px;font-size:.92rem}}
