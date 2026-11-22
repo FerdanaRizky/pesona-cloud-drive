@@ -3062,3 +3062,38 @@ html[data-bs-theme="light"] .sidebar-copyright{color:#8290a5}
  .registration-page .login-card .form-control{font-size:16px}
  .registration-page .login-card .toggle-password{min-width:50px;width:50px}
 }
+
+
+/* Login sign-up invitation: editorial link, not a full-width button */
+.login-register-cta{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:17px 18px;margin-top:28px!important;
+ border:1px solid rgba(111,151,211,.22);border-radius:15px;
+ background:linear-gradient(115deg,rgba(51,112,204,.12),rgba(112,91,220,.09));
+ text-align:left;color:var(--bs-body-color);
+}
+.login-register-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.login-register-eyebrow{font-size:.65rem;font-weight:800;letter-spacing:.14em;color:#8fb8ff}
+.login-register-copy strong{font-size:.94rem;font-weight:750;color:#eef4ff}
+.login-register-copy small{font-size:.75rem;line-height:1.4;color:#91a3bd}
+.login-register-link{
+ display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;
+ color:#82b5ff;text-decoration:none;font-size:.88rem;font-weight:750;
+ transition:color .18s ease,transform .18s ease;
+}
+.login-register-link:hover{color:#b2d1ff;transform:translateX(2px)}
+.login-register-arrow{
+ display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
+ color:#fff;background:linear-gradient(135deg,#3988f5,#7259df);
+ box-shadow:0 5px 16px rgba(69,111,225,.25);font-size:1rem;
+}
+html[data-bs-theme="light"] .login-register-cta{background:linear-gradient(115deg,#f0f6ff,#f7f4ff);border-color:#dce6f5}
+html[data-bs-theme="light"] .login-register-copy strong{color:#17243a}
+html[data-bs-theme="light"] .login-register-copy small{color:#71819a}
+@media(max-width:575px){
+ .login-register-cta{padding:14px;gap:10px}
+ .login-register-copy strong{font-size:.88rem}
+ .login-register-copy small{font-size:.7rem}
+ .login-register-link{font-size:.8rem;gap:6px}
+ .login-register-arrow{width:28px;height:28px}
+}
