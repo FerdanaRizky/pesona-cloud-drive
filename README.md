@@ -195,6 +195,33 @@ Updater akan memperbarui kode aplikasi, dependency, dan migration. File `.env`, 
 
 Sebelum update server produksi, tetap buat backup database dan private storage.
 
+### Backup versi dan rollback setelah update
+
+Setiap menjalankan updater, sistem membuat snapshot kode sebelum perubahan di:
+
+```
+/opt/pesona-cloud-drive-backups/YYYYMMDD-HHMMSS/code-before-update.tar.gz
+```
+
+Snapshot berisi kode `app/`, aset `public/assets/`, serta `composer.json` dan `composer.lock`. Jika proses update gagal saat menyalin kode, memasang dependency, atau migration, updater akan mencoba mengembalikan kode secara otomatis.
+
+Untuk melihat dan memilih versi snapshot, jalankan:
+
+```
+find /opt/pesona-cloud-drive-backups -mindepth 2 -maxdepth 2 -type f -name 'code-before-update.tar.gz' -printf '%h\\n' | sort
+```
+
+Untuk mengembalikan snapshot paling baru, jalankan:
+
+```
+APP_DIR=/www/wwwroot/cloud.pesonawifi.my.id/app-src BACKUP_DIR=/opt/pesona-cloud-drive-backups bash /opt/pesona-cloud-drive-source/rollback-aapanel.sh
+```
+
+Perintah akan menampilkan konfirmasi terlebih dahulu. Untuk memilih snapshot tertentu, isi `VERSION` dengan nama folder timestamp dan tambahkan `CONFIRM=yes` setelah memeriksa pilihan.
+
+**Batasan penting:** snapshot updater ini hanya untuk kode aplikasi dan aset, bukan database maupun file unggahan/private storage. Migration database tidak otomatis dibatalkan. Sebelum update produksi, tetap backup database dan private storage; jika migration mengubah struktur database dan kode lama tidak kompatibel, database harus dipulihkan dari backup yang sesuai.
+
+
 ## **5. Perbaiki batas upload Nginx
 Di aaPanel, buka:
 
