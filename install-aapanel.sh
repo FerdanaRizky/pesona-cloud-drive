@@ -77,6 +77,44 @@ export PATH="$(dirname "$PHP_BIN"):$PATH"
 hash -r
 echo "[OK] PHP CLI: $PHP_BIN ($("$PHP_BIN" -r 'echo PHP_VERSION;'))"
 
+# CodeIgniter DotEnv requires putenv(); remove only this function from aaPanel
+# disable_functions for the selected PHP version, preserving other restrictions.
+PHP_PREFIX="$(dirname "$(dirname "$PHP_BIN")")"
+PHP_VERSION_DIR="$(basename "$PHP_PREFIX")"
+PHP_INI="$PHP_PREFIX/etc/php.ini"
+remove_putenv_from_config() {
+    local config="$1" tmp
+    [[ -f "$config" ]] || return 0
+    tmp="$(mktemp)"
+    awk '
+      /^[[:space:]]*disable_functions[[:space:]]*=/ ||
+      /^[[:space:]]*php_admin_value\[disable_functions\][[:space:]]*=/ {
+        key=$0; sub(/=.*/, "", key)
+        value=$0; sub(/^[^=]*=[[:space:]]*/, "", value)
+        n=split(value, items, ","); out=""
+        for (i=1; i<=n; i++) {
+          item=items[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", item)
+          if (tolower(item) == "putenv" || item == "") continue
+          out=out (out=="" ? "" : ",") item
+        }
+        print key "=" out; next
+      }
+      { print }
+    ' "$config" > "$tmp"
+    if ! cmp -s "$config" "$tmp"; then
+        cp -a "$config" "$config.pcd-backup.$(date +%Y%m%d%H%M%S)"
+        cat "$tmp" > "$config"
+        echo "[OK] putenv diaktifkan pada konfigurasi: $config"
+    fi
+    rm -f "$tmp"
+}
+remove_putenv_from_config "$PHP_INI"
+if [[ -d "$PHP_PREFIX/etc/php-fpm.d" ]]; then
+    while IFS= read -r -d '' pool_config; do
+        remove_putenv_from_config "$pool_config"
+    done < <(find "$PHP_PREFIX/etc/php-fpm.d" -maxdepth 1 -type f -name '*.conf' -print0)
+fi
+
 mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
 if [[ -d "$SOURCE_DIR/.git" ]]; then
     git -C "$SOURCE_DIR" pull --ff-only
@@ -170,7 +208,8 @@ ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_AB
 PUBLIC_INI="$APP_DIR/public/.user.ini"
 [[ -e "$PUBLIC_INI" ]] || install -m 644 /dev/null "$PUBLIC_INI"
 USER_INI_FILES=()
-for ini in "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
+SITE_ROOT="$(dirname "$APP_DIR")"
+for ini in "$SITE_ROOT/.user.ini" "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
     [[ -f "$ini" ]] || continue
     duplicate=0
     for existing in "${USER_INI_FILES[@]}"; do
@@ -214,6 +253,19 @@ for ini in "${USER_INI_FILES[@]}"; do
     [[ "$immutable" -eq 1 ]] && chattr +i "$ini"
     echo "[OK] open_basedir disesuaikan: $ini"
 done
+
+# Restart PHP-FPM for the selected aaPanel PHP version.
+FPM_SERVICE="/etc/init.d/php-fpm-$PHP_VERSION_DIR"
+if [[ -x "$FPM_SERVICE" ]]; then
+    "$FPM_SERVICE" restart
+else
+    echo "[WARN] Service $FPM_SERVICE tidak ditemukan; restart PHP-FPM manual."
+fi
+if ! "$PHP_BIN" -r 'exit(function_exists("putenv") ? 0 : 1);'; then
+    echo "[ERROR] putenv() masih dinonaktifkan pada PHP CLI. Periksa konfigurasi PHP."
+    exit 1
+fi
+echo "[OK] Fungsi PHP putenv() tersedia."
 
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
