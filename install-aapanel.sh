@@ -79,7 +79,8 @@ echo "[OK] PHP CLI: $PHP_BIN ($("$PHP_BIN" -r 'echo PHP_VERSION;'))"
 
 # CodeIgniter DotEnv requires putenv(); remove only this function from aaPanel
 # disable_functions for the selected PHP version, preserving other restrictions.
-PHP_PREFIX="$(dirname "$(dirname "$PHP_BIN")")"
+PHP_BIN_DIR="$(dirname "$PHP_BIN")"
+PHP_PREFIX="$(dirname "$PHP_BIN_DIR")"
 PHP_VERSION_DIR="$(basename "$PHP_PREFIX")"
 PHP_INI="$PHP_PREFIX/etc/php.ini"
 remove_putenv_from_config() {
