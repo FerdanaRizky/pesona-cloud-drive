@@ -4,7 +4,7 @@
 <body class="login-bg login-page forgot-password-page">
 <button type="button" class="auth-theme-toggle" id="themeToggle" aria-label="Ganti tema" onclick="return window.pcdToggleTheme(event)"><span id="themeToggleIcon" aria-hidden="true">☾</span></button>
 <main class="login-stage forgot-password-backdrop" aria-hidden="true">
-<section class="login-showcase"><div class="login-brand"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></div><div class="login-showcase-copy"><span class="login-kicker">PEMULIHAN AKUN</span><h1>Akses kembali<br><span>ke ruang digital Anda.</span></h1><p>Kode verifikasi dikirim ke nomor WhatsApp yang tersimpan pada profil akun.</p></div><div class="login-showcase-footer">PESONA CLOUD DRIVE <span>•</span> PERSONAL WORKSPACE</div></section>
+<section class="login-showcase"><div class="login-brand"><img class="brand-logo" src="/assets/pesona-cloud-logo.png" alt="Pesona Cloud"><span>Pesona <small>Cloud Drive</small></span></div><div class="login-showcase-copy"><span class="login-kicker">PEMULIHAN AKUN</span><h1>Akses kembali<br><span>ke ruang digital Anda.</span></h1><p>Kode verifikasi dikirim ke nomor WhatsApp yang tersimpan pada profil akun.</p></div><div class="login-showcase-footer">PESONA CLOUD DRIVE <span>•</span> PERSONAL WORKSPACE</div></section>
 <section class="login-panel-wrap"><div class="login-card"><div class="login-panel-heading"><span class="login-kicker">BANTUAN AKUN</span><h2>Lupa password?</h2><p>Masukkan email akun untuk menerima kode OTP WhatsApp.</p></div><div class="forgot-backdrop-placeholder"><div></div><div></div><div></div></div></div></section>
 </main>
 <div class="forgot-modal-overlay">
