@@ -209,13 +209,21 @@ uploadForm?.addEventListener('submit',function(event){
  const next=()=>{
   if(index>=files.length){
    uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;
-   uploadStart.textContent='Upload selesai';uploadLabel.textContent='Semua '+files.length+' file berhasil diunggah';uploadDetail.textContent=files.length+' file berhasil · '+formatUploadBytes(totalBytes);uploadFill.style.width='100%';uploadPercent.textContent='100%';uploadBar.setAttribute('aria-valuenow','100');
-   setTimeout(()=>{window.location.href=uploadForm.action.replace('/upload','')+(uploadForm.querySelector('[name="parent_id"]').value!=='0'?'?folder='+uploadForm.querySelector('[name="parent_id"]').value:'');},900);return;
+   const failed=uploadFileList.querySelectorAll('.upload-file-state').length?[...uploadFileList.querySelectorAll('.upload-file-state')].filter(el=>/Gagal|Koneksi terputus|dibatalkan/i.test(el.textContent)).length:0;
+   uploadStart.textContent=failed?'Selesai dengan kegagalan':'Upload selesai';uploadLabel.textContent=failed?files.length-failed+' file berhasil, '+failed+' file gagal':'Semua '+files.length+' file berhasil diunggah';uploadDetail.textContent=(files.length-failed)+' berhasil · '+failed+' gagal · '+formatUploadBytes(completedBytes)+' terkirim';uploadFill.style.width='100%';uploadPercent.textContent='100%';uploadBar.setAttribute('aria-valuenow','100');
+   setTimeout(()=>{window.location.href=uploadForm.action.replace('/upload','')+(uploadForm.querySelector('[name="parent_id"]').value!=='0'?'?folder='+uploadForm.querySelector('[name="parent_id"]').value:'');},failed?2500:900);return;
   }
   uploadOneFile(files[index],index,(ok,stop)=>{
-   if(!ok){uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;uploadStart.textContent='Coba lagi';uploadLabel.textContent=stop?'Upload dibatalkan atau token keamanan tidak valid':'Upload file '+(index+1)+' gagal';uploadDetail.textContent='Periksa keterangan file yang gagal. File berikutnya tidak dilanjutkan.';return;}
+   if(!ok){
+    if(stop){uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;uploadStart.textContent='Coba lagi';uploadLabel.textContent='Upload dibatalkan';uploadDetail.textContent='Proses dihentikan oleh pengguna atau dibatalkan.';return;}
+    index++;
+    uploadDetail.textContent=index+' dari '+files.length+' file diproses · '+formatUploadBytes(completedBytes)+' berhasil dikirim';
+    uploadLabel.textContent='File '+index+' gagal. Melanjutkan file berikutnya...';
+    uploadFill.style.width=Math.round(index/files.length*100)+'%';uploadPercent.textContent=Math.round(index/files.length*100)+'%';uploadBar.setAttribute('aria-valuenow',uploadPercent.textContent);
+    next();return;
+   }
    completedBytes+=files[index].size;index++;
-   uploadDetail.textContent=index+' dari '+files.length+' file selesai · '+formatUploadBytes(completedBytes)+' / '+formatUploadBytes(totalBytes);
+   uploadDetail.textContent=index+' dari '+files.length+' file diproses · '+formatUploadBytes(completedBytes)+' berhasil dikirim';
    uploadFill.style.width=Math.round(index/files.length*100)+'%';uploadPercent.textContent=Math.round(index/files.length*100)+'%';uploadBar.setAttribute('aria-valuenow',uploadPercent.textContent);
    next();
   });
