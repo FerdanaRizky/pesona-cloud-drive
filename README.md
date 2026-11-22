@@ -183,7 +183,22 @@ Setelah itu restart PHP-FPM melalui aaPanel dan tunggu hingga konfigurasi `.user
 ```
 **Catatan:** Jangan menjalankan `chattr -i` jika atribut `i` tidak ditemukan. Jika tidak ada, periksa ACL dan konfigurasi PHP-FPM.
 
-## **4. Cara update aplikasi setelah ada perbaikan baru**
+## ** jika mengalami error Call to undefined function CodeIgniter\Config\putenv():
+## **4. Cek jika putenv dinonaktifkan
+Buka aaPanel:
+1. Masuk menu App Store.
+2. Pilih PHP 8.4.
+3. Buka Settings → Disable Functions.
+4. Cari putenv.
+5. Hapus putenv dari daftar fungsi yang dinonaktifkan.
+6. Simpan perubahan.
+
+Restart PHP-FPM:
+```
+/etc/init.d/php-fpm-84 restart
+```
+
+## **5. Cara update aplikasi setelah ada perbaikan baru**
 
 Untuk server yang sudah terpasang, gunakan updater, bukan installer baru.
 
@@ -195,7 +210,7 @@ Updater akan memperbarui kode aplikasi, dependency, dan migration. File `.env`, 
 
 Sebelum update server produksi, tetap buat backup database dan private storage.
 
-## **5. Perbaiki batas upload Nginx
+## **6. Perbaiki batas upload Nginx
 Di aaPanel, buka:
 
 Website → domain.com → Config
@@ -211,7 +226,7 @@ Tes dan reload Nginx:
 nginx -t && /etc/init.d/nginx reload
 ```
 
-## **6. Perbaiki konfigurasi PHP 8.4
+## **7. Perbaiki konfigurasi PHP 8.4
 Jalankan perintah berikut melalui SSH sebagai root. Perintah ini membuat backup terlebih dahulu dan hanya mengubah konfigurasi yang diperlukan.
 
 ```
