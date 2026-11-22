@@ -5,7 +5,7 @@
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/app.css?v=20261121-sidebar-version-footer-v1" rel="stylesheet">
-</head>
+<script>(function(){window.pcdToggleTheme=function(event){if(event){event.preventDefault();event.stopPropagation();}var root=document.documentElement;var next=root.getAttribute('data-bs-theme')==='dark'?'light':'dark';root.setAttribute('data-bs-theme',next);try{localStorage.setItem('pcd-theme',next);}catch(e){}var icon=document.getElementById('themeToggleIcon');var button=document.getElementById('themeToggle');if(icon)icon.textContent=next==='light'?'☀':'☾';if(button){button.setAttribute('aria-label','Tema '+(next==='light'?'terang':'gelap')+'. Klik untuk mengganti tema.');button.setAttribute('title','Beralih ke tema '+(next==='light'?'gelap':'terang'));}return false;};})();</script></head>
 <body>
 <div class="app-shell">
 <?php
@@ -38,7 +38,7 @@ $currentPath = trim($currentPath, '/');
 <button class="btn btn-sm btn-outline-secondary d-lg-none sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="appSidebar">☰</button>
 <span class="text-secondary topbar-caption">Personal cloud workspace</span>
 <div class="topbar-actions ms-auto">
-<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Ganti tema"><span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">☾</span></button>
+<button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Ganti tema" onclick="return window.pcdToggleTheme(event)"><span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">☾</span></button>
 <div class="dropdown account-dropdown">
 <button class="user-top-card account-trigger" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Buka menu akun">
 <div class="user-avatar"><?= esc(strtoupper(substr((string)(session()->get('name') ?: session()->get('email') ?: 'U'),0,1))) ?></div>
