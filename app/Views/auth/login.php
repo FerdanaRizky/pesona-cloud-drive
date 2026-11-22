@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="id" data-bs-theme="dark">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><script>(function(){try{var t=localStorage.getItem("pcd-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-bs-theme",t);}catch(e){}})();</script><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css?v=20261122-auth-theme-responsive-v1" rel="stylesheet"></head>
-<body class="login-bg login-page">
+<button type="button" class="auth-theme-toggle" id="themeToggle" aria-label="Ganti tema"><span id="themeToggleIcon" aria-hidden="true">☾</span></button><body class="login-bg login-page">
 <main class="login-stage">
 <section class="login-showcase">
 <div class="login-brand"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></div>
@@ -21,4 +21,4 @@
 <div class="login-simple-links"><a href="/forgot-password">Lupa password</a><a href="/register">Belum punya akun? Daftar</a></div>
 <div class="login-security-note"><span>◈</span> Akses pribadi dan aman untuk akun Anda</div>
 </div></section>
-</main><script src="/assets/app.js"></script></body></html>
+</main><script src="/assets/app.js"></script><script src="/assets/app.js?v=20261122-auth-theme-responsive-v2" defer></script></body></html>
