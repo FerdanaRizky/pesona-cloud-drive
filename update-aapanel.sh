@@ -26,6 +26,12 @@ fi
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$REPO_DIR/public/assets/" "$APP_DIR/public/assets/"
 
+# Deploy favicon explicitly; the previous updater skipped public/favicon.ico.
+if [[ -f "$REPO_DIR/public/favicon.ico" ]]; then
+    install -D -m 644 "$REPO_DIR/public/favicon.ico" "$APP_DIR/public/favicon.ico"
+    echo "[INFO] Favicon diperbarui: $APP_DIR/public/favicon.ico"
+fi
+
 echo "[INFO] Memvalidasi dependency..."
 cd "$APP_DIR"
 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
