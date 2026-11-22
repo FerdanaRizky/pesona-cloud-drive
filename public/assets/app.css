@@ -3166,3 +3166,50 @@ body.login-page{min-height:100vh;background:radial-gradient(ellipse at 12% 18%,r
 .reset-password-hint{display:block;margin-top:7px;color:#91a2bb;font-size:.78rem}
 .reset-modal-card .forgot-modal-actions{margin-top:4px}
 @media(max-width:575px){.reset-modal-card{max-height:calc(100svh - 24px)}.reset-modal-card .forgot-modal-heading{margin-bottom:18px}.reset-modal-card .form-control{min-height:49px}.reset-modal-card .reset-otp-input{font-size:1rem}}
+
+/* Responsive polish for the password reset dialog */
+.reset-modal-overlay{padding:clamp(12px,3vw,28px);overflow-y:auto;overscroll-behavior:contain}
+.reset-modal-card{position:relative;width:min(100%,540px);margin:auto;padding:clamp(22px,4vw,34px);border-radius:clamp(18px,2.5vw,24px);background:radial-gradient(circle at 100% 0,rgba(79,125,211,.13),transparent 38%),linear-gradient(145deg,#14243b 0%,#101b2d 78%);border-color:rgba(129,166,224,.3);box-shadow:0 30px 90px rgba(0,0,0,.56),inset 0 1px 0 rgba(255,255,255,.035)}
+.reset-modal-card:before{content:"";display:block;width:48px;height:4px;border-radius:99px;margin:0 auto 22px;background:linear-gradient(90deg,#4388f5,#7865e8);opacity:.95}
+.reset-modal-card .forgot-modal-heading{margin-bottom:clamp(18px,3vw,26px);text-align:left}
+.reset-modal-card .forgot-modal-heading .login-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(125,167,235,.2);border-radius:999px;background:rgba(69,125,220,.1);letter-spacing:.12em}
+.reset-modal-card .forgot-modal-heading h2{margin:13px 0 8px;font-size:clamp(1.35rem,3.5vw,1.7rem);line-height:1.2}
+.reset-modal-card .forgot-modal-heading p{max-width:440px;font-size:clamp(.84rem,2vw,.93rem)}
+.reset-modal-card form{display:block}
+.reset-modal-card form .mb-3,.reset-modal-card form .mb-4{margin-bottom:17px!important}
+.reset-modal-card .form-label{font-size:.84rem}
+.reset-modal-card .form-control{min-width:0;height:clamp(49px,7vw,54px);font-size:16px;padding-inline:14px}
+.reset-modal-card .login-password-group{display:flex;flex-wrap:nowrap}
+.reset-modal-card .login-password-group .form-control{flex:1 1 auto;width:1%;min-width:0}
+.reset-modal-card .login-password-group .toggle-password{flex:0 0 50px;min-width:50px;display:grid;place-items:center}
+.reset-modal-card .reset-otp-input{letter-spacing:.42em;padding-left:calc(14px + .42em);font-size:1.15rem}
+.reset-modal-card .reset-password-hint{font-size:.76rem;line-height:1.5}
+.reset-modal-card .forgot-modal-actions{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;margin-top:22px}
+.reset-modal-card .forgot-cancel-btn,.reset-modal-card .forgot-send-btn{min-width:0;min-height:52px;padding:11px 14px;font-size:.9rem;white-space:normal;line-height:1.25}
+.reset-modal-card .forgot-send-btn{box-shadow:0 9px 22px rgba(57,127,229,.22)}
+.reset-modal-card .alert{padding:12px 14px;font-size:.84rem;line-height:1.5}
+@media(max-width:575px){
+ .reset-modal-overlay{align-items:flex-start;padding: max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+ .reset-modal-card{width:100%;max-height:none;overflow:visible;padding:22px 18px 19px;border-radius:19px}
+ .reset-modal-card:before{margin-bottom:17px}
+ .reset-modal-card .forgot-modal-heading{margin-bottom:18px}
+ .reset-modal-card .forgot-modal-heading h2{font-size:1.35rem}
+ .reset-modal-card form .mb-3,.reset-modal-card form .mb-4{margin-bottom:14px!important}
+ .reset-modal-card .forgot-modal-actions{gap:9px;margin-top:18px}
+ .reset-modal-card .forgot-cancel-btn,.reset-modal-card .forgot-send-btn{min-height:49px;padding:10px 9px;font-size:.84rem}
+}
+@media(max-width:360px){
+ .reset-modal-overlay{padding-left:9px;padding-right:9px}
+ .reset-modal-card{padding:20px 15px 17px}
+ .reset-modal-card .forgot-modal-actions{grid-template-columns:1fr 1.15fr;gap:7px}
+ .reset-modal-card .forgot-cancel-btn,.reset-modal-card .forgot-send-btn{font-size:.8rem}
+ .reset-modal-card .reset-otp-input{letter-spacing:.3em}
+}
+@media(min-width:576px) and (max-height:720px){
+ .reset-modal-overlay{align-items:flex-start}
+ .reset-modal-card{margin:12px auto}
+}
+@media(prefers-reduced-motion:no-preference){
+ .reset-modal-card{animation:resetModalEnter .22s ease-out both}
+ @keyframes resetModalEnter{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+}
