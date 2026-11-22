@@ -3324,3 +3324,8 @@ html[data-bs-theme="light"] .forgot-modal-card .toggle-password{background:#f5f8
  .login-panel-heading{padding-top:20px}
 }
 @media(prefers-reduced-motion:reduce){.auth-theme-toggle{transition:none}}
+
+/* Ensure auth theme switch remains above modal/backdrop and touch targets */
+.auth-theme-toggle{z-index:99999!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;position:fixed!important;isolation:isolate}
+.auth-theme-toggle span{pointer-events:none}
+.auth-theme-toggle:active{transform:scale(.94)}
