@@ -24,7 +24,7 @@ class PasswordReset extends BaseController
   if((new GowaService())->sendText((string)$user['phone'],$message))return redirect()->to('/reset-password')->with('reset_email',$email)->with('message','Kode OTP berhasil dikirim ke WhatsApp yang terdaftar. Periksa pesan WhatsApp Anda.');
   $db->table('password_reset_tokens')->where('user_id',(int)$user['id'])->where('used_at',null)->update(['used_at'=>$now]);
   log_message('error','Password reset OTP delivery failed for user id {id}; check GOWA credentials, device id and API response.',['id'=>$user['id']]);
-  return redirect()->to('/forgot-password')->withInput()->with('error','Kode OTP gagal dikirim. Hubungi admin untuk memeriksa konfigurasi WA dan memastikan perangkat sedang terhubung, lalu coba lagi.');
+  return redirect()->to('/forgot-password')->withInput()->with('error','Kode OTP gagal dikirim. Periksa konfigurasi GOWA dan pastikan perangkat billing sedang terhubung, lalu coba lagi.');
  }
  public function resetForm(){
   if(session()->get('user_id'))return redirect()->to('/dashboard');

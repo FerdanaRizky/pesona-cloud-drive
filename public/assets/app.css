@@ -3034,31 +3034,3 @@ html[data-bs-theme="light"] .sidebar-copyright{color:#8290a5}
 @media(max-width:991px){
  .sidebar-footer{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 }
-
-
-/* Registration form: comfortable scrolling and touch-friendly controls on mobile */
-.registration-page .login-stage{min-height:100svh}
-.registration-page .login-card{width:100%;max-width:520px}
-.registration-page .login-panel-wrap{padding-top:clamp(28px,5vh,58px);padding-bottom:clamp(28px,5vh,58px)}
-.registration-page .login-panel-heading p{max-width:440px}
-.registration-page .login-card .mb-3,
-.registration-page .login-card .mb-4{margin-bottom:1rem!important}
-.registration-page .login-card .form-text{font-size:.78rem;line-height:1.45}
-.registration-page .login-card .form-control{min-height:50px}
-.registration-page .login-card .toggle-password{min-height:50px;min-width:52px}
-.registration-page .login-card .login-submit{margin-top:4px}
-.login-register-cta{display:flex;flex-direction:column;gap:10px;text-align:center;color:var(--bs-secondary-color);font-size:.88rem}
-.login-register-cta .btn{min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:11px;font-weight:700}
-@media(max-width:850px){
- .registration-page .login-stage{min-height:0}
- .registration-page .login-panel-wrap{padding-top:clamp(22px,5vw,34px);padding-bottom:clamp(24px,5vw,36px)}
- .registration-page .login-card{max-width:480px}
-}
-@media(max-width:575px){
- .registration-page .login-panel-wrap{padding:24px 18px}
- .registration-page .login-panel-heading p{font-size:.84rem}
- .registration-page .login-card .mb-3,
- .registration-page .login-card .mb-4{margin-bottom:.9rem!important}
- .registration-page .login-card .form-control{font-size:16px}
- .registration-page .login-card .toggle-password{min-width:50px;width:50px}
-}
