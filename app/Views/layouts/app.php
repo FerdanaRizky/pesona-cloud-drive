@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= esc($title ?? 'Pesona Cloud Drive') ?></title>
-<link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261122-logo-p">
+<link rel="icon" type="image/x-icon" href="/favicon.ico?v=e04d0bd">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/app.css?v=20261121-sidebar-version-footer-v1" rel="stylesheet">
 <script>(function(){window.pcdToggleTheme=function(event){if(event){event.preventDefault();event.stopPropagation();}var root=document.documentElement;var next=root.getAttribute('data-bs-theme')==='dark'?'light':'dark';root.setAttribute('data-bs-theme',next);try{localStorage.setItem('pcd-theme',next);}catch(e){}var icon=document.getElementById('themeToggleIcon');var button=document.getElementById('themeToggle');if(icon)icon.textContent=next==='light'?'☀':'☾';if(button){button.setAttribute('aria-label','Tema '+(next==='light'?'terang':'gelap')+'. Klik untuk mengganti tema.');button.setAttribute('title','Beralih ke tema '+(next==='light'?'gelap':'terang'));}return false;};})();</script></head>
