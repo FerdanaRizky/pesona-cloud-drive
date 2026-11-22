@@ -3100,7 +3100,7 @@ html[data-bs-theme="light"] .login-register-copy small{color:#71819a}
 
 
 /* Compact centered login layout inspired by the supplied reference */
-body.login-page{min-height:100vh;background:#f1f2f4!important;color:#172033;display:flex;align-items:center;justify-content:center;padding:24px 14px}
+body.login-page{min-height:100vh;background:radial-gradient(ellipse at 12% 18%,rgba(63,118,210,.25),transparent 34%),radial-gradient(ellipse at 90% 82%,rgba(117,80,207,.2),transparent 34%),#080f1d!important;color:#e7edf7;display:flex;align-items:center;justify-content:center;padding:24px 14px}
 .login-simple-stage{width:100%;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:28px 18px}
 .login-simple-card{width:min(100%,500px);padding:42px 34px 28px;background:#111d30;border:1px solid #2a3b55;border-radius:23px;box-shadow:0 24px 75px rgba(0,0,0,.38)}
 .login-simple-brand{display:flex;align-items:center;justify-content:center;gap:11px;margin:0 auto 36px;color:#f3f7ff;font-size:1.1rem;font-weight:850}
