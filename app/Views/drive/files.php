@@ -166,80 +166,57 @@ bulkModal?.addEventListener('hidden.bs.modal',()=>{if(selectionForm)selectionFor
 refreshSelection();
 const modalEl=document.getElementById('uploadModal');document.getElementById('openUploadPicker')?.addEventListener('click',function(){bootstrap.Modal.getOrCreateInstance(modalEl).show();});
 const uploadForm=document.querySelector('#uploadModal form'),uploadInput=document.getElementById('modalUploadInput'),uploadWrap=document.getElementById('uploadProgressWrap'),uploadFill=document.getElementById('uploadProgressFill'),uploadPercent=document.getElementById('uploadProgressPercent'),uploadLabel=document.getElementById('uploadProgressLabel'),uploadDetail=document.getElementById('uploadProgressDetail'),uploadSize=document.getElementById('uploadProgressSize'),uploadBar=document.getElementById('uploadProgressBar'),uploadStart=document.getElementById('startUploadButton'),uploadCancel=document.getElementById('uploadCancelButton');
-const uploadFileList=document.getElementById('uploadFileProgressList'),uploadPickerLabel=document.querySelector('label[for="modalUploadInput"]');let uploadRunning=false,uploadAbort=null,selectedUploadFiles=[];const isMobileUploadDevice=(()=>{const ua=navigator.userAgent||'';return /iPhone|iPad|iPod|Android/i.test(ua)||((navigator.platform==='MacIntel')&&navigator.maxTouchPoints>1);})();
+const uploadFileList=document.getElementById('uploadFileProgressList'),uploadPickerLabel=document.querySelector('label[for="modalUploadInput"]');let uploadRunning=false,uploadAbort=null;const isMobileUploadDevice=(()=>{const ua=navigator.userAgent||'';return /iPhone|iPad|iPod|Android/i.test(ua)||((navigator.platform==='MacIntel')&&navigator.maxTouchPoints>1);})();
 function formatUploadBytes(bytes){if(bytes<1024)return bytes+' B';const units=['KB','MB','GB','TB'];let value=bytes/1024,index=0;while(value>=1024&&index<units.length-1){value/=1024;index++;}return value.toFixed(value>=10?1:2)+' '+units[index];}
 function refreshCsrfFromResponse(html){try{const doc=new DOMParser().parseFromString(html,'text/html');const fresh=doc.querySelector('input[type="hidden"][name*="csrf"]');if(!fresh||!fresh.value)return false;document.querySelectorAll('input[type="hidden"][name="'+CSS.escape(fresh.name)+'"]').forEach(input=>input.value=fresh.value);return true;}catch(e){return false;}}
 function setFileState(row,state,detail){row.dataset.state=state;const status=row.querySelector('.upload-file-state');status.textContent=state==='done'?'Selesai':state==='failed'?'Gagal':state==='cancelled'?'Dibatalkan':state==='uploading'?'Mengunggah':'Menunggu';if(detail)row.querySelector('.upload-file-detail').textContent=detail;row.querySelector('.upload-file-fill').classList.toggle('bg-danger',state==='failed');}
-function uploadBatch(files){
+function uploadOneFile(files,done){
  const fd=new FormData(),csrf=uploadForm.querySelector('input[type="hidden"][name*="csrf"]');
  if(csrf)fd.append(csrf.name,csrf.value);
  fd.append('parent_id',uploadForm.querySelector('[name="parent_id"]').value);
  files.forEach(file=>fd.append('files[]',file,file.name));
  const xhr=new XMLHttpRequest();uploadAbort=xhr;xhr.open('POST',uploadForm.action,true);xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');if(csrf?.value)xhr.setRequestHeader('X-CSRF-TOKEN',csrf.value);
+ const totalBytes=files.reduce((n,file)=>n+file.size,0);
  xhr.upload.addEventListener('progress',e=>{
   if(!e.lengthComputable)return;
-  const percent=Math.min(100,Math.round(e.loaded/e.total*100));
+  const loaded=Math.min(e.loaded,totalBytes),percent=Math.min(100,Math.round(e.loaded/e.total*100));
   uploadFill.style.width=percent+'%';uploadPercent.textContent=percent+'%';uploadBar.setAttribute('aria-valuenow',String(percent));
-  uploadLabel.textContent='Mengunggah '+files.length+' file sekaligus...';
-  uploadDetail.textContent=formatUploadBytes(e.loaded)+' dari '+formatUploadBytes(e.total)+' terkirim';
+  uploadLabel.textContent='Mengunggah '+files.length+' file sekaligus...';uploadDetail.textContent=formatUploadBytes(loaded)+' terkirim dari '+formatUploadBytes(totalBytes);
+  let remaining=loaded;
+  files.forEach((file,index)=>{
+   const row=uploadFileList.children[index],sent=Math.max(0,Math.min(file.size,remaining));remaining-=sent;
+   const p=file.size?Math.round(sent/file.size*100):0;
+   row.querySelector('.upload-file-fill').style.width=p+'%';row.querySelector('.upload-file-percent').textContent=p+'%';
+   if(sent>=file.size){setFileState(row,'uploading','Terkirim · menunggu konfirmasi server');}
+   else if(sent>0){setFileState(row,'uploading',formatUploadBytes(sent)+' / '+formatUploadBytes(file.size));}
+  });
  });
  xhr.addEventListener('load',()=>{
   let payload=null;try{payload=JSON.parse(xhr.responseText);}catch(e){}
   if(payload?.csrf?.name&&payload?.csrf?.hash){document.querySelectorAll('input[type="hidden"][name="'+CSS.escape(payload.csrf.name)+'"]').forEach(input=>input.value=payload.csrf.hash);}
-  const errors=Array.isArray(payload?.errors)?payload.errors:[];
-  const failedNames=files.filter(file=>errors.some(error=>String(error).includes(file.name)));
-  const uploaded=Number(payload?.uploaded||0);
-  [...uploadFileList.children].forEach((row,index)=>{
-   const file=files[index],failed=failedNames.includes(file);
-   const ok=!failed&&(xhr.status>=200&&xhr.status<300&&payload?.success===true);
-   setFileState(row,ok?'done':failed?'failed':'failed',ok?'Tersimpan · '+formatUploadBytes(file.size):(errors.join(' ')||payload?.message||'Upload gagal atau status file tidak dapat dipastikan.'));
-   row.querySelector('.upload-file-fill').style.width=ok?'100%':'0%';
-   row.querySelector('.upload-file-percent').textContent=ok?'100%':'—';
-  });
-  uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;
-  const allOk=xhr.status>=200&&xhr.status<300&&payload?.success===true;
-  uploadFill.style.width='100%';uploadPercent.textContent='100%';uploadBar.setAttribute('aria-valuenow','100');
-  uploadLabel.textContent=allOk?'Semua '+files.length+' file berhasil diunggah':uploaded+' file tersimpan, sebagian upload gagal';
-  uploadDetail.textContent=payload?.message||('Selesai: '+uploaded+' dari '+files.length+' file tersimpan.');
-  uploadStart.textContent=allOk?'Upload selesai':'Selesai dengan kegagalan';
-  if(allOk||uploaded>0){setTimeout(()=>{window.location.href=uploadForm.action.replace('/upload','')+(uploadForm.querySelector('[name="parent_id"]').value!=='0'?'?folder='+uploadForm.querySelector('[name="parent_id"]').value:'');},allOk?900:3000);}
-  else {uploadStart.textContent='Coba lagi';}
+  if(xhr.status>=200&&xhr.status<300&&payload?.success===true){
+   files.forEach((file,index)=>{const row=uploadFileList.children[index];setFileState(row,'done','Tersimpan · '+formatUploadBytes(file.size));row.querySelector('.upload-file-fill').style.width='100%';row.querySelector('.upload-file-percent').textContent='100%';});
+   done(true);return;
+  }
+  const message=payload?.message||payload?.errors?.join(' ')||('HTTP '+xhr.status+(xhr.status===403?' · Token keamanan ditolak':' · Server menolak file'));
+  files.forEach((file,index)=>setFileState(uploadFileList.children[index],'failed',message));
+  done(false,xhr.status===403);
  });
- xhr.addEventListener('error',()=>{
-  uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;
-  uploadLabel.textContent='Koneksi terputus';uploadDetail.textContent='Upload gagal karena koneksi terputus. Silakan coba lagi.';uploadStart.textContent='Coba lagi';
-  [...uploadFileList.children].forEach(row=>setFileState(row,'failed','Koneksi terputus'));
- });
- xhr.addEventListener('abort',()=>{
-  uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;
-  uploadLabel.textContent='Upload dibatalkan';uploadDetail.textContent='Proses upload dibatalkan.';uploadStart.textContent='Coba lagi';
-  [...uploadFileList.children].forEach(row=>setFileState(row,'cancelled','Upload dibatalkan'));
- });
+ xhr.addEventListener('error',()=>{files.forEach((file,index)=>setFileState(uploadFileList.children[index],'failed','Koneksi terputus'));done(false);});
+ xhr.addEventListener('abort',()=>{files.forEach((file,index)=>setFileState(uploadFileList.children[index],'cancelled','Upload dibatalkan'));done(false,true);});
  xhr.send(fd);
 }
-uploadInput?.addEventListener('change',function(){
- selectedUploadFiles=Array.from(this.files||[]);
- document.getElementById('uploadSelectionInfo').textContent=selectedUploadFiles.length
-  ?selectedUploadFiles.length+' file dipilih. Semua file dikirim dalam satu proses upload.'
-  :'Pilih satu atau beberapa file sekaligus.';
-});
+uploadInput?.addEventListener('change',function(){const files=[...this.files];document.getElementById('uploadSelectionInfo').textContent=files.length?files.length+' file dipilih. Semua file dikirim sekaligus dalam satu proses upload.':'Anda dapat memilih lebih dari satu file.';if(files.length&&isMobileUploadDevice&&!uploadRunning){uploadLabel.textContent='File diterima. Memulai upload...';if(typeof uploadForm.requestSubmit==='function')uploadForm.requestSubmit();}});
 uploadForm?.addEventListener('submit',function(event){
- event.preventDefault();if(uploadRunning)return;
- const files=Array.from(uploadInput.files||selectedUploadFiles||[]);if(!files.length)return;
- const totalBytes=files.reduce((n,file)=>n+file.size,0);
- uploadRunning=true;
- if(uploadPickerLabel)uploadPickerLabel.classList.add('d-none');
- uploadInput.classList.add('d-none');document.getElementById('uploadSelectionInfo').classList.add('d-none');
- uploadWrap.classList.remove('d-none');uploadFileList.innerHTML='';
- uploadFill.classList.remove('bg-danger');uploadFill.style.width='0%';uploadPercent.textContent='0%';uploadBar.setAttribute('aria-valuenow','0');
- uploadLabel.textContent='Menyiapkan '+files.length+' file...';uploadDetail.textContent='Mengirim semua file dalam satu permintaan.';
- uploadSize.textContent=formatUploadBytes(totalBytes);uploadStart.disabled=true;uploadStart.textContent='Mengunggah...';uploadCancel.disabled=false;uploadInput.disabled=true;
- files.forEach(file=>{
-  const row=document.createElement('div');row.className='upload-file-row';
-  row.innerHTML='<div class="d-flex justify-content-between gap-2 align-items-center"><span class="upload-file-name"></span><strong class="upload-file-state">Menunggu</strong></div><div class="d-flex justify-content-between gap-2 mt-1"><small class="text-secondary upload-file-detail"></small><small class="text-secondary upload-file-percent">—</small></div>';
-  row.querySelector('.upload-file-name').textContent=file.name;row.querySelector('.upload-file-detail').textContent=formatUploadBytes(file.size);uploadFileList.appendChild(row);
+ event.preventDefault();if(uploadRunning||!uploadInput.files.length)return;
+ const files=[...uploadInput.files],totalBytes=files.reduce((n,file)=>n+file.size,0);
+ uploadRunning=true;if(uploadPickerLabel)uploadPickerLabel.classList.add('d-none');uploadInput.classList.add('d-none');document.getElementById('uploadSelectionInfo').classList.add('d-none');uploadWrap.classList.remove('d-none');uploadFileList.innerHTML='';uploadFill.classList.remove('bg-danger');uploadFill.style.width='0%';uploadPercent.textContent='0%';uploadBar.setAttribute('aria-valuenow','0');uploadLabel.textContent='Menyiapkan '+files.length+' file...';uploadDetail.textContent='0 dari '+files.length+' file dikirim';uploadSize.textContent=formatUploadBytes(totalBytes);uploadStart.disabled=true;uploadStart.textContent='Mengunggah...';uploadCancel.disabled=false;uploadInput.disabled=true;
+ files.forEach(file=>{const row=document.createElement('div');row.className='upload-file-row';row.innerHTML='<div class="d-flex justify-content-between gap-2 align-items-center"><span class="upload-file-name"></span><strong class="upload-file-state">Menunggu</strong></div><div class="progress upload-file-track mt-2"><div class="progress-bar upload-file-fill" style="width:0%"></div></div><div class="d-flex justify-content-between gap-2 mt-1"><small class="text-secondary upload-file-detail"></small><small class="text-secondary upload-file-percent">0%</small></div>';row.querySelector('.upload-file-name').textContent=file.name;row.querySelector('.upload-file-detail').textContent=formatUploadBytes(file.size);uploadFileList.appendChild(row);});
+ uploadOneFile(files,(ok,stop)=>{
+  uploadRunning=false;uploadAbort=null;uploadInput.disabled=false;uploadStart.disabled=false;uploadCancel.disabled=false;
+  if(ok){uploadStart.textContent='Upload selesai';uploadLabel.textContent='Semua '+files.length+' file berhasil diunggah';uploadDetail.textContent=files.length+' berhasil · '+formatUploadBytes(totalBytes);uploadFill.style.width='100%';uploadPercent.textContent='100%';uploadBar.setAttribute('aria-valuenow','100');setTimeout(()=>{window.location.href=uploadForm.action.replace('/upload','')+(uploadForm.querySelector('[name="parent_id"]').value!=='0'?'?folder='+uploadForm.querySelector('[name="parent_id"]').value:'');},900);}
+  else{uploadStart.textContent='Coba lagi';uploadLabel.textContent=stop?'Upload dibatalkan atau token keamanan tidak valid':'Upload gagal';uploadDetail.textContent='Periksa keterangan pada setiap file lalu coba lagi.';}
  });
- uploadBatch(files);
 });
 uploadCancel?.addEventListener('click',function(){if(uploadAbort&&uploadRunning)uploadAbort.abort();});
 modalEl?.addEventListener('hidden.bs.modal',function(){if(uploadRunning&&uploadAbort){uploadAbort.abort();return;}window.setTimeout(()=>{if(uploadRunning||selectedUploadFiles.length||uploadInput.files?.length)return;uploadInput.disabled=false;uploadInput.classList.remove('d-none');if(uploadPickerLabel)uploadPickerLabel.classList.remove('d-none');document.getElementById('uploadSelectionInfo').classList.remove('d-none');uploadStart.disabled=false;uploadStart.textContent='Mulai Upload';uploadWrap.classList.add('d-none');uploadFileList.innerHTML='';},1800);});
