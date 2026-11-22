@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id" data-bs-theme="dark">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css?v=20261122-reset-modal-responsive-v2" rel="stylesheet"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><script>(function(){try{var t=localStorage.getItem("pcd-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-bs-theme",t);}catch(e){}})();</script><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css?v=20261122-auth-theme-responsive-v1" rel="stylesheet"></head>
 <body class="login-bg login-page forgot-password-page reset-password-page">
 <main class="login-stage forgot-password-backdrop" aria-hidden="true">
 <section class="login-showcase"><div class="login-brand"><span class="brand-mark">P</span><span>Pesona <small>Cloud Drive</small></span></div><div class="login-showcase-copy"><span class="login-kicker">KEAMANAN AKUN</span><h1>Verifikasi<br><span>dan buat password baru.</span></h1><p>Kode OTP berlaku selama 5 menit dan hanya dapat digunakan sekali.</p></div><div class="login-showcase-footer">PESONA CLOUD DRIVE <span>•</span> PERSONAL WORKSPACE</div></section>
@@ -24,5 +24,5 @@
 <?php endif ?>
 </section>
 </div>
-<script src="/assets/app.js?v=20261121-reset-password-eye-2" defer></script>
+<script src="/assets/app.js?v=20261122-auth-theme-responsive-v1" defer></script>
 </body></html>
