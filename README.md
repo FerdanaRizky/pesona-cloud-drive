@@ -1,38 +1,4 @@
-**1. Installer aaPanel**
-
-Updated
-
-File: `install-aapanel.sh`
-
-- Mendeteksi atribut immutable (`chattr +i`) pada `.user.ini`.
-- Melepaskan atribut immutable sementara ketika diperlukan.
-- Memperbarui konfigurasi `open_basedir`.
-- Mengembalikan atribut immutable jika sebelumnya memang aktif.
-- Mempertahankan direktori yang sebelumnya diizinkan.
-- Tidak mengubah `.user.ini` tingkat website aaPanel.
-- Tidak menghentikan instalasi hanya karena konfigurasi tertentu tidak dapat diubah; installer memberikan peringatan.
-
-  Commit: `2b27099`
-
-  [Lihat perubahan installer](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/2b27099bdda2f0809eef01352df1c02af539caf9?utm_source=chatgpt.com)
-
-  **2. README**
-
-  Updated
-
-  Ditambahkan panduan instalasi, konfigurasi, dan troubleshooting.
-
-  [Lihat perubahan README](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/eae870e4d1b78b2ba222dab144fe633dacbc7be0?utm_source=chatgpt.com)
-
-  **3. Dokumentasi aaPanel**
-
-  Updated
-
-  Ditambahkan panduan penyelesaian HTTP 500, `open_basedir`, permission, database, rewrite, Composer, dan upload.
-
-  [Lihat perubahan dokumentasi](https://github.com/FerdanaRizky/pesona-cloud-drive/commit/e713252dbf87988f96fde879c9627d464b73afcd?utm_source=chatgpt.com)
-
-## **2. Cara instalasi baru secara keseluruhan**
+## **1. Cara instalasi baru secara keseluruhan**
 
 Ikuti urutan ini saat memasang Pesona Cloud Drive pada VPS baru.
 
@@ -87,7 +53,7 @@ Installer akan meminta:
 Contoh struktur:
 
 ```
-/www/wwwroot/cloud.domainanda.com/
+/www/wwwroot/domainanda.com/
 ├── app-src/
 │   ├── app/
 │   ├── public/
@@ -96,7 +62,7 @@ Contoh struktur:
 │   ├── spark
 │   └── .env
 
-/www/wwwroot/cloud.domainanda.com-private/
+/www/wwwroot/domainanda.com-private/
 └── file pengguna
 ```
 
@@ -107,7 +73,7 @@ Private storage harus berada di luar document root website.
 Atur document root menjadi:
 
 ```
-/www/wwwroot/cloud.domainanda.com/app-src/public
+/www/wwwroot/domainanda.com/app-src/public
 ```
 
 Pastikan Nginx memiliki konfigurasi rewrite berikut di dalam blok `server`:
@@ -134,8 +100,9 @@ Installer versi terbaru akan mengatur `.user.ini` aplikasi secara otomatis.
 
 Konfigurasi minimal harus mengizinkan:
 
-
+```
 open_basedir=/www/wwwroot/cloud.domainanda.com/app-src/:/www/wwwroot/cloud.domainanda.com-private/:/tmp/
+```
 
 Jika aaPanel memiliki Base directory limit atau Anti-XSS yang mengunci konfigurasi, tambahkan kedua direktori tersebut ke whitelist aaPanel.
 
@@ -144,14 +111,14 @@ Jika aaPanel memiliki Base directory limit atau Anti-XSS yang mengunci konfigura
 Jalankan:
 
 ```
-cd /www/wwwroot/cloud.domainanda.com/app-src
+cd /www/wwwroot/domainanda.com/app-src
 php spark migrate
 ```
 
 Kemudian buka:
 
 ```
-https://cloud.domainanda.com/setup
+https://domainanda.com/setup
 ```
 
 Buat akun Superadmin pertama, termasuk nomor WhatsApp yang diminta pada halaman setup.
@@ -184,7 +151,7 @@ Operation not permitted
 Periksa:
 
 ```
-INI="/www/wwwroot/cloud.domainanda.com/app-src/public/.user.ini"
+INI="/www/wwwroot/domainanda.com/app-src/public/.user.ini"
 lsattr "$INI"
 ```
 
@@ -200,7 +167,7 @@ Perbaiki konfigurasi:
 
 ```
 cat > "$INI" <<'EOF'
-open_basedir=/www/wwwroot/cloud.domainanda.com/app-src/:/www/wwwroot/cloud.domainanda.com-private/:/tmp/
+open_basedir=/www/wwwroot/domainanda.com/app-src/:/www/wwwroot/domainanda.com-private/:/tmp/
 EOF
 ```
 
@@ -231,7 +198,7 @@ Sebelum update server produksi, tetap buat backup database dan private storage.
 ## **5. Perbaiki batas upload Nginx
 Di aaPanel, buka:
 
-Website → cloud.pesonawifi.my.id → Config
+Website → domain.com → Config
 
 Tambahkan di dalam blok server HTTPS:
 ```
