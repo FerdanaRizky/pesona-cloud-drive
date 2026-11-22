@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id" data-bs-theme="dark">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><script>(function(){try{var t=localStorage.getItem("pcd-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-bs-theme",t);}catch(e){}})();</script><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css?v=20261122-auth-theme-responsive-v1" rel="stylesheet"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= esc($title) ?></title><script>(function(){try{var t=localStorage.getItem("pcd-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-bs-theme",t);}catch(e){}})();</script><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/assets/app.css?v=20261122-auth-theme-responsive-v2" rel="stylesheet"></head>
 <button type="button" class="auth-theme-toggle" id="themeToggle" aria-label="Ganti tema"><span id="themeToggleIcon" aria-hidden="true">☾</span></button><body class="login-bg login-page">
 <main class="login-stage">
 <section class="login-showcase">
