@@ -2,12 +2,12 @@
 set -Eeuo pipefail
 
 PHP_PREFIX="${1:-}"
-TIMEOUT="${PCD_FPM_TIMEOUT:-300}"
+TIMEOUT="${PCD_FPM_TIMEOUT:-1800}"
 
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Jalankan sebagai root."; exit 1; }
 [[ -n "$PHP_PREFIX" && -d "$PHP_PREFIX" ]] || { echo "[ERROR] PHP prefix tidak valid: $PHP_PREFIX"; exit 1; }
-[[ "$TIMEOUT" =~ ^[0-9]+$ ]] && (( TIMEOUT >= 120 && TIMEOUT <= 900 )) || {
-  echo "[ERROR] Timeout harus 120-900 detik."; exit 1;
+[[ "$TIMEOUT" =~ ^[0-9]+$ ]] && (( TIMEOUT >= 120 && TIMEOUT <= 3600 )) || {
+  echo "[ERROR] Timeout harus 120-3600 detik."; exit 1;
 }
 
 CONF="$PHP_PREFIX/etc/php-fpm.conf"
