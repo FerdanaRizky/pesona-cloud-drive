@@ -38,6 +38,12 @@ set_directive() {
 
 set_directive "$CONF" request_terminate_timeout "${TIMEOUT}s"
 
+# Keep PHP's own execution limit above the FPM worker limit.
+PHP_INI="$PHP_PREFIX/etc/php.ini"
+if [[ -f "$PHP_INI" ]]; then
+  set_directive "$PHP_INI" max_execution_time 3600
+fi
+
 # Pool-level directives override the global value, so align active pool files too.
 if [[ -d "$PHP_PREFIX/etc/php-fpm.d" ]]; then
   while IFS= read -r -d '' pool; do
