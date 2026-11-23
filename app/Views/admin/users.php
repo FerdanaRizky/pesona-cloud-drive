@@ -342,15 +342,21 @@ document.addEventListener('DOMContentLoaded', function () {
   #userCardsGrid .user-status-inline {
     width: 100%;
     display: flex;
-    flex-direction: row;
+    flex-direction: row !important;
     align-items: center;
     justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  #userCardsGrid .user-status-inline > .status-pill {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
   #userCardsGrid .user-status-switch-inline,
   #userCardsGrid .user-delete-inline-form {
-    display: flex;
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: none;
     flex: 0 0 auto;
     align-items: center;
     margin: 0;
