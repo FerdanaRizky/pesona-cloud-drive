@@ -139,6 +139,13 @@ class Files extends BaseController
             return redirect()->back()->with('error', 'Direktori penyimpanan tidak dapat dibuat.');
         }
 
+        if (!is_writable($dir)) {
+            log_message('error', 'Cloud Drive upload storage is not writable by PHP-FPM: {path}', ['path' => $dir]);
+            $message = 'Penyimpanan file tidak dapat ditulis oleh PHP-FPM. Periksa pemilik dan izin private storage, lalu jalankan updater.';
+            if ($this->request->isAJAX()) return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => $message, 'csrf' => ['name' => csrf_token(), 'hash' => csrf_hash()]]);
+            return redirect()->back()->with('error', $message);
+        }
+
         $success = 0;
         $errors = [];
         $db = db_connect();
