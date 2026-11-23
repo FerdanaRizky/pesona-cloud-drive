@@ -153,6 +153,10 @@ fi
 }
 
 rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
+if [[ -d "$SOURCE_DIR/tools" ]]; then
+    mkdir -p "$APP_DIR/tools"
+    rsync -a "$SOURCE_DIR/tools/" "$APP_DIR/tools/"
+fi
 mkdir -p "$APP_DIR/public/assets"
 rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
 
@@ -280,6 +284,16 @@ if ! "$PHP_BIN" -r 'exit(function_exists("putenv") ? 0 : 1);'; then
     exit 1
 fi
 echo "[OK] Fungsi PHP putenv() tersedia."
+
+# Collect system facts with CLI PHP; failures are non-fatal on fresh installations.
+if [[ -f "$APP_DIR/tools/collect-system-info.php" ]]; then
+    "$PHP_BIN" "$APP_DIR/tools/collect-system-info.php" || echo "[WARN] Snapshot informasi sistem dilewati."
+    if [[ -f "$APP_DIR/writable/cache/system-info.json" ]]; then
+        if id www >/dev/null 2>&1; then chown www:www "$APP_DIR/writable/cache/system-info.json"; chmod 640 "$APP_DIR/writable/cache/system-info.json"
+        elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$APP_DIR/writable/cache/system-info.json"; chmod 640 "$APP_DIR/writable/cache/system-info.json"
+        fi
+    fi
+}
 
 echo
 echo "[OK] Source Git : $SOURCE_DIR"
