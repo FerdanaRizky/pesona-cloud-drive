@@ -347,6 +347,8 @@ document.addEventListener('DOMContentLoaded', function () {
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: 10px;
+    border-color: transparent !important;
+    box-shadow: none !important;
   }
   #userCardsGrid .user-status-inline > .status-pill {
     flex: 0 0 auto;
