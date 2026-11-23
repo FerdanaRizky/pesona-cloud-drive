@@ -50,6 +50,21 @@ if id "$WEB_USER" >/dev/null 2>&1; then
     chown "$WEB_USER":"$WEB_USER" "$APP_DIR/.env"
     chmod 640 "$APP_DIR/.env"
     chown -R "$WEB_USER":"$WEB_USER" "$APP_DIR/writable"
+
+    # Read private storage path from the existing .env; never replace or delete user files.
+    STORAGE_PATH="$(sed -n -E "s/^[[:space:]]*storage\\.privatePath[[:space:]]*=[[:space:]]*['\\\"]?([^'\\\"]+)['\\\"]?[[:space:]]*$/\\1/p" "$APP_DIR/.env" | tail -n1)"
+    if [[ -z "$STORAGE_PATH" ]]; then
+        STORAGE_PATH="/www/wwwroot/$(basename "$(dirname "$APP_DIR")")-private"
+        echo "[WARN] storage.privatePath tidak ditemukan di .env; gunakan default: $STORAGE_PATH"
+    fi
+    mkdir -p "$STORAGE_PATH"
+    chown -R "$WEB_USER":"$WEB_USER" "$STORAGE_PATH"
+    find "$STORAGE_PATH" -type d -exec chmod 750 {} +
+    find "$STORAGE_PATH" -type f -exec chmod 640 {} +
+    echo "[INFO] Private storage disiapkan untuk user PHP: $WEB_USER"
+else
+    echo "[ERROR] User PHP-FPM '$WEB_USER' tidak ditemukan. Set WEB_USER sesuai user pool PHP-FPM lalu jalankan ulang."
+    exit 1
 fi
 
 echo "[OK] Update selesai."
