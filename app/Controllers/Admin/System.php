@@ -13,6 +13,7 @@ class System extends BaseController
         $memory = $this->readMemory();
         $snapshotServer = $snapshot['server'] ?? [];
         $snapshotPanel = $snapshot['panel'] ?? [];
+        $snapshotRuntime = $snapshot['runtime'] ?? [];
         $diskPath = WRITEPATH;
         $diskTotal = $this->safeDiskSpace($diskPath, true);
         $diskFree = $this->safeDiskSpace($diskPath, false);
@@ -62,7 +63,7 @@ class System extends BaseController
                 'timezone' => date_default_timezone_get(),
                 'environment' => ENVIRONMENT,
                 'server_time' => date('Y-m-d H:i:s T'),
-                'docker' => $this->detectContainer(),
+                'docker' => $snapshotRuntime['docker'] ?? $this->detectContainer(),
             ],
             'panel' => [
                 'installed' => $snapshotPanel['installed'] ?? $this->safeIsDirectory('/www/server/panel'),
