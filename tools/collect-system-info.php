@@ -8,7 +8,21 @@ function sysBytes(int $n): string { $u=['B','KB','MB','GB','TB']; $i=0; $v=(floa
 $os=[];
 foreach(preg_split('/\r?\n/',sysRead('/etc/os-release')) as $line){if(strpos($line,'=')!==false){[$k,$v]=explode('=',$line,2);$os[$k]=trim($v," \t\n\r\0\x0B\"'");}}
 $cpu=sysRead('/proc/cpuinfo'); $model='Tidak tersedia';
-if(preg_match('/^(?:model name|Hardware|Processor)\s*:\s*(.+)$/mi',$cpu,$m))$model=trim($m[1]);
+if(preg_match('/^(?:model name|Hardware|Processor)\s*:\s*(.+)$/mi',$cpu,$m)) {
+    $candidate=trim($m[1]);
+    if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate)) $model=$candidate;
+}
+// Some virtual machines expose a numeric placeholder in cpuinfo; try lscpu as a fallback.
+if($model==='Tidak tersedia' && function_exists('shell_exec')) {
+    $disabled=array_filter(array_map('trim',explode(',',(string)ini_get('disable_functions'))));
+    if(!in_array('shell_exec',$disabled,true)) {
+        $lscpu=@shell_exec('LC_ALL=C lscpu 2>/dev/null');
+        if(is_string($lscpu) && preg_match('/^(?:Model name|Model|Vendor ID):\s*(.+)$/mi',$lscpu,$m)) {
+            $candidate=trim($m[1]);
+            if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate)) $model=$candidate;
+        }
+    }
+}
 $cores=preg_match_all('/^processor\s*:/m',$cpu);
 $mem=[];
 foreach(preg_split('/\r?\n/',sysRead('/proc/meminfo')) as $line){if(preg_match('/^(MemTotal|MemAvailable):\s+(\d+)/',$line,$m))$mem[$m[1]]=(int)$m[2]*1024;}
