@@ -20,6 +20,10 @@ git -C "$REPO_DIR" pull --ff-only
 
 echo "[INFO] Menyalin kode aplikasi dan aset (file .env, vendor, storage, dan data pengguna tidak disentuh)..."
 rsync -a "$REPO_DIR/app/" "$APP_DIR/app/"
+if [[ -d "$REPO_DIR/tools" ]]; then
+    mkdir -p "$APP_DIR/tools"
+    rsync -a "$REPO_DIR/tools/" "$APP_DIR/tools/"
+fi
 if [[ -f "$REPO_DIR/.user.ini" ]]; then
     install -m 644 "$REPO_DIR/.user.ini" "$APP_DIR/.user.ini"
 fi
@@ -50,6 +54,16 @@ if id "$WEB_USER" >/dev/null 2>&1; then
     chown "$WEB_USER":"$WEB_USER" "$APP_DIR/.env"
     chmod 640 "$APP_DIR/.env"
     chown -R "$WEB_USER":"$WEB_USER" "$APP_DIR/writable"
+
+    # Refresh privileged server facts using PHP CLI (outside web open_basedir).
+    if [[ -f "$APP_DIR/tools/collect-system-info.php" ]]; then
+        echo "[INFO] Memperbarui snapshot informasi sistem..."
+        php "$APP_DIR/tools/collect-system-info.php" || echo "[WARN] Snapshot sistem dilewati; aplikasi tetap dapat berjalan."
+        if [[ -f "$APP_DIR/writable/cache/system-info.json" ]]; then
+            chown "$WEB_USER":"$WEB_USER" "$APP_DIR/writable/cache/system-info.json"
+            chmod 640 "$APP_DIR/writable/cache/system-info.json"
+        fi
+    fi
 
     # Read private storage path from the existing .env; never replace or delete user files.
     STORAGE_PATH="$(sed -n -E "s/^[[:space:]]*storage\\.privatePath[[:space:]]*=[[:space:]]*['\\\"]?([^'\\\"]+)['\\\"]?[[:space:]]*$/\\1/p" "$APP_DIR/.env" | tail -n1)"
