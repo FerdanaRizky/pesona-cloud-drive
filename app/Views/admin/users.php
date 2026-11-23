@@ -311,6 +311,96 @@ document.addEventListener('DOMContentLoaded', function () {
 #userCardsGrid .user-card-controls{display:block}
 #userCardsGrid .user-password-form{width:100%;height:auto}
 
+
+/* Mobile layout: keep account status, toggle, and delete action in one clear row. */
+@media (max-width: 600px) {
+  #userCardsGrid .user-management-card {
+    padding: 14px;
+    min-width: 0;
+  }
+  #userCardsGrid .user-card-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  #userCardsGrid .user-identity {
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+  }
+  #userCardsGrid .user-card-status-area {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #userCardsGrid .user-status-inline {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  #userCardsGrid .user-status-switch-inline,
+  #userCardsGrid .user-delete-inline-form {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    margin: 0;
+  }
+  #userCardsGrid .user-status-switch-inline .account-switch {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    min-height: 40px;
+  }
+  #userCardsGrid .user-status-switch-inline .account-switch-track {
+    width: 48px;
+    height: 28px;
+    padding: 3px;
+  }
+  #userCardsGrid .user-status-switch-inline .account-switch-thumb {
+    width: 22px;
+    height: 22px;
+  }
+  #userCardsGrid .user-status-switch-inline input:checked + .account-switch-track .account-switch-thumb {
+    transform: translateX(20px);
+  }
+  #userCardsGrid .user-delete-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  #userCardsGrid .user-delete-icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  #userCardsGrid .user-profile-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  #userCardsGrid .user-profile-detail {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  #userCardsGrid .user-storage-heading {
+    align-items: flex-start !important;
+    gap: 8px;
+  }
+  #userCardsGrid .user-storage-heading > div {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 </style>
 
 <script>
