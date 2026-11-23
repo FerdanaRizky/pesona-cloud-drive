@@ -35,7 +35,11 @@ Login SSH sebagai `root`, kemudian jalankan:
 **Perintah instalasi baru**
 
 ```
-curl -fsSL https://raw.githubusercontent.com/FerdanaRizky/pesona-cloud-drive/main/install-aapanel.sh | bash
+git clone https://github.com/FerdanaRizky/pesona-cloud-drive.git
+cd pesona-cloud-drive
+
+chmod +x install-aapanel.sh
+bash install-aapanel.sh
 ```
 
 &#x20;Salin perintah
