@@ -444,7 +444,7 @@ class Files extends BaseController
                 return redirect()->back()->with('error', 'Folder gagal dipindahkan ke sampah. Silakan coba kembali.');
             }
             $db->transCommit();
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             $db->transRollback();
             log_message('error', 'Folder trash failed: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Folder gagal dipindahkan ke sampah. Silakan coba kembali.');
