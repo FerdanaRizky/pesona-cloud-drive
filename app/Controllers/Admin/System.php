@@ -17,8 +17,7 @@ class System extends BaseController
         try {
             $dbVersion = (string) db_connect()->getVersion();
         } catch (\Throwable $e) {
-            // Keep the system information page available if the database driver
-            // cannot report its server version.
+            // Informasi sistem tetap dapat dibuka jika versi DB tidak dapat dibaca.
         }
 
         $data = [
@@ -40,9 +39,12 @@ class System extends BaseController
                 'webserver' => $this->detectWebServer(),
                 'php' => PHP_VERSION,
                 'php_sapi' => PHP_SAPI,
-                'php_extensions' => get_loaded_extensions(),
                 'database' => $dbVersion,
                 'codeigniter' => CodeIgniter::CI_VERSION,
+                'openssl' => defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : 'Tidak tersedia',
+                'timezone' => date_default_timezone_get(),
+                'environment' => ENVIRONMENT,
+                'server_time' => date('Y-m-d H:i:s T'),
                 'docker' => is_file('/.dockerenv') || is_dir('/run/.containerenv') ? 'Berjalan di container' : 'Tidak terdeteksi',
             ],
             'panel' => [
@@ -120,11 +122,7 @@ class System extends BaseController
     private function readAaPanelVersion(): string
     {
         if (!is_dir('/www/server/panel')) return 'Tidak terpasang / tidak terdeteksi';
-        $files = [
-            '/www/server/panel/data/version.pl',
-            '/www/server/panel/data/version.txt',
-        ];
-        foreach ($files as $file) {
+        foreach (['/www/server/panel/data/version.pl', '/www/server/panel/data/version.txt'] as $file) {
             if (is_readable($file)) {
                 $version = trim((string) file_get_contents($file));
                 if ($version !== '') return $version;
