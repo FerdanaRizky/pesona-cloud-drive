@@ -362,23 +362,54 @@ class Files extends BaseController
         $uid = (int) session()->get('user_id');
         $ids = array_values(array_unique(array_filter(array_map('intval', (array) $this->request->getPost('file_ids')))));
         if (!$ids) return redirect()->back()->with('error', 'Pilih minimal satu file untuk diunduh.');
+
+        // Release the PHP file-session lock before database/ZIP work so thumbnails
+        // and other requests from the same user do not queue behind this download.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        // Fetch all selected files in one query instead of one query per file.
+        $files = (new DriveFileModel())
+            ->whereIn('id', $ids)
+            ->where('user_id', $uid)
+            ->where('is_trashed', 0)
+            ->findAll();
+
+        if (!$files) return redirect()->back()->with('error', 'File terpilih tidak ditemukan.');
+
+        // Keep the original selection order while using the batch query result.
+        $filesById = [];
+        foreach ($files as $file) {
+            if (!empty($file['storage_path']) && is_file($file['storage_path'])) {
+                $filesById[(int) $file['id']] = $file;
+            }
+        }
         $files = [];
         foreach ($ids as $id) {
-            $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
-            if ($file && is_file($file['storage_path'])) $files[] = $file;
+            if (isset($filesById[$id])) $files[] = $filesById[$id];
         }
+
         if (!$files) return redirect()->back()->with('error', 'File terpilih tidak ditemukan.');
         if (count($files) === 1) {
             $file = $files[0];
             $this->logActivity($uid, 'file.download', 'Mengunduh file: ' . $file['original_name']);
             return $this->response->download($file['storage_path'], null)->setFileName(basename($file['original_name']));
         }
-        if (!class_exists(\ZipArchive::class)) return redirect()->back()->with('error', 'Fitur unduh banyak file membutuhkan ekstensi PHP ZipArchive.');
+
+        if (!class_exists(\\ZipArchive::class)) return redirect()->back()->with('error', 'Fitur unduh banyak file membutuhkan ekstensi PHP ZipArchive.');
+
         $zipName = 'pesona-cloud-' . date('Ymd-His') . '-' . bin2hex(random_bytes(3)) . '.zip';
         $zipPath = WRITEPATH . 'cache/' . $zipName;
-        if (!is_dir(dirname($zipPath))) mkdir(dirname($zipPath), 0770, true);
-        $zip = new \ZipArchive();
-        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) return redirect()->back()->with('error', 'Arsip ZIP tidak dapat dibuat.');
+        if (!is_dir(dirname($zipPath)) && !mkdir(dirname($zipPath), 0770, true) && !is_dir(dirname($zipPath))) {
+            return redirect()->back()->with('error', 'Direktori sementara ZIP tidak dapat dibuat.');
+        }
+
+        $zip = new \\ZipArchive();
+        if ($zip->open($zipPath, \\ZipArchive::CREATE | \\ZipArchive::OVERWRITE) !== true) {
+            return redirect()->back()->with('error', 'Arsip ZIP tidak dapat dibuat.');
+        }
+
         $usedNames = [];
         foreach ($files as $file) {
             $name = basename($file['original_name']);
@@ -390,11 +421,31 @@ class Files extends BaseController
                 $candidate = $base . ' (' . $n++ . ')' . ($ext !== '' ? '.' . $ext : '');
             }
             $usedNames[strtolower($candidate)] = true;
-            $zip->addFile($file['storage_path'], $candidate);
+
+            if (!$zip->addFile($file['storage_path'], $candidate)) {
+                $zip->close();
+                @unlink($zipPath);
+                return redirect()->back()->with('error', 'Gagal menambahkan file ke arsip ZIP: ' . $name);
+            }
+            // Files are already stored on disk; avoid spending CPU recompressing them.
+            $zip->setCompressionName($candidate, \\ZipArchive::CM_STORE);
             $this->logActivity($uid, 'file.download', 'Mengunduh melalui arsip: ' . $file['original_name']);
         }
-        $zip->close();
-        return $this->response->download($zipPath, null)->setFileName('Pesona-Cloud-Drive-' . date('Ymd-His') . '.zip')->setContentType('application/zip');
+
+        if (!$zip->close()) {
+            @unlink($zipPath);
+            return redirect()->back()->with('error', 'Arsip ZIP gagal diselesaikan.');
+        }
+
+        // The framework sends the download response before PHP shutdown callbacks run.
+        // Remove this generated temporary archive after the response has been sent.
+        register_shutdown_function(static function () use ($zipPath): void {
+            if (is_file($zipPath)) @unlink($zipPath);
+        });
+
+        return $this->response->download($zipPath, null)
+            ->setFileName('Pesona-Cloud-Drive-' . date('Ymd-His') . '.zip')
+            ->setContentType('application/zip');
     }
 
     public function renameFolder(int $id)
