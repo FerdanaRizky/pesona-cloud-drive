@@ -22,6 +22,9 @@ if (( ${#MATCHES[@]} != 1 )); then
 fi
 CONF="${MATCHES[0]}"
 
+ROLLBACK_COPY="$CONF.pcd-rollback.$$"
+cp -a "$CONF" "$ROLLBACK_COPY"
+
 python3 - "$CONF" "$TIMEOUT" <<'PY'
 import pathlib, re, shutil, sys, time
 path = pathlib.Path(sys.argv[1])
@@ -64,7 +67,13 @@ else:
     print("[OK] Timeout Nginx sudah sesuai.")
 PY
 
-"$NGINX_BIN" -t
+if ! "$NGINX_BIN" -t; then
+  cp -a "$ROLLBACK_COPY" "$CONF"
+  rm -f "$ROLLBACK_COPY"
+  echo "[ERROR] nginx -t gagal; konfigurasi vhost dikembalikan seperti semula."
+  exit 1
+fi
+rm -f "$ROLLBACK_COPY"
 if [[ -x /etc/init.d/nginx ]]; then
   /etc/init.d/nginx reload
 elif command -v systemctl >/dev/null 2>&1; then
