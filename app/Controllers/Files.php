@@ -438,7 +438,7 @@ class Files extends BaseController
         $db = db_connect();
         $db->transBegin();
         try {
-            $this->trashFolderTree($id, $uid, $counts);
+            $this->trashFolderTreeWithCounts($id, $uid, $counts);
             if ($db->transStatus() === false) {
                 $db->transRollback();
                 return redirect()->back()->with('error', 'Folder gagal dipindahkan ke sampah. Silakan coba kembali.');
@@ -454,7 +454,7 @@ class Files extends BaseController
         return redirect()->to('/files')->with('message', 'Folder beserta seluruh isi (' . $counts['folders'] . ' folder dan ' . $counts['files'] . ' file) dipindahkan ke Sampah. Anda masih dapat memulihkannya dari menu Sampah.');
     }
 
-    private function trashFolderTree(int $folderId, int $uid, array &$counts): void
+    private function trashFolderTreeWithCounts(int $folderId, int $uid, array &$counts): void
     {
         $folderModel = new DriveFolderModel();
         $fileModel = new DriveFileModel();
