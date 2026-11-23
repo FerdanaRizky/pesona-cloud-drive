@@ -96,7 +96,7 @@ const bulkModal=document.getElementById('bulkActionModal');
 const bulkActionUrl={
  share:<?= json_encode(site_url('files/bulk-share')) ?>,
  move:<?= json_encode(site_url('files/bulk-move')) ?>,
- download:<?= json_encode(site_url('files/bulk-download')) ?>,
+ download:<?= json_encode(base_url('files/bulk-download')) ?>,
  trash:<?= json_encode(site_url('files/bulk-trash')) ?>
 };
 function checkedBulkItems(){return selectedUnique();}
