@@ -65,7 +65,8 @@ for candidate in "${PHP_CANDIDATES[@]}"; do
        && "$candidate" -m 2>/dev/null | grep -qi '^mysqli$' \
        && "$candidate" -m 2>/dev/null | grep -qi '^intl$' \
        && "$candidate" -m 2>/dev/null | grep -qi '^mbstring$' \
-       && "$candidate" -m 2>/dev/null | grep -qi '^fileinfo
+       && "$candidate" -m 2>/dev/null | grep -qi '^fileinfo$' \
+       && "$candidate" -m 2>/dev/null | grep -qi '^zip$'; then
         PHP_BIN="$candidate"
         break
     fi
