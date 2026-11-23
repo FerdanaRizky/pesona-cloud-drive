@@ -8,8 +8,11 @@ class System extends BaseController
 {
     public function index()
     {
+        $snapshot = $this->readSystemSnapshot();
         $os = $this->readOsRelease();
         $memory = $this->readMemory();
+        $snapshotServer = $snapshot['server'] ?? [];
+        $snapshotPanel = $snapshot['panel'] ?? [];
         $diskPath = WRITEPATH;
         $diskTotal = $this->safeDiskSpace($diskPath, true);
         $diskFree = $this->safeDiskSpace($diskPath, false);
@@ -35,14 +38,14 @@ class System extends BaseController
         $data = [
             'title' => 'Informasi Sistem',
             'server' => [
-                'hostname' => gethostname() ?: 'Tidak tersedia',
-                'os' => $os['PRETTY_NAME'] ?? 'Tidak dapat dibaca oleh PHP (open_basedir)',
-                'kernel' => php_uname('r'),
-                'architecture' => php_uname('m'),
-                'cpu_model' => $this->readCpuModel(),
-                'cpu' => $this->countCpuCores(),
-                'memory' => $memory,
-                'uptime' => $this->readUptime(),
+                'hostname' => $snapshotServer['hostname'] ?? (gethostname() ?: 'Tidak tersedia'),
+                'os' => $snapshotServer['os'] ?? ($os['PRETTY_NAME'] ?? 'Tidak dapat dibaca oleh PHP (open_basedir)'),
+                'kernel' => $snapshotServer['kernel'] ?? php_uname('r'),
+                'architecture' => $snapshotServer['architecture'] ?? php_uname('m'),
+                'cpu_model' => $snapshotServer['cpu_model'] ?? $this->readCpuModel(),
+                'cpu' => $snapshotServer['cpu'] ?? $this->countCpuCores(),
+                'memory' => $snapshotServer['memory'] ?? $memory,
+                'uptime' => $snapshotServer['uptime'] ?? $this->readUptime(),
                 'disk_total' => is_numeric($diskTotal) ? $this->formatBytes((int) $diskTotal) : 'Tidak tersedia',
                 'disk_free' => is_numeric($diskFree) ? $this->formatBytes((int) $diskFree) : 'Tidak tersedia',
                 'disk_used_percent' => (is_numeric($diskTotal) && $diskTotal > 0 && is_numeric($diskFree))
@@ -62,13 +65,23 @@ class System extends BaseController
                 'docker' => $this->detectContainer(),
             ],
             'panel' => [
-                'installed' => $this->safeIsDirectory('/www/server/panel'),
-                'version' => $this->readAaPanelVersion(),
+                'installed' => $snapshotPanel['installed'] ?? $this->safeIsDirectory('/www/server/panel'),
+                'version' => $snapshotPanel['version'] ?? $this->readAaPanelVersion(),
             ],
             'app_version' => $appVersion,
         ];
 
         return view('admin/system', $data);
+    }
+
+    private function readSystemSnapshot(): array
+    {
+        $file = WRITEPATH . 'cache/system-info.json';
+        if (!$this->safeIsReadable($file)) return [];
+        $contents = $this->safeReadFile($file);
+        if ($contents === false || $contents === '') return [];
+        $data = json_decode($contents, true);
+        return is_array($data) ? $data : [];
     }
 
     /**
