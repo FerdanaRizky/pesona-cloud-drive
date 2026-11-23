@@ -430,14 +430,48 @@ class Files extends BaseController
     public function deleteFolder(int $id)
     {
         $uid = (int) session()->get('user_id');
-        $folder = (new DriveFolderModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
+        $folderModel = new DriveFolderModel();
+        $folder = $folderModel->where('id', $id)->where('user_id', $uid)->where('is_trashed', 0)->first();
         if (!$folder) return redirect()->back()->with('error', 'Folder tidak ditemukan.');
-        $hasFolders = (new DriveFolderModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
-        $hasFiles = (new DriveFileModel())->where('user_id', $uid)->where('parent_id', $id)->where('is_trashed', 0)->countAllResults() > 0;
-        if ($hasFolders || $hasFiles) return redirect()->back()->with('error', 'Folder harus kosong sebelum dihapus. Pindahkan atau hapus isinya terlebih dahulu.');
-        (new DriveFolderModel())->update($id, ['is_trashed' => 1]);
-        $this->logActivity($uid, 'folder.trash', 'Memindahkan folder ke sampah: ' . $folder['name']);
-        return redirect()->to('/files')->with('message', 'Folder dipindahkan ke sampah.');
+
+        $counts = ['folders' => 0, 'files' => 0];
+        $db = db_connect();
+        $db->transBegin();
+        try {
+            $this->trashFolderTree($id, $uid, $counts);
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+                return redirect()->back()->with('error', 'Folder gagal dipindahkan ke sampah. Silakan coba kembali.');
+            }
+            $db->transCommit();
+        } catch (\\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'Folder trash failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Folder gagal dipindahkan ke sampah. Silakan coba kembali.');
+        }
+
+        $this->logActivity($uid, 'folder.trash', 'Memindahkan folder beserta ' . $counts['folders'] . ' subfolder dan ' . $counts['files'] . ' file ke sampah: ' . $folder['name']);
+        return redirect()->to('/files')->with('message', 'Folder beserta seluruh isi (' . $counts['folders'] . ' folder dan ' . $counts['files'] . ' file) dipindahkan ke Sampah. Anda masih dapat memulihkannya dari menu Sampah.');
+    }
+
+    private function trashFolderTree(int $folderId, int $uid, array &$counts): void
+    {
+        $folderModel = new DriveFolderModel();
+        $fileModel = new DriveFileModel();
+
+        $children = $folderModel->where('user_id', $uid)->where('parent_id', $folderId)->where('is_trashed', 0)->findAll();
+        foreach ($children as $child) {
+            $this->trashFolderTree((int) $child['id'], $uid, $counts);
+        }
+
+        $files = $fileModel->where('user_id', $uid)->where('parent_id', $folderId)->where('is_trashed', 0)->findAll();
+        foreach ($files as $file) {
+            $fileModel->update((int) $file['id'], ['is_trashed' => 1]);
+            $counts['files']++;
+        }
+
+        $folderModel->update($folderId, ['is_trashed' => 1]);
+        $counts['folders']++;
     }
 
     public function search()
