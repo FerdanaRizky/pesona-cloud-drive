@@ -13,6 +13,7 @@ $menuIcon = static function (string $name): string {
         'link' => '<path d="M10 13a5 5 0 0 0 7.1 0l3-3A5 5 0 0 0 13 2.9l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3A5 5 0 0 0 11 21.1l1.7-1.7"/>',
         'restore' => '<path d="M3 7v5h5"/><path d="M4.5 12a8 8 0 1 0 2-5.3L3 12"/>',
         'more' => '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+        'open' => '<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v1H5a2 2 0 0 0-1.9 1.4L2 17.5V7Z"/><path d="m4 12 1-2h17l-3 8H2l2-6Z"/>',
         'folder' => '<path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
         'close' => '<path d="m18 6-12 12M6 6l12 12"/>',
     ];
@@ -76,7 +77,7 @@ $formatActivityDate = static function ($value) {
                 <div class="dropdown">
                     <button class="btn btn-sm btn-outline-secondary action-menu-trigger dashboard-more-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Aksi folder <?= esc($folder['name'], 'attr') ?>"><?= $menuIcon('more') ?></button>
                     <div class="dropdown-menu dropdown-menu-end file-action-menu">
-                        <a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>">Buka folder</a>
+                        <a class="dropdown-item" href="/files?folder=<?= (int) $folder['id'] ?>"><?= $menuIcon('open') ?>Buka folder</a>
                         <button type="button" class="dropdown-item" data-dashboard-action="rename" data-url="/files/folders/rename/<?= (int) $folder['id'] ?>" data-name="<?= esc($folder['name'], 'attr') ?>" data-maxlength="120"><?= $menuIcon('rename') ?>Ganti nama</button>
                     </div>
                 </div>
