@@ -1,8 +1,8 @@
 <?php
-namespace App\\Controllers\\Admin;
+namespace App\Controllers\Admin;
 
-use App\\Controllers\\BaseController;
-use CodeIgniter\\CodeIgniter;
+use App\Controllers\BaseController;
+use CodeIgniter\CodeIgniter;
 
 class System extends BaseController
 {
@@ -19,7 +19,7 @@ class System extends BaseController
             $db = db_connect();
             $dbVersion = (string) $db->getVersion();
             $db->close();
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             // Halaman informasi tetap tersedia tanpa mengganggu koneksi aplikasi.
         }
 
