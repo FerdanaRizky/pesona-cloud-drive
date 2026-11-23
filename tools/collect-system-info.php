@@ -10,16 +10,16 @@ foreach(preg_split('/\r?\n/',sysRead('/etc/os-release')) as $line){if(strpos($li
 $cpu=sysRead('/proc/cpuinfo'); $model='Tidak tersedia';
 if(preg_match('/^(?:model name|Hardware|Processor)\s*:\s*(.+)$/mi',$cpu,$m)) {
     $candidate=trim($m[1]);
-    if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate)) $model=$candidate;
+    if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate) && !preg_match('/^(GenuineIntel|AuthenticAMD)$/i',$candidate)) $model=$candidate;
 }
 // Some virtual machines expose a numeric placeholder in cpuinfo; try lscpu as a fallback.
 if($model==='Tidak tersedia' && function_exists('shell_exec')) {
     $disabled=array_filter(array_map('trim',explode(',',(string)ini_get('disable_functions'))));
     if(!in_array('shell_exec',$disabled,true)) {
         $lscpu=@shell_exec('LC_ALL=C lscpu 2>/dev/null');
-        if(is_string($lscpu) && preg_match('/^(?:Model name|Model|Vendor ID):\s*(.+)$/mi',$lscpu,$m)) {
+        if(is_string($lscpu) && preg_match('/^(?:Model name|Model):\s*(.+)$/mi',$lscpu,$m)) {
             $candidate=trim($m[1]);
-            if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate)) $model=$candidate;
+            if($candidate!=='' && !preg_match('/^\d+(?:\.\d+)?$/',$candidate) && !preg_match('/^(GenuineIntel|AuthenticAMD)$/i',$candidate)) $model=$candidate;
         }
     }
 }
@@ -33,8 +33,8 @@ if($up!==''){$s=(int)floor((float)strtok($up,' '));$uptime=(intdiv($s,86400)?int
 $panel=is_dir('/www/server/panel'); $panelVersion=$panel?'Terpasang, versi tidak dapat dibaca':'Tidak terpasang / tidak terdeteksi';
 if($panel){
     // Prefer aaPanel's own public.version() helper when its bundled Python is available.
-    $panelPython='/www/server/panel/pyenv/bin/python';
-    if(is_executable($panelPython) && function_exists('shell_exec')) {
+    $panelPython=is_executable('/www/server/panel/pyenv/bin/python')?'/www/server/panel/pyenv/bin/python':(is_executable('/www/server/panel/pyenv/bin/python3')?'/www/server/panel/pyenv/bin/python3':'');
+    if($panelPython!=='' && function_exists('shell_exec')) {
         $disabled=array_filter(array_map('trim',explode(',',(string)ini_get('disable_functions'))));
         if(!in_array('shell_exec',$disabled,true)) {
             $command=escapeshellarg($panelPython).' -c '.escapeshellarg("import sys; sys.path.insert(0, '/www/server/panel'); import public; print(public.version())").' 2>/dev/null';
@@ -50,7 +50,16 @@ if($panel){
         }
     }
 }
-$data=['generated_at'=>date(DATE_ATOM),'server'=>['hostname'=>gethostname()?:'Tidak tersedia','os'=>$os['PRETTY_NAME']??'Tidak tersedia','kernel'=>php_uname('r'),'architecture'=>php_uname('m'),'cpu_model'=>$model,'cpu'=>$cores>0?$cores.' core':'Tidak tersedia','memory'=>$memory,'uptime'=>$uptime],'panel'=>['installed'=>$panel,'version'=>$panelVersion]];
+$docker='Tidak terpasang / tidak terdeteksi';
+if(function_exists('shell_exec')) {
+    $disabled=array_filter(array_map('trim',explode(',',(string)ini_get('disable_functions'))));
+    if(!in_array('shell_exec',$disabled,true)) {
+        $dockerOutput=trim((string)@shell_exec('docker --version 2>/dev/null'));
+        if(preg_match('/^Docker version\s+([^,]+)/i',$dockerOutput,$dm)) $docker='Terpasang · '.$dm[1];
+        elseif(is_file('/.dockerenv')) $docker='Berjalan di container';
+    }
+}
+$data=['generated_at'=>date(DATE_ATOM),'server'=>['hostname'=>gethostname()?:'Tidak tersedia','os'=>$os['PRETTY_NAME']??'Tidak tersedia','kernel'=>php_uname('r'),'architecture'=>php_uname('m'),'cpu_model'=>$model,'cpu'=>$cores>0?$cores.' core':'Tidak tersedia','memory'=>$memory,'uptime'=>$uptime],'panel'=>['installed'=>$panel,'version'=>$panelVersion],'runtime'=>['docker'=>$docker]];
 $json=json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 if($json===false){fwrite(STDERR,"Snapshot encoding failed\n");exit(0);}
 $tmp=$dir.'/system-info.json.tmp';
