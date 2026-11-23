@@ -9,21 +9,13 @@
   <span class="badge text-bg-success px-3 py-2">Informasi server</span>
 </div>
 
-<div class="row g-3 mb-4">
-  <div class="col-12 col-md-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-secondary small mb-1">Sistem Operasi</div><div class="fw-semibold"><?= esc($server['os']) ?></div><div class="small text-secondary mt-1"><?= esc($server['architecture']) ?> · Kernel <?= esc($server['kernel']) ?></div></div></div></div>
-  <div class="col-12 col-md-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-secondary small mb-1">CPU</div><div class="fw-semibold"><?= esc($server['cpu']) ?></div><div class="small text-secondary mt-1"><?= esc($server['cpu_model']) ?> · <?= esc($server['hostname']) ?></div></div></div></div>
-  <div class="col-12 col-md-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-secondary small mb-1">Memori RAM</div><div class="fw-semibold"><?= esc($server['memory']['used']) ?> / <?= esc($server['memory']['total']) ?></div><?php if ($server['memory']['used_percent'] !== null): ?><div class="progress mt-2" role="progressbar" aria-label="Penggunaan RAM" aria-valuenow="<?= (float) $server['memory']['used_percent'] ?>" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width: <?= (float) $server['memory']['used_percent'] ?>%"></div></div><div class="small text-secondary mt-1"><?= (float) $server['memory']['used_percent'] ?>% digunakan</div><?php endif ?></div></div></div></div>
-  <div class="col-12 col-md-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-secondary small mb-1">Penyimpanan Disk</div><div class="fw-semibold"><?= esc($server['disk_free']) ?> tersedia</div><div class="small text-secondary mt-1">Total <?= esc($server['disk_total']) ?><?php if ($server['disk_used_percent'] !== null): ?> · <?= (float) $server['disk_used_percent'] ?>% terpakai<?php endif ?></div></div></div></div>
-</div>
-
 <div class="row g-4">
   <div class="col-12 col-xl-6">
     <div class="card h-100 border-0 shadow-sm">
       <div class="card-header bg-transparent py-3"><h2 class="h6 mb-0">Server & Webserver</h2></div>
       <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><tbody>
-        <tr><th class="ps-3 fw-medium text-secondary">Hostname</th><td class="text-end pe-3"><?= esc($server['hostname']) ?></td></tr>
+        <tr><th class="ps-3 fw-medium text-secondary">Memori</th><td class="text-end pe-3"><?= esc($server['memory']['used']) ?> / <?= esc($server['memory']['total']) ?><?php if ($server['memory']['used_percent'] !== null): ?> <span class="text-secondary small">(<?= (float) $server['memory']['used_percent'] ?>% digunakan)</span><?php endif ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Sistem operasi</th><td class="text-end pe-3"><?= esc($server['os']) ?></td></tr>
-        <tr><th class="ps-3 fw-medium text-secondary">Kernel</th><td class="text-end pe-3"><?= esc($server['kernel']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Arsitektur</th><td class="text-end pe-3"><?= esc($server['architecture']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Model CPU</th><td class="text-end pe-3"><?= esc($server['cpu_model']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Jumlah core</th><td class="text-end pe-3"><?= esc($server['cpu']) ?></td></tr>
@@ -37,11 +29,9 @@
       <div class="card-header bg-transparent py-3"><h2 class="h6 mb-0">Panel & Runtime Aplikasi</h2></div>
       <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><tbody>
         <tr><th class="ps-3 fw-medium text-secondary">aaPanel</th><td class="text-end pe-3"><?= $panel['installed'] ? 'Terpasang' : 'Tidak terdeteksi' ?></td></tr>
-        <tr><th class="ps-3 fw-medium text-secondary">Versi aaPanel</th><td class="text-end pe-3"><?= esc($panel['version']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">PHP</th><td class="text-end pe-3"><?= esc($runtime['php']) ?> (<?= esc($runtime['php_sapi']) ?>)</td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">CodeIgniter</th><td class="text-end pe-3"><?= esc($runtime['codeigniter']) ?></td></tr>
-        <tr><th class="ps-3 fw-medium text-secondary">Database MySQL/MariaDB</th><td class="text-end pe-3"><?= esc($runtime['database']) ?></td></tr>
-        <tr><th class="ps-3 fw-medium text-secondary">OpenSSL</th><td class="text-end pe-3"><?= esc($runtime['openssl']) ?></td></tr>
+        <tr><th class="ps-3 fw-medium text-secondary">Database MySQL/MariaDB</th><td class="text-end pe-3"><span><?= esc($runtime['database']) ?></span><span class="badge rounded-pill ms-2 <?= !empty($runtime['database_connected']) ? 'text-bg-success' : 'text-bg-danger' ?>"><?= !empty($runtime['database_connected']) ? 'Terhubung' : 'Tidak terhubung' ?></span></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Docker</th><td class="text-end pe-3"><?= esc($runtime['docker']) ?></td></tr>
       </tbody></table></div></div>
     </div>
@@ -52,7 +42,6 @@
       <div class="card-body p-0"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><tbody>
         <tr><th class="ps-3 fw-medium text-secondary">Versi aplikasi</th><td class="text-end pe-3"><?= esc($app_version) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Environment</th><td class="text-end pe-3"><?= esc($runtime['environment']) ?></td></tr>
-        <tr><th class="ps-3 fw-medium text-secondary">Koneksi database</th><td class="text-end pe-3"><?= $runtime['database'] !== 'Tidak tersedia' ? 'Terhubung' : 'Tidak dapat diperiksa' ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Waktu server</th><td class="text-end pe-3"><?= esc($runtime['server_time']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Zona waktu</th><td class="text-end pe-3"><?= esc($runtime['timezone']) ?></td></tr>
         <tr><th class="ps-3 fw-medium text-secondary">Penyimpanan disk</th><td class="text-end pe-3"><?= esc($server['disk_free']) ?> tersedia dari <?= esc($server['disk_total']) ?></td></tr>
