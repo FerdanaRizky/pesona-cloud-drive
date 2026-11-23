@@ -274,8 +274,8 @@ for ini in "${USER_INI_FILES[@]}"; do
 done
 
 # Apply safe PHP-FPM timeout defaults for long bulk ZIP downloads.
-if [[ -x "$SOURCE_DIR/tools/configure-php-fpm.sh" ]]; then
-    "$SOURCE_DIR/tools/configure-php-fpm.sh" "$PHP_PREFIX"
+if [[ -f "$SOURCE_DIR/tools/configure-php-fpm.sh" ]]; then
+    bash "$SOURCE_DIR/tools/configure-php-fpm.sh" "$PHP_PREFIX"
 else
     echo "[ERROR] tools/configure-php-fpm.sh tidak ditemukan di source repository."
     exit 1
