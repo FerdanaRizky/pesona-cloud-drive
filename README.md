@@ -282,6 +282,18 @@ grep -nE '^[[:space:]]*request_terminate_timeout[[:space:]]*=' \
 grep -n '^max_execution_time' "$PHP_PREFIX/etc/php.ini"
 ```
 
-**Nginx:** jika konfigurasi situs memiliki `fastcgi_read_timeout` yang lebih rendah dari 300 detik, sesuaikan menjadi minimal `1860s` pada blok PHP/FastCGI situs melalui aaPanel, lalu jalankan `nginx -t` sebelum reload. Installer tidak menimpa konfigurasi Nginx situs yang mungkin sudah dikustomisasi.
+**Nginx:** jika konfigurasi situs memiliki `fastcgi_read_timeout` yang lebih rendah dari 300 detik, installer aaPanel kini menjalankan `tools/configure-nginx-timeouts.sh` untuk menemukan vhost domain, membuat backup, lalu mengatur `fastcgi_read_timeout 1860s` dan `send_timeout 1860s` pada blok PHP situs. Perubahan hanya dilakukan bila tepat satu file vhost dan blok PHP dapat dikenali; jika tidak, installer memberi peringatan agar administrator memeriksa konfigurasi secara manual. Skrip menjalankan `nginx -t` sebelum reload.
 
 Catatan: batas 1800 detik mengurangi risiko proses ZIP diputus terlalu cepat, tetapi bukan jaminan semua ukuran ZIP akan selesai. Kapasitas disk sementara, ukuran file, kecepatan storage, dan timeout reverse proxy tetap berpengaruh.
+
+### Pemeriksaan server saat instalasi aaPanel
+
+Installer juga:
+- Memastikan PHP CLI versi 8.2+ memiliki ekstensi `mysqli`, `intl`, `mbstring`, `fileinfo`, dan `zip`.
+- Memastikan kelas `ZipArchive` tersedia sebelum instalasi dinyatakan siap.
+- Memeriksa direktori storage, cache, log, dan session dapat ditulis.
+- Menampilkan ruang disk tersedia untuk ZIP sementara dan memberi peringatan jika kurang dari 5 GB.
+- Menampilkan RAM fisik dan memberi peringatan jika kurang dari 1 GB.
+- Mengatur timeout Nginx situs secara otomatis dengan backup dan validasi konfigurasi.
+
+Pemeriksaan kapasitas adalah preflight, bukan jaminan bahwa setiap arsip dapat dibuat. Ruang disk yang diperlukan bergantung pada ukuran total file yang dipilih; sediakan ruang kosong setidaknya sebesar arsip ZIP yang akan dibuat, ditambah ruang operasional aplikasi.
