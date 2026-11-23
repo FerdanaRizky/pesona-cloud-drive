@@ -260,7 +260,7 @@ aktifkan atau install extensi php
 ## Konfigurasi PHP-FPM untuk unduhan ZIP berukuran besar
 
 Installer aaPanel otomatis menjalankan `tools/configure-php-fpm.sh` untuk PHP aaPanel yang dipilih. Konfigurasi ini:
-- Mengatur `request_terminate_timeout = 300s` pada konfigurasi global PHP-FPM dan pool aktif agar proses pembuatan ZIP tidak dihentikan pada batas 100 detik.
+- Mengatur `request_terminate_timeout = 1800s` pada konfigurasi global PHP-FPM dan pool aktif agar proses pembuatan ZIP tidak dihentikan pada batas 100 detik.
 - Mengatur `max_execution_time = 3600` pada `php.ini`.
 - Membuat backup file konfigurasi sebelum mengubahnya.
 - Menguji konfigurasi PHP-FPM sebelum restart service.
@@ -282,6 +282,6 @@ grep -nE '^[[:space:]]*request_terminate_timeout[[:space:]]*=' \
 grep -n '^max_execution_time' "$PHP_PREFIX/etc/php.ini"
 ```
 
-**Nginx:** jika konfigurasi situs memiliki `fastcgi_read_timeout` yang lebih rendah dari 300 detik, sesuaikan menjadi minimal `360s` pada blok PHP/FastCGI situs melalui aaPanel, lalu jalankan `nginx -t` sebelum reload. Installer tidak menimpa konfigurasi Nginx situs yang mungkin sudah dikustomisasi.
+**Nginx:** jika konfigurasi situs memiliki `fastcgi_read_timeout` yang lebih rendah dari 300 detik, sesuaikan menjadi minimal `1860s` pada blok PHP/FastCGI situs melalui aaPanel, lalu jalankan `nginx -t` sebelum reload. Installer tidak menimpa konfigurasi Nginx situs yang mungkin sudah dikustomisasi.
 
-Catatan: batas 300 detik mengurangi risiko proses ZIP diputus terlalu cepat, tetapi bukan jaminan semua ukuran ZIP akan selesai. Kapasitas disk sementara, ukuran file, kecepatan storage, dan timeout reverse proxy tetap berpengaruh.
+Catatan: batas 1800 detik mengurangi risiko proses ZIP diputus terlalu cepat, tetapi bukan jaminan semua ukuran ZIP akan selesai. Kapasitas disk sementara, ukuran file, kecepatan storage, dan timeout reverse proxy tetap berpengaruh.
