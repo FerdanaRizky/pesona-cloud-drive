@@ -250,3 +250,9 @@ Restart PHP-FPM 8.4
 ```
 /etc/init.d/php-fpm-84 restart
 ```
+
+
+aktifkan atau install extensi php
+- fileinfo
+- intl
+- mbstring
