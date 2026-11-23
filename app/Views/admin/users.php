@@ -389,8 +389,9 @@ document.addEventListener('DOMContentLoaded', function () {
     height: 18px;
   }
   #userCardsGrid .user-profile-summary {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+    row-gap: 14px;
   }
   #userCardsGrid .user-profile-detail {
     min-width: 0;
@@ -404,6 +405,15 @@ document.addEventListener('DOMContentLoaded', function () {
     min-width: 0;
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+}
+@media (max-width: 380px) {
+  #userCardsGrid .user-profile-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #userCardsGrid .user-status-inline {
+    flex-wrap: wrap;
+    row-gap: 8px;
   }
 }
 
