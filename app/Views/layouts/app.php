@@ -26,6 +26,7 @@ $currentPath = trim($currentPath, '/');
 <?php if (session()->get('role') === 'admin'): ?>
 <div class="nav-label mt-3 mb-2 px-3 text-uppercase small text-secondary">Administrasi</div>
 <a class="nav-link <?= str_starts_with($currentPath, 'admin/users') ? 'active' : '' ?>" href="/admin/users">♙ <span>Manajemen Pengguna</span></a>
+<a class="nav-link <?= str_starts_with($currentPath, 'admin/system') ? 'active' : '' ?>" href="/admin/system">⚙ <span>Sistem</span></a>
 <?php endif ?>
 </nav>
 <div class="sidebar-footer" aria-label="Informasi aplikasi">
