@@ -1,8 +1,8 @@
 <?php
-namespace App\Controllers\Admin;
+namespace App\\Controllers\\Admin;
 
-use App\Controllers\BaseController;
-use CodeIgniter\CodeIgniter;
+use App\\Controllers\\BaseController;
+use CodeIgniter\\CodeIgniter;
 
 class System extends BaseController
 {
@@ -14,10 +14,20 @@ class System extends BaseController
         $diskTotal = @disk_total_space($diskPath);
         $diskFree = @disk_free_space($diskPath);
         $dbVersion = 'Tidak tersedia';
+
         try {
-            $dbVersion = (string) db_connect()->getVersion();
-        } catch (\Throwable $e) {
-            // Informasi sistem tetap dapat dibuka jika versi DB tidak dapat dibaca.
+            $db = db_connect();
+            $dbVersion = (string) $db->getVersion();
+            $db->close();
+        } catch (\\Throwable $e) {
+            // Halaman informasi tetap tersedia tanpa mengganggu koneksi aplikasi.
+        }
+
+        $appVersion = 'Tidak ditentukan';
+        $versionFile = ROOTPATH . 'VERSION';
+        if (is_readable($versionFile)) {
+            $value = trim((string) file_get_contents($versionFile));
+            if ($value !== '') $appVersion = $value;
         }
 
         $data = [
@@ -27,6 +37,7 @@ class System extends BaseController
                 'os' => $os['PRETTY_NAME'] ?? php_uname('s'),
                 'kernel' => php_uname('r'),
                 'architecture' => php_uname('m'),
+                'cpu_model' => $this->readCpuModel(),
                 'cpu' => $this->countCpuCores(),
                 'memory' => $memory,
                 'uptime' => $this->readUptime(),
@@ -51,6 +62,7 @@ class System extends BaseController
                 'installed' => is_dir('/www/server/panel'),
                 'version' => $this->readAaPanelVersion(),
             ],
+            'app_version' => $appVersion,
         ];
 
         return view('admin/system', $data);
@@ -64,7 +76,7 @@ class System extends BaseController
         foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
             if (strpos($line, '=') === false) continue;
             [$key, $value] = explode('=', $line, 2);
-            $values[$key] = trim($value, " \t\n\r\0\x0B\"'");
+            $values[$key] = trim($value, " \\t\\n\\r\\0\\x0B\\\"'");
         }
         return $values;
     }
@@ -74,7 +86,7 @@ class System extends BaseController
         $values = [];
         if (is_readable('/proc/meminfo')) {
             foreach (file('/proc/meminfo', FILE_IGNORE_NEW_LINES) ?: [] as $line) {
-                if (preg_match('/^(MemTotal|MemAvailable):\s+(\d+)/', $line, $match)) {
+                if (preg_match('/^(MemTotal|MemAvailable):\\s+(\\d+)/', $line, $match)) {
                     $values[$match[1]] = (int) $match[2] * 1024;
                 }
             }
@@ -88,10 +100,20 @@ class System extends BaseController
         ];
     }
 
+    private function readCpuModel(): string
+    {
+        if (!is_readable('/proc/cpuinfo')) return 'Tidak tersedia';
+        $content = (string) file_get_contents('/proc/cpuinfo');
+        if (preg_match('/^(?:model name|Hardware|Processor)\\s*:\\s*(.+)$/mi', $content, $match)) {
+            return trim($match[1]);
+        }
+        return 'Tidak tersedia';
+    }
+
     private function countCpuCores(): string
     {
         if (is_readable('/proc/cpuinfo')) {
-            $count = preg_match_all('/^processor\s*:/m', (string) file_get_contents('/proc/cpuinfo'));
+            $count = preg_match_all('/^processor\\s*:/m', (string) file_get_contents('/proc/cpuinfo'));
             if ($count > 0) return (string) $count . ' core';
         }
         return 'Tidak tersedia';
@@ -122,10 +144,18 @@ class System extends BaseController
     private function readAaPanelVersion(): string
     {
         if (!is_dir('/www/server/panel')) return 'Tidak terpasang / tidak terdeteksi';
-        foreach (['/www/server/panel/data/version.pl', '/www/server/panel/data/version.txt'] as $file) {
-            if (is_readable($file)) {
-                $version = trim((string) file_get_contents($file));
-                if ($version !== '') return $version;
+        foreach ([
+            '/www/server/panel/data/version.pl',
+            '/www/server/panel/data/version.txt',
+            '/www/server/panel/class/panelVersion.py',
+        ] as $file) {
+            if (!is_readable($file)) continue;
+            $version = trim((string) file_get_contents($file));
+            if ($version !== '') {
+                if (preg_match('/(?:version|VERSION)\\s*[=:\\(]\\s*["\\\']?([0-9]+(?:\\.[0-9]+){1,3})/i', $version, $match)) {
+                    return $match[1];
+                }
+                if (preg_match('/^[0-9]+(?:\\.[0-9]+){1,3}$/', $version)) return $version;
             }
         }
         return 'Terpasang, versi tidak dapat dibaca';
