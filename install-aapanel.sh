@@ -64,7 +64,458 @@ for candidate in "${PHP_CANDIDATES[@]}"; do
     if "$candidate" -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);' >/dev/null 2>&1 \
        && "$candidate" -m 2>/dev/null | grep -qi '^mysqli$' \
        && "$candidate" -m 2>/dev/null | grep -qi '^intl$' \
-       && "$candidate" -m 2>/dev/null | grep -qi '^mbstring$'; then
+       && "$candidate" -m 2>/dev/null | grep -qi '^mbstring
+        PHP_BIN="$candidate"
+        break
+    fi
+done
+if [[ -z "$PHP_BIN" ]]; then
+    echo "[ERROR] Tidak ditemukan PHP CLI versi 8.2+ dengan ekstensi mysqli, intl, mbstring, dan fileinfo."
+    echo "[INFO] Periksa PHP aaPanel, misalnya /www/server/php/84/bin/php -m. Pastikan ekstensi fileinfo aktif."
+    exit 1
+fi
+export PATH="$(dirname "$PHP_BIN"):$PATH"
+hash -r
+echo "[OK] PHP CLI: $PHP_BIN ($("$PHP_BIN" -r 'echo PHP_VERSION;'))"
+
+# CodeIgniter DotEnv requires putenv(); remove only this function from aaPanel
+# disable_functions for the selected PHP version, preserving other restrictions.
+PHP_BIN_DIR="$(dirname "$PHP_BIN")"
+PHP_PREFIX="$(dirname "$PHP_BIN_DIR")"
+PHP_VERSION_DIR="$(basename "$PHP_PREFIX")"
+PHP_INI="$PHP_PREFIX/etc/php.ini"
+remove_putenv_from_config() {
+    local config="$1" tmp
+    [[ -f "$config" ]] || return 0
+    tmp="$(mktemp)"
+    awk '
+      /^[[:space:]]*disable_functions[[:space:]]*=/ ||
+      /^[[:space:]]*php_admin_value\[disable_functions\][[:space:]]*=/ {
+        key=$0; sub(/=.*/, "", key)
+        value=$0; sub(/^[^=]*=[[:space:]]*/, "", value)
+        n=split(value, items, ","); out=""
+        for (i=1; i<=n; i++) {
+          item=items[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", item)
+          if (tolower(item) == "putenv" || item == "") continue
+          out=out (out=="" ? "" : ",") item
+        }
+        print key "=" out; next
+      }
+      { print }
+    ' "$config" > "$tmp"
+    if ! cmp -s "$config" "$tmp"; then
+        cp -a "$config" "$config.pcd-backup.$(date +%Y%m%d%H%M%S)"
+        cat "$tmp" > "$config"
+        echo "[OK] putenv diaktifkan pada konfigurasi: $config"
+    fi
+    rm -f "$tmp"
+}
+remove_putenv_from_config "$PHP_INI"
+if [[ -d "$PHP_PREFIX/etc/php-fpm.d" ]]; then
+    while IFS= read -r -d '' pool_config; do
+        remove_putenv_from_config "$pool_config"
+    done < <(find "$PHP_PREFIX/etc/php-fpm.d" -maxdepth 1 -type f -name '*.conf' -print0)
+fi
+
+mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
+if [[ -d "$SOURCE_DIR/.git" ]]; then
+    git -C "$SOURCE_DIR" pull --ff-only
+else
+    git clone "$REPO" "$SOURCE_DIR"
+fi
+
+# Create a clean CodeIgniter skeleton only if the target is empty/missing.
+if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
+    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
+        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
+        exit 1
+    fi
+    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
+    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
+    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
+    mkdir -p "$APP_DIR"
+    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
+        [[ -e "$APP_DIR/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
+    done
+    for dir in app public tests writable; do
+        [[ -d "$APP_DIR/$dir" ]] || cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
+    done
+    mkdir -p "$APP_DIR/public"
+    for item in index.php .htaccess; do
+        [[ -e "$APP_DIR/public/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
+    done
+    rm -rf "$BOOTSTRAP_DIR"
+    trap - EXIT
+fi
+
+[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
+    echo "[ERROR] Struktur CodeIgniter belum lengkap."; exit 1;
+}
+
+rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
+mkdir -p "$APP_DIR/public/assets"
+rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
+
+# Deploy the official Pesona Cloud branding assets on every fresh installation.
+for asset in favicon.ico favicon-32.png apple-touch-icon.png pesona-cloud-logo.png; do
+    if [[ ! -f "$SOURCE_DIR/public/$asset" ]]; then
+        echo "[ERROR] Aset branding wajib tidak ditemukan: public/$asset"
+        exit 1
+    fi
+    install -m 644 "$SOURCE_DIR/public/$asset" "$APP_DIR/public/$asset"
+done
+# Views load the main logo from /assets/pesona-cloud-logo.png.
+install -m 644 "$SOURCE_DIR/public/pesona-cloud-logo.png" "$APP_DIR/public/assets/pesona-cloud-logo.png"
+
+cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
+
+cd "$APP_DIR"
+composer install --no-dev --prefer-dist --optimize-autoloader
+[[ -f .env ]] || cp env .env
+
+# Replace only deployment keys, preserving unrelated .env settings.
+sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
+escape_env() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\'/\\\'}"
+    printf '%s' "$value"
+}
+DB_PASS_ESCAPED="$(escape_env "$DB_PASS")"
+cat >> .env <<EOF
+
+# Pesona Cloud Drive deployment settings
+CI_ENVIRONMENT = production
+app.baseURL = 'https://$DOMAIN/'
+app.forceGlobalSecureRequests = true
+database.default.hostname = 'localhost'
+database.default.database = '$DB_NAME'
+database.default.username = '$DB_USER'
+database.default.password = '$DB_PASS_ESCAPED'
+database.default.DBDriver = MySQLi
+database.default.port = 3306
+storage.privatePath = '$STORAGE'
+EOF
+chmod 640 .env
+mkdir -p "$STORAGE" writable/cache writable/logs writable/session
+chmod 750 "$STORAGE"
+
+if id www >/dev/null 2>&1; then
+    chown www:www .env
+    chown -R www:www "$STORAGE" writable
+elif id www-data >/dev/null 2>&1; then
+    chown www-data:www-data .env
+    chown -R www-data:www-data "$STORAGE" writable
+else
+    echo "[WARN] User web server tidak ditemukan; atur kepemilikan file secara manual."
+fi
+
+# Extend app-local open_basedir without removing existing allowed paths.
+normalize_path() {
+    local p="$1"
+    [[ "$p" == */ ]] || p="$p/"
+    printf '%s' "$p"
+}
+APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
+STORAGE_ABS="$(cd "$STORAGE" && pwd)"
+ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
+PUBLIC_INI="$APP_DIR/public/.user.ini"
+[[ -e "$PUBLIC_INI" ]] || install -m 644 /dev/null "$PUBLIC_INI"
+USER_INI_FILES=()
+SITE_ROOT="$(dirname "$APP_DIR")"
+for ini in "$SITE_ROOT/.user.ini" "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
+    [[ -f "$ini" ]] || continue
+    duplicate=0
+    for existing in "${USER_INI_FILES[@]}"; do
+        [[ "$existing" == "$ini" ]] && duplicate=1
+    done
+    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
+done
+
+for ini in "${USER_INI_FILES[@]}"; do
+    tmp="$(mktemp)"
+    awk -v required="$ALLOWED_REQUIRED" '
+      BEGIN { updated=0 }
+      /^[[:space:]]*open_basedir[[:space:]]*=/ {
+        line=$0
+        sub(/^[^=]*=[[:space:]]*/, "", line)
+        gsub(/[[:space:]"]/ , "", line)
+        n=split(line, paths, ":")
+        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
+        m=split(required, extra, ":")
+        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
+        value=""
+        for (p in allowed) value=value (value=="" ? "" : ":") p
+        print "open_basedir=" value
+        updated=1
+        next
+      }
+      { print }
+      END { if (!updated) print "open_basedir=" required }
+    ' "$ini" > "$tmp"
+    immutable=0
+    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
+        immutable=1
+        chattr -i "$ini"
+    fi
+    cat "$tmp" > "$ini"
+    rm -f "$tmp"
+    chmod 644 "$ini" 2>/dev/null || true
+    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
+    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
+    fi
+    [[ "$immutable" -eq 1 ]] && chattr +i "$ini"
+    echo "[OK] open_basedir disesuaikan: $ini"
+done
+
+# Restart PHP-FPM for the selected aaPanel PHP version.
+FPM_SERVICE="/etc/init.d/php-fpm-$PHP_VERSION_DIR"
+if [[ -x "$FPM_SERVICE" ]]; then
+    "$FPM_SERVICE" restart
+else
+    echo "[WARN] Service $FPM_SERVICE tidak ditemukan; restart PHP-FPM manual."
+fi
+if ! "$PHP_BIN" -r 'exit(function_exists("putenv") ? 0 : 1);'; then
+    echo "[ERROR] putenv() masih dinonaktifkan pada PHP CLI. Periksa konfigurasi PHP."
+    exit 1
+fi
+echo "[OK] Fungsi PHP putenv() tersedia."
+
+echo
+echo "[OK] Source Git : $SOURCE_DIR"
+echo "[OK] Aplikasi   : $APP_DIR"
+echo "[NEXT] Document root aaPanel: $APP_DIR/public"
+echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
+echo "[NEXT] Jalankan: cd '$APP_DIR' && '$PHP_BIN' spark migrate"
+echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
+echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
+ \
+       && "$candidate" -m 2>/dev/null | grep -qi '^fileinfo
+        PHP_BIN="$candidate"
+        break
+    fi
+done
+if [[ -z "$PHP_BIN" ]]; then
+    echo "[ERROR] Tidak ditemukan PHP CLI versi 8.2+ dengan ekstensi mysqli, intl, dan mbstring."
+    echo "[INFO] Periksa PHP aaPanel, misalnya /www/server/php/84/bin/php -m."
+    exit 1
+fi
+export PATH="$(dirname "$PHP_BIN"):$PATH"
+hash -r
+echo "[OK] PHP CLI: $PHP_BIN ($("$PHP_BIN" -r 'echo PHP_VERSION;'))"
+
+# CodeIgniter DotEnv requires putenv(); remove only this function from aaPanel
+# disable_functions for the selected PHP version, preserving other restrictions.
+PHP_BIN_DIR="$(dirname "$PHP_BIN")"
+PHP_PREFIX="$(dirname "$PHP_BIN_DIR")"
+PHP_VERSION_DIR="$(basename "$PHP_PREFIX")"
+PHP_INI="$PHP_PREFIX/etc/php.ini"
+remove_putenv_from_config() {
+    local config="$1" tmp
+    [[ -f "$config" ]] || return 0
+    tmp="$(mktemp)"
+    awk '
+      /^[[:space:]]*disable_functions[[:space:]]*=/ ||
+      /^[[:space:]]*php_admin_value\[disable_functions\][[:space:]]*=/ {
+        key=$0; sub(/=.*/, "", key)
+        value=$0; sub(/^[^=]*=[[:space:]]*/, "", value)
+        n=split(value, items, ","); out=""
+        for (i=1; i<=n; i++) {
+          item=items[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", item)
+          if (tolower(item) == "putenv" || item == "") continue
+          out=out (out=="" ? "" : ",") item
+        }
+        print key "=" out; next
+      }
+      { print }
+    ' "$config" > "$tmp"
+    if ! cmp -s "$config" "$tmp"; then
+        cp -a "$config" "$config.pcd-backup.$(date +%Y%m%d%H%M%S)"
+        cat "$tmp" > "$config"
+        echo "[OK] putenv diaktifkan pada konfigurasi: $config"
+    fi
+    rm -f "$tmp"
+}
+remove_putenv_from_config "$PHP_INI"
+if [[ -d "$PHP_PREFIX/etc/php-fpm.d" ]]; then
+    while IFS= read -r -d '' pool_config; do
+        remove_putenv_from_config "$pool_config"
+    done < <(find "$PHP_PREFIX/etc/php-fpm.d" -maxdepth 1 -type f -name '*.conf' -print0)
+fi
+
+mkdir -p "$(dirname "$APP_DIR")" "$(dirname "$SOURCE_DIR")"
+if [[ -d "$SOURCE_DIR/.git" ]]; then
+    git -C "$SOURCE_DIR" pull --ff-only
+else
+    git clone "$REPO" "$SOURCE_DIR"
+fi
+
+# Create a clean CodeIgniter skeleton only if the target is empty/missing.
+if [[ ! -f "$APP_DIR/spark" || ! -d "$APP_DIR/app" || ! -f "$APP_DIR/app/Config/Paths.php" || ! -f "$APP_DIR/public/index.php" ]]; then
+    if [[ -e "$APP_DIR" && -n "$(find "$APP_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && ! -f "$APP_DIR/spark" ]]; then
+        echo "[ERROR] APP_DIR sudah berisi file tetapi bukan struktur CodeIgniter (spark tidak ditemukan). Tidak ada file yang dihapus."
+        exit 1
+    fi
+    BOOTSTRAP_DIR="$(mktemp -d /tmp/pcd-ci4.XXXXXX)"
+    trap 'rm -rf "$BOOTSTRAP_DIR"' EXIT
+    composer create-project codeigniter4/appstarter "$BOOTSTRAP_DIR/app" --no-interaction
+    mkdir -p "$APP_DIR"
+    for item in spark composer.json composer.lock env preload.php phpunit.dist.xml; do
+        [[ -e "$APP_DIR/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/$item" "$APP_DIR/$item"
+    done
+    for dir in app public tests writable; do
+        [[ -d "$APP_DIR/$dir" ]] || cp -a "$BOOTSTRAP_DIR/app/$dir" "$APP_DIR/$dir"
+    done
+    mkdir -p "$APP_DIR/public"
+    for item in index.php .htaccess; do
+        [[ -e "$APP_DIR/public/$item" ]] || cp -a "$BOOTSTRAP_DIR/app/public/$item" "$APP_DIR/public/$item"
+    done
+    rm -rf "$BOOTSTRAP_DIR"
+    trap - EXIT
+fi
+
+[[ -f "$APP_DIR/spark" && -f "$APP_DIR/public/index.php" && -f "$APP_DIR/app/Config/Paths.php" ]] || {
+    echo "[ERROR] Struktur CodeIgniter belum lengkap."; exit 1;
+}
+
+rsync -a "$SOURCE_DIR/app/" "$APP_DIR/app/"
+mkdir -p "$APP_DIR/public/assets"
+rsync -a "$SOURCE_DIR/public/assets/" "$APP_DIR/public/assets/"
+
+# Deploy the official Pesona Cloud branding assets on every fresh installation.
+for asset in favicon.ico favicon-32.png apple-touch-icon.png pesona-cloud-logo.png; do
+    if [[ ! -f "$SOURCE_DIR/public/$asset" ]]; then
+        echo "[ERROR] Aset branding wajib tidak ditemukan: public/$asset"
+        exit 1
+    fi
+    install -m 644 "$SOURCE_DIR/public/$asset" "$APP_DIR/public/$asset"
+done
+# Views load the main logo from /assets/pesona-cloud-logo.png.
+install -m 644 "$SOURCE_DIR/public/pesona-cloud-logo.png" "$APP_DIR/public/assets/pesona-cloud-logo.png"
+
+cp -n "$SOURCE_DIR/.env.example" "$APP_DIR/.env.example"
+
+cd "$APP_DIR"
+composer install --no-dev --prefer-dist --optimize-autoloader
+[[ -f .env ]] || cp env .env
+
+# Replace only deployment keys, preserving unrelated .env settings.
+sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
+escape_env() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\'/\\\'}"
+    printf '%s' "$value"
+}
+DB_PASS_ESCAPED="$(escape_env "$DB_PASS")"
+cat >> .env <<EOF
+
+# Pesona Cloud Drive deployment settings
+CI_ENVIRONMENT = production
+app.baseURL = 'https://$DOMAIN/'
+app.forceGlobalSecureRequests = true
+database.default.hostname = 'localhost'
+database.default.database = '$DB_NAME'
+database.default.username = '$DB_USER'
+database.default.password = '$DB_PASS_ESCAPED'
+database.default.DBDriver = MySQLi
+database.default.port = 3306
+storage.privatePath = '$STORAGE'
+EOF
+chmod 640 .env
+mkdir -p "$STORAGE" writable/cache writable/logs writable/session
+chmod 750 "$STORAGE"
+
+if id www >/dev/null 2>&1; then
+    chown www:www .env
+    chown -R www:www "$STORAGE" writable
+elif id www-data >/dev/null 2>&1; then
+    chown www-data:www-data .env
+    chown -R www-data:www-data "$STORAGE" writable
+else
+    echo "[WARN] User web server tidak ditemukan; atur kepemilikan file secara manual."
+fi
+
+# Extend app-local open_basedir without removing existing allowed paths.
+normalize_path() {
+    local p="$1"
+    [[ "$p" == */ ]] || p="$p/"
+    printf '%s' "$p"
+}
+APP_DIR_ABS="$(cd "$APP_DIR" && pwd)"
+STORAGE_ABS="$(cd "$STORAGE" && pwd)"
+ALLOWED_REQUIRED="$(normalize_path "$APP_DIR_ABS"):$(normalize_path "$STORAGE_ABS"):/tmp/"
+PUBLIC_INI="$APP_DIR/public/.user.ini"
+[[ -e "$PUBLIC_INI" ]] || install -m 644 /dev/null "$PUBLIC_INI"
+USER_INI_FILES=()
+SITE_ROOT="$(dirname "$APP_DIR")"
+for ini in "$SITE_ROOT/.user.ini" "$APP_DIR/.user.ini" "$PUBLIC_INI"; do
+    [[ -f "$ini" ]] || continue
+    duplicate=0
+    for existing in "${USER_INI_FILES[@]}"; do
+        [[ "$existing" == "$ini" ]] && duplicate=1
+    done
+    [[ "$duplicate" -eq 0 ]] && USER_INI_FILES+=("$ini")
+done
+
+for ini in "${USER_INI_FILES[@]}"; do
+    tmp="$(mktemp)"
+    awk -v required="$ALLOWED_REQUIRED" '
+      BEGIN { updated=0 }
+      /^[[:space:]]*open_basedir[[:space:]]*=/ {
+        line=$0
+        sub(/^[^=]*=[[:space:]]*/, "", line)
+        gsub(/[[:space:]"]/ , "", line)
+        n=split(line, paths, ":")
+        for (i=1; i<=n; i++) if (paths[i] != "") allowed[paths[i]]=1
+        m=split(required, extra, ":")
+        for (i=1; i<=m; i++) if (extra[i] != "") allowed[extra[i]]=1
+        value=""
+        for (p in allowed) value=value (value=="" ? "" : ":") p
+        print "open_basedir=" value
+        updated=1
+        next
+      }
+      { print }
+      END { if (!updated) print "open_basedir=" required }
+    ' "$ini" > "$tmp"
+    immutable=0
+    if command -v lsattr >/dev/null 2>&1 && lsattr -d "$ini" 2>/dev/null | awk 'NR==1 {exit(index($1,"i") ? 0 : 1)}'; then
+        immutable=1
+        chattr -i "$ini"
+    fi
+    cat "$tmp" > "$ini"
+    rm -f "$tmp"
+    chmod 644 "$ini" 2>/dev/null || true
+    if id www >/dev/null 2>&1; then chown www:www "$ini" 2>/dev/null || true
+    elif id www-data >/dev/null 2>&1; then chown www-data:www-data "$ini" 2>/dev/null || true
+    fi
+    [[ "$immutable" -eq 1 ]] && chattr +i "$ini"
+    echo "[OK] open_basedir disesuaikan: $ini"
+done
+
+# Restart PHP-FPM for the selected aaPanel PHP version.
+FPM_SERVICE="/etc/init.d/php-fpm-$PHP_VERSION_DIR"
+if [[ -x "$FPM_SERVICE" ]]; then
+    "$FPM_SERVICE" restart
+else
+    echo "[WARN] Service $FPM_SERVICE tidak ditemukan; restart PHP-FPM manual."
+fi
+if ! "$PHP_BIN" -r 'exit(function_exists("putenv") ? 0 : 1);'; then
+    echo "[ERROR] putenv() masih dinonaktifkan pada PHP CLI. Periksa konfigurasi PHP."
+    exit 1
+fi
+echo "[OK] Fungsi PHP putenv() tersedia."
+
+echo
+echo "[OK] Source Git : $SOURCE_DIR"
+echo "[OK] Aplikasi   : $APP_DIR"
+echo "[NEXT] Document root aaPanel: $APP_DIR/public"
+echo "[NEXT] Pastikan database '$DB_NAME' sudah dibuat di aaPanel."
+echo "[NEXT] Jalankan: cd '$APP_DIR' && '$PHP_BIN' spark migrate"
+echo "[NEXT] Setelah migration, buka https://$DOMAIN/setup untuk membuat admin pertama."
+echo "[NOTE] Jangan gunakan untuk data penting sebelum pengujian backup dan keamanan selesai."
+; then
         PHP_BIN="$candidate"
         break
     fi
