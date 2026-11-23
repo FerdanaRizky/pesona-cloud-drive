@@ -71,6 +71,7 @@ $routes->post('admin/users/update-role/(:num)', 'Admin\\Users::updateRole/$1', [
 $routes->post('admin/users/reset-password/(:num)', 'Admin\\Users::resetPassword/$1', ['filter' => 'admin']);
 $routes->post('admin/users/toggle-status/(:num)', 'Admin\\Users::toggleStatus/$1', ['filter' => 'admin']);
 $routes->post('admin/users/delete/(:num)', 'Admin\\Users::delete/$1', ['filter' => 'admin']);
+$routes->get('admin/system', 'Admin\\System::index', ['filter' => 'admin']);
 
 $routes->get('account/profile', 'Account::profile', ['filter' => 'auth']);
 $routes->post('account/profile', 'Account::updateProfile', ['filter' => 'auth']);
