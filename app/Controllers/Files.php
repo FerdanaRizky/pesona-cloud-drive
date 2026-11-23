@@ -397,7 +397,7 @@ class Files extends BaseController
             return $this->response->download($file['storage_path'], null)->setFileName(basename($file['original_name']));
         }
 
-        if (!class_exists(\\ZipArchive::class)) return redirect()->back()->with('error', 'Fitur unduh banyak file membutuhkan ekstensi PHP ZipArchive.');
+        if (!class_exists(\ZipArchive::class)) return redirect()->back()->with('error', 'Fitur unduh banyak file membutuhkan ekstensi PHP ZipArchive.');
 
         $zipName = 'pesona-cloud-' . date('Ymd-His') . '-' . bin2hex(random_bytes(3)) . '.zip';
         $zipPath = WRITEPATH . 'cache/' . $zipName;
@@ -405,8 +405,8 @@ class Files extends BaseController
             return redirect()->back()->with('error', 'Direktori sementara ZIP tidak dapat dibuat.');
         }
 
-        $zip = new \\ZipArchive();
-        if ($zip->open($zipPath, \\ZipArchive::CREATE | \\ZipArchive::OVERWRITE) !== true) {
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             return redirect()->back()->with('error', 'Arsip ZIP tidak dapat dibuat.');
         }
 
@@ -428,7 +428,7 @@ class Files extends BaseController
                 return redirect()->back()->with('error', 'Gagal menambahkan file ke arsip ZIP: ' . $name);
             }
             // Files are already stored on disk; avoid spending CPU recompressing them.
-            $zip->setCompressionName($candidate, \\ZipArchive::CM_STORE);
+            $zip->setCompressionName($candidate, \ZipArchive::CM_STORE);
             $this->logActivity($uid, 'file.download', 'Mengunduh melalui arsip: ' . $file['original_name']);
         }
 
