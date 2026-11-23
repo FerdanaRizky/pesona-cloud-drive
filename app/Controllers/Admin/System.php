@@ -10,23 +10,25 @@ class System extends BaseController
     {
         $os = $this->readOsRelease();
         $memory = $this->readMemory();
-        $diskPath = is_dir(WRITEPATH) ? WRITEPATH : ROOTPATH;
-        $diskTotal = @disk_total_space($diskPath);
-        $diskFree = @disk_free_space($diskPath);
-        $dbVersion = 'Tidak tersedia';
+        $diskPath = WRITEPATH;
+        $diskTotal = $this->safeDiskSpace($diskPath, true);
+        $diskFree = $this->safeDiskSpace($diskPath, false);
 
+        $dbVersion = 'Tidak tersedia';
+        $dbConnected = false;
         try {
             $db = db_connect();
             $dbVersion = (string) $db->getVersion();
+            $dbConnected = $db->connID !== false;
             $db->close();
         } catch (\Throwable $e) {
-            // Halaman informasi tetap tersedia tanpa mengganggu koneksi aplikasi.
+            // Informasi sistem tidak boleh mengganggu aplikasi jika DB gagal dibaca.
         }
 
         $appVersion = 'Tidak ditentukan';
         $versionFile = ROOTPATH . 'VERSION';
-        if (is_readable($versionFile)) {
-            $value = trim((string) file_get_contents($versionFile));
+        if ($this->safeIsReadable($versionFile)) {
+            $value = trim((string) $this->safeReadFile($versionFile));
             if ($value !== '') $appVersion = $value;
         }
 
@@ -34,7 +36,7 @@ class System extends BaseController
             'title' => 'Informasi Sistem',
             'server' => [
                 'hostname' => gethostname() ?: 'Tidak tersedia',
-                'os' => $os['PRETTY_NAME'] ?? php_uname('s'),
+                'os' => $os['PRETTY_NAME'] ?? 'Tidak dapat dibaca oleh PHP (open_basedir)',
                 'kernel' => php_uname('r'),
                 'architecture' => php_uname('m'),
                 'cpu_model' => $this->readCpuModel(),
@@ -51,15 +53,16 @@ class System extends BaseController
                 'php' => PHP_VERSION,
                 'php_sapi' => PHP_SAPI,
                 'database' => $dbVersion,
+                'database_connected' => $dbConnected,
                 'codeigniter' => CodeIgniter::CI_VERSION,
                 'openssl' => defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : 'Tidak tersedia',
                 'timezone' => date_default_timezone_get(),
                 'environment' => ENVIRONMENT,
                 'server_time' => date('Y-m-d H:i:s T'),
-                'docker' => is_file('/.dockerenv') || is_dir('/run/.containerenv') ? 'Berjalan di container' : 'Tidak terdeteksi',
+                'docker' => $this->detectContainer(),
             ],
             'panel' => [
-                'installed' => is_dir('/www/server/panel'),
+                'installed' => $this->safeIsDirectory('/www/server/panel'),
                 'version' => $this->readAaPanelVersion(),
             ],
             'app_version' => $appVersion,
@@ -68,27 +71,74 @@ class System extends BaseController
         return view('admin/system', $data);
     }
 
+    /**
+     * Check the configured open_basedir before touching a path.
+     * This avoids PHP warnings that CodeIgniter converts into exceptions.
+     */
+    private function isPathAllowed(string $path): bool
+    {
+        $base = trim((string) ini_get('open_basedir'));
+        if ($base === '') return true;
+
+        $path = rtrim($path, DIRECTORY_SEPARATOR);
+        foreach (explode(PATH_SEPARATOR, $base) as $allowed) {
+            $allowed = rtrim(trim($allowed), DIRECTORY_SEPARATOR);
+            if ($allowed === '') continue;
+            if ($path === $allowed || strpos($path, $allowed . DIRECTORY_SEPARATOR) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function safeIsReadable(string $path): bool
+    {
+        return $this->isPathAllowed($path) && @is_readable($path);
+    }
+
+    private function safeIsDirectory(string $path): bool
+    {
+        return $this->isPathAllowed($path) && @is_dir($path);
+    }
+
+    private function safeReadFile(string $path): string|false
+    {
+        if (!$this->safeIsReadable($path)) return false;
+        return @file_get_contents($path);
+    }
+
+    private function safeDiskSpace(string $path, bool $total): float|false
+    {
+        if (!$this->isPathAllowed($path) || !$this->safeIsDirectory($path)) return false;
+        return $total ? @disk_total_space($path) : @disk_free_space($path);
+    }
+
     private function readOsRelease(): array
     {
         $file = '/etc/os-release';
-        if (!is_readable($file)) return [];
+        $content = $this->safeReadFile($file);
+        if ($content === false) return [];
+
         $values = [];
-        foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        foreach (preg_split('/\r?\n/', $content) as $line) {
             if (strpos($line, '=') === false) continue;
             [$key, $value] = explode('=', $line, 2);
-            $values[$key] = trim($value, " \\t\\n\\r\\0\\x0B\\\"'");
+            $values[$key] = trim($value, " \t\n\r\0\x0B\"'");
         }
         return $values;
     }
 
     private function readMemory(): array
     {
+        $content = $this->safeReadFile('/proc/meminfo');
+        if ($content === false) {
+            return ['total' => 'Tidak tersedia (open_basedir)', 'used' => 'Tidak tersedia', 'used_percent' => null];
+        }
+
         $values = [];
-        if (is_readable('/proc/meminfo')) {
-            foreach (file('/proc/meminfo', FILE_IGNORE_NEW_LINES) ?: [] as $line) {
-                if (preg_match('/^(MemTotal|MemAvailable):\\s+(\\d+)/', $line, $match)) {
-                    $values[$match[1]] = (int) $match[2] * 1024;
-                }
+        foreach (preg_split('/\r?\n/', $content) as $line) {
+            if (preg_match('/^(MemTotal|MemAvailable):\s+(\d+)/', $line, $match)) {
+                $values[$match[1]] = (int) $match[2] * 1024;
             }
         }
         $total = $values['MemTotal'] ?? 0;
@@ -102,9 +152,9 @@ class System extends BaseController
 
     private function readCpuModel(): string
     {
-        if (!is_readable('/proc/cpuinfo')) return 'Tidak tersedia';
-        $content = (string) file_get_contents('/proc/cpuinfo');
-        if (preg_match('/^(?:model name|Hardware|Processor)\\s*:\\s*(.+)$/mi', $content, $match)) {
+        $content = $this->safeReadFile('/proc/cpuinfo');
+        if ($content === false) return 'Tidak tersedia (open_basedir)';
+        if (preg_match('/^(?:model name|Hardware|Processor)\s*:\s*(.+)$/mi', $content, $match)) {
             return trim($match[1]);
         }
         return 'Tidak tersedia';
@@ -112,18 +162,17 @@ class System extends BaseController
 
     private function countCpuCores(): string
     {
-        if (is_readable('/proc/cpuinfo')) {
-            $count = preg_match_all('/^processor\\s*:/m', (string) file_get_contents('/proc/cpuinfo'));
-            if ($count > 0) return (string) $count . ' core';
-        }
-        return 'Tidak tersedia';
+        $content = $this->safeReadFile('/proc/cpuinfo');
+        if ($content === false) return 'Tidak tersedia (open_basedir)';
+        $count = preg_match_all('/^processor\s*:/m', $content);
+        return $count > 0 ? (string) $count . ' core' : 'Tidak tersedia';
     }
 
     private function readUptime(): string
     {
-        if (!is_readable('/proc/uptime')) return 'Tidak tersedia';
-        $raw = (string) file_get_contents('/proc/uptime');
-        $seconds = (int) floor((float) strtok($raw, ' '));
+        $content = $this->safeReadFile('/proc/uptime');
+        if ($content === false) return 'Tidak tersedia (open_basedir)';
+        $seconds = (int) floor((float) strtok($content, ' '));
         $days = intdiv($seconds, 86400);
         $hours = intdiv($seconds % 86400, 3600);
         $minutes = intdiv($seconds % 3600, 60);
@@ -141,22 +190,35 @@ class System extends BaseController
         return 'Tidak dapat dideteksi dari PHP';
     }
 
+    private function detectContainer(): string
+    {
+        if ($this->safeIsReadable('/.dockerenv') || $this->safeIsDirectory('/run/.containerenv')) {
+            return 'Berjalan di container';
+        }
+        if (!$this->isPathAllowed('/.dockerenv') && !$this->isPathAllowed('/run/.containerenv')) {
+            return 'Tidak dapat diperiksa (open_basedir)';
+        }
+        return 'Tidak terdeteksi';
+    }
+
     private function readAaPanelVersion(): string
     {
-        if (!is_dir('/www/server/panel')) return 'Tidak terpasang / tidak terdeteksi';
+        $panelDir = '/www/server/panel';
+        if (!$this->safeIsDirectory($panelDir)) {
+            return $this->isPathAllowed($panelDir) ? 'Tidak terpasang / tidak terdeteksi' : 'Tidak dapat diperiksa (open_basedir)';
+        }
+
         foreach ([
             '/www/server/panel/data/version.pl',
             '/www/server/panel/data/version.txt',
             '/www/server/panel/class/panelVersion.py',
         ] as $file) {
-            if (!is_readable($file)) continue;
-            $version = trim((string) file_get_contents($file));
-            if ($version !== '') {
-                if (preg_match('/(?:version|VERSION)\\s*[=:\\(]\\s*["\\\']?([0-9]+(?:\\.[0-9]+){1,3})/i', $version, $match)) {
-                    return $match[1];
-                }
-                if (preg_match('/^[0-9]+(?:\\.[0-9]+){1,3}$/', $version)) return $version;
+            $version = $this->safeReadFile($file);
+            if ($version === false || trim($version) === '') continue;
+            if (preg_match('/(?:version|VERSION)\s*[=:\(]\s*["\']?([0-9]+(?:\.[0-9]+){1,3})/i', $version, $match)) {
+                return $match[1];
             }
+            if (preg_match('/^[0-9]+(?:\.[0-9]+){1,3}$/', trim($version))) return trim($version);
         }
         return 'Terpasang, versi tidak dapat dibaca';
     }
