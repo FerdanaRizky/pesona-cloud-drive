@@ -301,3 +301,12 @@ Installer juga:
 - Mengatur timeout Nginx situs secara otomatis dengan backup dan validasi konfigurasi.
 
 Pemeriksaan kapasitas adalah preflight, bukan jaminan bahwa setiap arsip dapat dibuat. Ruang disk yang diperlukan bergantung pada ukuran total file yang dipilih; sediakan ruang kosong setidaknya sebesar arsip ZIP yang akan dibuat, ditambah ruang operasional aplikasi.
+
+### Perbaikan open_basedir aaPanel
+
+Installer menjalankan `tools/configure-open-basedir.sh` untuk memastikan `public/.user.ini` mengizinkan akses ke:
+- Root aplikasi CodeIgniter (termasuk `app/` dan `vendor/`)
+- Direktori private storage
+- `/tmp/`
+
+Konfigurasi lama pada `public/.user.ini` dicadangkan sebelum directive `open_basedir` diganti. Installer memverifikasi bahwa direktori inti aplikasi tersedia dan allowlist sudah memuat root aplikasi serta private storage. Konfigurasi Nginx situs juga diatur agar nilai `PHP_ADMIN_VALUE open_basedir` tidak membatasi akses hanya ke folder `public/`.
