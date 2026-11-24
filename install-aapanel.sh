@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 APP_NAME="Pesona Cloud Drive"
 REPO="https://github.com/FerdanaRizky/pesona-cloud-drive.git"
-DOMAIN_DEFAULT="test-cloud.pesonawifi.my.id"
+DOMAIN_DEFAULT="domain-anda.com"
 APP_DIR_DEFAULT="/www/wwwroot/$DOMAIN_DEFAULT/app-src"
 SOURCE_DIR_DEFAULT="/opt/pesona-cloud-drive-source"
 DB_NAME_DEFAULT="pesona_cloud_drive"
