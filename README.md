@@ -130,6 +130,7 @@ Buat akun Superadmin pertama, termasuk nomor WhatsApp yang diminta pada halaman 
 Setelah itu login dan uji upload, preview, download, serta manajemen pengguna.
 
 ### **Tahap 7 — Perbaiki batas upload Nginx
+
 Di aaPanel, buka:
 
 Website → domain.com → Config
@@ -146,6 +147,7 @@ nginx -t && /etc/init.d/nginx reload
 ```
 
 ### **Tahap 8 — Perbaiki konfigurasi PHP 8.4
+
 Jalankan perintah berikut melalui SSH sebagai root. Perintah ini membuat backup terlebih dahulu dan hanya mengubah konfigurasi yang diperlukan.
 
 ```
@@ -200,8 +202,13 @@ grep -n '^max_execution_time' "$PHP_PREFIX/etc/php.ini"
 Catatan: batas 1800 detik mengurangi risiko proses ZIP diputus terlalu cepat, tetapi bukan jaminan semua ukuran ZIP akan selesai. Kapasitas disk sementara, ukuran file, kecepatan storage, dan timeout reverse proxy tetap berpengaruh.
 
 
-===============================================================================================================
-===============================================================================================================
+====================================================================
+Untuk konfig OTP
+copy baris whatsapp api yang ada di dalam .env.example,
+kemudian pasang di .env, 
+isi sesuai konfigurasi baseURL, DeviceID, username, password sesuai dengan kondisi WA gateway anda
+
+=====================================================================
 ## ** Jika mengalami eror
 ** Panduan mengatasi error yang mungkin muncul**
 
