@@ -38,7 +38,7 @@ $currentPath = trim($currentPath, '/');
 <main class="main-content">
 <header class="topbar">
 <button class="btn btn-sm btn-outline-secondary d-lg-none sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="appSidebar">☰</button>
-<span class="text-secondary topbar-caption">Personal cloud workspace</span>
+<span class="text-secondary topbar-caption">Pesona Data CLoud</span>
 <div class="topbar-actions ms-auto">
 <button class="btn btn-sm btn-outline-secondary theme-toggle-btn" id="themeToggle" type="button" aria-label="Ganti tema" title="Ganti tema" onclick="return window.pcdToggleTheme(event)"><span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">☾</span></button>
 <div class="dropdown account-dropdown">
