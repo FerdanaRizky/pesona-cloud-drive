@@ -291,6 +291,14 @@ for ini in "${USER_INI_FILES[@]}"; do
     echo "[OK] open_basedir disesuaikan: $ini"
 done
 
+# Set an explicit open_basedir allowlist for CodeIgniter's public entry point.
+if [[ -f "$SOURCE_DIR/tools/configure-open-basedir.sh" ]]; then
+    bash "$SOURCE_DIR/tools/configure-open-basedir.sh" "$APP_DIR" "$STORAGE"
+else
+    echo "[ERROR] tools/configure-open-basedir.sh tidak ditemukan."
+    exit 1
+fi
+
 # Apply safe PHP-FPM timeout defaults for long bulk ZIP downloads.
 if [[ -f "$SOURCE_DIR/tools/configure-php-fpm.sh" ]]; then
     bash "$SOURCE_DIR/tools/configure-php-fpm.sh" "$PHP_PREFIX"
@@ -304,6 +312,15 @@ if [[ -f "$SOURCE_DIR/tools/configure-nginx-timeouts.sh" ]]; then
     bash "$SOURCE_DIR/tools/configure-nginx-timeouts.sh" "$DOMAIN" "$APP_DIR" "$STORAGE"
 else
     echo "[ERROR] tools/configure-nginx-timeouts.sh tidak ditemukan di source repository."
+    exit 1
+fi
+
+if [[ ! -r "$APP_DIR/app/Config/Paths.php" || ! -r "$APP_DIR/vendor/autoload.php" ]]; then
+    echo "[ERROR] File inti aplikasi tidak dapat dibaca oleh user installer."
+    exit 1
+fi
+if ! grep -Fq "open_basedir=$APP_DIR/:$STORAGE/:/tmp/" "$APP_DIR/public/.user.ini"; then
+    echo "[ERROR] open_basedir public/.user.ini belum mencakup app dan private storage."
     exit 1
 fi
 
