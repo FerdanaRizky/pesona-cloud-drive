@@ -301,7 +301,7 @@ fi
 
 # Configure the selected site's PHP FastCGI and response-send timeouts safely.
 if [[ -f "$SOURCE_DIR/tools/configure-nginx-timeouts.sh" ]]; then
-    bash "$SOURCE_DIR/tools/configure-nginx-timeouts.sh" "$DOMAIN"
+    bash "$SOURCE_DIR/tools/configure-nginx-timeouts.sh" "$DOMAIN" "$APP_DIR" "$STORAGE"
 else
     echo "[ERROR] tools/configure-nginx-timeouts.sh tidak ditemukan di source repository."
     exit 1
