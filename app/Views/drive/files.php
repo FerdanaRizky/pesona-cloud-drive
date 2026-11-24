@@ -243,7 +243,7 @@ document.querySelectorAll('.floating-action-dropdown').forEach(function(dropdown
 
 <?php if (!$isStarredPage): ?>
 <section class="dashboard-section dashboard-folder-section file-manager-folder-section">
-<div class="dashboard-section-heading"><h2><span aria-hidden="true">⌄</span> Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div>
+<div class="dashboard-section-heading"><h2>Folder</h2><span class="small text-secondary"><?= count($folders) ?> folder</span></div>
 <?php if (!empty($folders)): ?><div class="dashboard-folder-grid">
 <?php foreach ($folders as $folder): ?>
 <article class="dashboard-folder-card dashboard-selectable-item file-manager-folder-card">
