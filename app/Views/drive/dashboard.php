@@ -63,7 +63,7 @@ $formatActivityDate = static function ($value) {
     </div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="button" class="btn btn-primary" id="dashboardBulkConfirm">Lanjutkan</button></div></div></div></div>
 <section class="dashboard-section dashboard-folder-section">
         <div class="dashboard-section-heading">
-            <h2><span aria-hidden="true">⌄</span> Folder yang disarankan</h2>
+            <h2>Folder yang disarankan</h2>
             <a href="/files" class="dashboard-see-all">Lihat semua</a>
         </div>
         <?php if (!empty($folders)): ?>
@@ -91,7 +91,7 @@ $formatActivityDate = static function ($value) {
 
     <section class="dashboard-section dashboard-files-section">
         <div class="dashboard-section-heading dashboard-files-heading">
-            <h2><span aria-hidden="true">⌄</span> File yang disarankan</h2>
+            <h2>File yang disarankan</h2>
             <div class="dashboard-heading-actions">
                 <a href="/files" class="dashboard-see-all">Lihat semua</a>
                 <div class="view-switcher dashboard-view-switcher" role="group" aria-label="Tampilan file">
