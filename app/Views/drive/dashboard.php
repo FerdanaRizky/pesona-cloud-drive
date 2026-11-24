@@ -29,7 +29,7 @@ $formatActivityDate = static function ($value) {
 <div class="dashboard-drive" id="dashboardDriveRoot" data-dashboard-view="grid">
     <div class="dashboard-welcome">
         <div>
-            <h1>Selamat datang di Drive</h1>
+            <h1>Selamat datang, <?= esc(session()->get('name') ?: session()->get('email') ?: 'Pengguna') ?></h1>
             <p>Semua file dan folder Anda, tersusun rapi di satu tempat.</p>
         </div>
         <a class="dashboard-info-link" href="/files" title="Kelola semua file" aria-label="Kelola semua file">ⓘ</a>
