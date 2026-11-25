@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if(!selected.length)return;
   if(event.key==='Escape'){
    event.preventDefault();event.stopPropagation();
-   document.querySelectorAll('.trash-item-select').forEach(x=>x.checked=false);
+   document.querySelectorAll('.trash-item-select').forEach(x=>{x.checked=false;x.dispatchEvent(new Event('change',{bubbles:true}));});
    trashSelectionAnchor=null;refreshTrashSelection();return;
   }
   event.preventDefault();event.stopPropagation();
