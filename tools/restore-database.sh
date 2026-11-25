@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-DB_NAME="$1"; DB_USER="$2"; DB_PASS="$3"; SQL_FILE="$4"
+DB_NAME="$1"; DB_USER="$2"; DB_PASS="${PCD_DB_PASS:?Database password environment variable missing}"; SQL_FILE="$3"
 [[ $EUID -eq 0 ]] || { echo "[ERROR] Jalankan sebagai root."; exit 1; }
 [[ "$DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] || { echo "[ERROR] Nama database tidak valid."; exit 1; }
 [[ -f "$SQL_FILE" && -r "$SQL_FILE" && "$SQL_FILE" == *.sql && -s "$SQL_FILE" ]] || { echo "[ERROR] File backup .sql tidak valid atau kosong."; exit 1; }
