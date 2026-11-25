@@ -68,7 +68,7 @@ $videoSourceMime = str_starts_with($storedMime, 'video/') ? $storedMime : ($vide
 </style>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 preview-header">
   <div class="preview-title"><h1 class="h4 mb-1"><?= esc($fileName) ?></h1><div class="small text-secondary"><?= esc($file['mime_type']) ?> · <?= number_format($file['size_bytes']/1048576,2) ?> MB</div></div>
-  <div class="d-flex gap-2 preview-actions"><a class="btn btn-outline-secondary" href="<?= !empty($trashMode) ? '/trash' : '/files' ?>">Kembali</a><?php if (empty($trashMode)): ?><a class="btn btn-primary" href="/files/download/<?= (int)$file['id'] ?>">Unduh</a><?php endif ?></div>
+  <div class="d-flex gap-2 preview-actions"><a class="btn btn-outline-secondary" href="<?= esc($returnUrl ?? (!empty($trashMode) ? '/trash' : '/files'), 'attr') ?>">Kembali</a><?php if (empty($trashMode)): ?><a class="btn btn-primary" href="/files/download/<?= (int)$file['id'] ?>">Unduh</a><?php endif ?></div>
 </div>
 <div class="card p-3 preview-stage">
 <?php if (!empty($officePreview)): ?>
