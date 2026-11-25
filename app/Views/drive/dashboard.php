@@ -288,11 +288,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let mobileSelectionMode = false;
     let mobileLongPressTimer = null;
     let mobileLongPressFired = false;
-    const isMobileTouch = () => window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+    const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
     let mobileLongPressStartX = 0;
     let mobileLongPressStartY = 0;
     root.addEventListener('pointerdown', event => {
-        if (!isMobileTouch() || event.pointerType === 'mouse') return;
+        if (!isMobileTouch() || event.pointerType === 'touch' || event.pointerType === 'mouse') return;
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
         mobileLongPressFired = false;
@@ -308,6 +308,39 @@ document.addEventListener('DOMContentLoaded', function () {
             if (navigator.vibrate) navigator.vibrate(25);
         }, 600);
     }, { capture: true, passive: true });
+    root.addEventListener('touchstart', event => {
+        if (!isMobileTouch() || !event.touches || event.touches.length !== 1) return;
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        mobileLongPressFired = false;
+        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
+        const touch = event.touches[0];
+        mobileLongPressStartX = touch.clientX;
+        mobileLongPressStartY = touch.clientY;
+        mobileLongPressTimer = setTimeout(() => {
+            mobileLongPressTimer = null;
+            mobileLongPressFired = true;
+            mobileSelectionMode = true;
+            root.dataset.mobileSelectionMode = 'true';
+            choose(item, { shiftKey: false, ctrlKey: true, metaKey: false });
+            if (navigator.vibrate) navigator.vibrate(25);
+        }, 600);
+    }, { capture: true, passive: true });
+    root.addEventListener('touchmove', event => {
+        if (mobileLongPressTimer === null || !event.touches || !event.touches.length) return;
+        const touch = event.touches[0];
+        if (Math.abs(touch.clientX - mobileLongPressStartX) > 14 ||
+            Math.abs(touch.clientY - mobileLongPressStartY) > 14) {
+            clearTimeout(mobileLongPressTimer);
+            mobileLongPressTimer = null;
+        }
+    }, { capture: true, passive: true });
+    const finishMobileTouch = () => {
+        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
+        mobileLongPressTimer = null;
+    };
+    root.addEventListener('touchend', finishMobileTouch, { capture: true, passive: true });
+    root.addEventListener('touchcancel', finishMobileTouch, { capture: true, passive: true });
     root.addEventListener('pointermove', event => {
         if (mobileLongPressTimer === null) return;
         if (Math.abs(event.clientX - mobileLongPressStartX) > 12 ||
