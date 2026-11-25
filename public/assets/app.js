@@ -31,7 +31,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   clearTimer();longPressed=false;
   startX=event.clientX;startY=event.clientY;
   timer=setTimeout(()=>{
-   timer=null;longPressed=true;selectionMode=true;
+   timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
    updateBox(item,true);
    if(navigator.vibrate)navigator.vibrate(25);
   },550);
@@ -55,7 +55,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   const box=checkboxFor(item);if(!box)return;
   event.preventDefault();event.stopImmediatePropagation();
   updateBox(item,!box.checked);
-  if(![...root.querySelectorAll('.drive-item-select')].some(input=>input.checked))selectionMode=false;
+  if(![...root.querySelectorAll('.drive-item-select')].some(input=>input.checked)){selectionMode=false;delete root.dataset.mobileSelectionMode;}
  },true);
  document.addEventListener('contextmenu',event=>{
   if(mobile()&&event.target.closest('#driveViewRoot '+itemSelector))event.preventDefault();
@@ -71,6 +71,8 @@ document.addEventListener('click',event=>{
   '#dashboardDriveRoot [data-dashboard-selectable], #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card'
  );
  if(!item)return;
+ const driveRootForSelection=document.getElementById('driveViewRoot');
+ if(driveRootForSelection?.dataset.mobileSelectionMode==='true'&&driveRootForSelection.contains(item))return;
  if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn,.multi-select-control'))return;
  const clickedLink=event.target.closest('a[href]');
  const primaryLink=clickedLink||item.querySelector(
