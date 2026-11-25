@@ -3,7 +3,7 @@
 <?php $generatedShareId = (int) (session()->getFlashdata('share_id') ?? 0); $generatedShareLink = session()->getFlashdata('share_link'); $generatedShareIds = array_map('intval', (array) (session()->getFlashdata('share_ids') ?? [])); ?>
 <div class="share-page-heading d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
  <div><div class="share-page-eyebrow">BERBAGI FILE</div><h1 class="h3 mb-1">Manajemen Link Berbagi</h1><p class="text-secondary mb-0">Kelola tautan, tampilkan kembali URL, perbarui masa berlaku, atau cabut akses.</p></div>
- <div class="d-flex align-items-center gap-2"><div class="view-switcher" role="group" aria-label="Tampilan link berbagi"><button type="button" class="view-switch-btn" data-share-view="list" aria-pressed="true" title="Tampilan daftar">☷</button><button type="button" class="view-switch-btn" data-share-view="grid" aria-pressed="false" title="Tampilan grid">▦</button></div><a class="btn btn-outline-secondary share-back-button" href="/files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18 9 12l6-6M9 12h12"/></svg>Kembali ke File</a></div>
+ <div class="d-flex align-items-center gap-2"><a class="btn btn-outline-secondary share-back-button" href="/files"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18 9 12l6-6M9 12h12"/></svg>Kembali ke File</a></div>
 </div>
 
 <div id="shareViewRoot" data-share-view="list">
@@ -116,11 +116,8 @@ document.addEventListener('DOMContentLoaded',function(){
  });
 });
 document.addEventListener('DOMContentLoaded',function(){
- const shareViewRoot=document.getElementById('shareViewRoot'),shareViewButtons=document.querySelectorAll('[data-share-view]');
- const savedShareView=localStorage.getItem('pcd-share-view')||'list';
- function setShareView(view){if(!shareViewRoot)return;shareViewRoot.dataset.shareView=view;shareViewButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.shareView===view)));localStorage.setItem('pcd-share-view',view);}
- shareViewButtons.forEach(button=>button.addEventListener('click',()=>setShareView(button.dataset.shareView)));
- setShareView(savedShareView);
+ const shareViewRoot=document.getElementById('shareViewRoot');
+ if(shareViewRoot)shareViewRoot.dataset.shareView='list';
 });
 document.addEventListener('DOMContentLoaded',function(){
  const form=document.getElementById('bulkShareForm'),ids=document.getElementById('bulkShareIds'),count=document.getElementById('bulkShareCount'),all=document.getElementById('selectAllShares');
