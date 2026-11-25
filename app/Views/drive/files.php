@@ -101,7 +101,7 @@ driveRoot.addEventListener('dblclick',event=>{
  const item=event.target.closest('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card');
  if(!item||isItemControl(event.target))return;
  const link=item.querySelector('.dashboard-folder-main[href],.dashboard-file-title[href],.dashboard-file-preview[href],.dashboard-list-name[href]');
- if(link){event.preventDefault();if(/\\/files\\/preview\\//.test(link.href)){openDrivePreview(link);}else{window.location.assign(link.href);}}
+ if(link){event.preventDefault();if(link.pathname.includes('/files/preview/')){openDrivePreview(link);}else{window.location.assign(link.href);}}
 });
 selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=selectAll.checked);refreshSelection();});
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
