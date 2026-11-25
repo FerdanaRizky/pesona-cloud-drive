@@ -6,29 +6,6 @@ sidebarBackdrop?.addEventListener('click',closeSidebar);
 sidebar?.querySelectorAll('a.nav-link').forEach(link=>link.addEventListener('click',closeSidebar));
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();});
-/* iOS Safari: remove native href targets from selectable Drive items on
-   touch devices. Safari's link-preview is a system gesture and can ignore
-   -webkit-touch-callout; a real href still triggers the preview. The existing
-   mobile click handler uses data-mobile-href for normal single-tap navigation. */
-(()=>{
- const root=document.getElementById('driveViewRoot');
- if(!root||!window.matchMedia('(max-width: 767px), (pointer: coarse)').matches)return;
- const selector='.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card';
- const neutralize=()=>{
-  root.querySelectorAll(selector+' a[href]').forEach(link=>{
-   const href=link.getAttribute('href');
-   if(!href)return;
-   link.dataset.mobileHref=href;
-   link.removeAttribute('href');
-   link.setAttribute('role','link');
-   link.style.webkitTouchCallout='none';
-   link.style.webkitUserSelect='none';
-   link.style.userSelect='none';
-  });
- };
- neutralize();
-})();
-
 /* Mobile long-press multi-select for File Saya, Favorit, and Sampah.
    Hold briefly to enter selection mode; subsequent taps toggle items.
    Desktop selection and existing action controls remain unchanged. */
