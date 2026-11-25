@@ -30,7 +30,7 @@ $currentPath = trim($currentPath, '/');
 <?php endif ?>
 </nav>
 <div class="sidebar-footer" aria-label="Informasi aplikasi">
-  <span class="sidebar-app-version">Pesona Cloud Drive <strong>v1.0.0</strong></span>
+  <span class="sidebar-app-version">Pesona Cloud Drive <strong>v1.0.1</strong></span>
   <span class="sidebar-copyright">© 2026 Pesona Data Media</span>
 </div>
 </aside>
