@@ -57,6 +57,12 @@ $formatActivityDate = static function ($value) {
         <div id="dashboardMoveField" class="d-none"><label class="form-label" for="dashboardActionFolder">Pilih folder tujuan</label><select class="form-select" id="dashboardActionFolder" name="parent_id"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $target): ?><option value="<?= (int) $target['id'] ?>"><?= esc($target['name']) ?></option><?php endforeach ?></select></div>
         <div id="dashboardShareField" class="d-none"><label class="form-label" for="dashboardActionExpiry">Masa berlaku tautan</label><select class="form-select" id="dashboardActionExpiry" name="expires_days"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select></div>
     </div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary" id="dashboardFileActionSubmit">Simpan</button></div></form></div></div></div>
+    <div class="modal fade" id="dashboardPreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-truncate" id="dashboardPreviewTitle">Preview file</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup preview"></button></div>
+            <div class="modal-body p-0" style="height:min(78vh,900px)"><iframe id="dashboardPreviewFrame" title="Preview file" src="about:blank" style="display:block;width:100%;height:100%;border:0;background:var(--bs-body-bg)"></iframe></div>
+        </div></div>
+    </div>
     <div class="modal fade" id="dashboardBulkModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="dashboardBulkTitle">Aksi item terpilih</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div><div class="modal-body">
         <div id="dashboardBulkShareField" class="d-none"><label class="form-label" for="dashboardBulkExpiry">Masa berlaku tautan</label><select class="form-select" id="dashboardBulkExpiry" name="expires_days" form="dashboardBulkForm"><option value="1">1 hari</option><option value="7" selected>7 hari</option><option value="30">30 hari</option><option value="never">Tanpa kedaluwarsa</option></select></div>
         <div id="dashboardBulkMoveField" class="d-none"><label class="form-label" for="dashboardBulkFolder">Pilih folder tujuan</label><select class="form-select" id="dashboardBulkFolder" name="parent_id" form="dashboardBulkForm"><option value="0">Drive utama</option><?php foreach (($allFolders ?? []) as $target): ?><option value="<?= (int) $target['id'] ?>"><?= esc($target['name']) ?></option><?php endforeach ?></select></div>
@@ -296,6 +302,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         refreshSelection();
     }
+    // Desktop: single click selects; double click opens the item.
+    const previewModal = document.getElementById('dashboardPreviewModal');
+    const previewFrame = document.getElementById('dashboardPreviewFrame');
+    const previewTitle = document.getElementById('dashboardPreviewTitle');
+    const openPreview = (item, link) => {
+        if (!previewModal || !previewFrame || !window.bootstrap?.Modal) return;
+        const match = (link?.getAttribute('href') || '').match(/\\/files\\/preview\\/(\\d+)/);
+        if (!match) return;
+        const name = item.querySelector('.dashboard-list-filename,.dashboard-file-title')?.textContent?.trim()
+            || link.getAttribute('title') || link.getAttribute('aria-label') || 'Preview file';
+        previewTitle.textContent = name;
+        previewFrame.src = '/files/preview-content/' + match[1];
+        window.bootstrap.Modal.getOrCreateInstance(previewModal).show();
+    };
+    previewModal?.addEventListener('hidden.bs.modal', () => { if (previewFrame) previewFrame.src = 'about:blank'; });
+    root.addEventListener('click', event => {
+        if (isMobileTouch()) return;
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        const link = event.target.closest('a[href]');
+        if (link && item.contains(link) && !link.closest('.dashboard-list-location')) event.preventDefault();
+        choose(item, event);
+    });
+    root.addEventListener('dblclick', event => {
+        if (isMobileTouch()) return;
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        const link = item.querySelector('.dashboard-folder-main[href],.dashboard-file-title[href],.dashboard-file-preview[href],.dashboard-list-name[href]');
+        if (!link) return;
+        event.preventDefault();
+        if (item.dataset.itemType === 'file' && link.pathname.includes('/files/preview/')) openPreview(item, link);
+        else window.location.assign(link.href);
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Delete' && event.key !== 'Escape') return;
+        if (event.target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(event.target?.tagName)) return;
+        if (document.querySelector('.modal.show') || selected.size === 0) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            selected.clear(); anchor = null; mobileSelectionMode = false;
+            delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0';
+            refreshSelection();
+        } else {
+            event.preventDefault();
+            if (!confirm('Pindahkan ' + selected.size + ' item terpilih ke Sampah?')) return;
+            bulkForm.action = '/files/bulk-trash';
+            bulkForm.requestSubmit();
+        }
+    });
+
     const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     let mobileSelectionMode = false, longPressTimer = null, longPressItem = null, longPressFired = false;
     let startX = 0, startY = 0, touchStartItem = null, touchMoved = false, suppressNextClick = false;
