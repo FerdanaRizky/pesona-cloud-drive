@@ -317,14 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
         window.bootstrap.Modal.getOrCreateInstance(previewModal).show();
     };
     previewModal?.addEventListener('hidden.bs.modal', () => { if (previewFrame) previewFrame.src = 'about:blank'; });
-    root.addEventListener('click', event => {
-        if (isMobileTouch()) return;
-        const item = getItem(event.target);
-        if (item && !isControl(event.target)) {
-            const clickedLink = event.target.closest('a[href]');
-            if (clickedLink && item.contains(clickedLink) && !clickedLink.closest('.dashboard-list-location')) event.preventDefault();
-        }
-    }, true);
+    // Desktop: intercept the item click before the anchor can navigate.
+    // A single click only selects; the dblclick handler below opens preview/folder.
     root.addEventListener('click', event => {
         if (isMobileTouch()) return;
         const item = getItem(event.target);
@@ -332,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const link = event.target.closest('a[href]');
         if (link && item.contains(link) && !link.closest('.dashboard-list-location')) event.preventDefault();
         choose(item, event);
-    });
+    }, true);
     root.addEventListener('dblclick', event => {
         if (isMobileTouch()) return;
         const item = getItem(event.target);
@@ -434,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function () {
         selected.clear(); anchor = null; mobileSelectionMode = false;
         delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0';
         refreshSelection();
-    });
+    }, true);
 
     const actionModal = document.getElementById('dashboardFileActionModal');
     const actionForm = document.getElementById('dashboardFileActionForm');
