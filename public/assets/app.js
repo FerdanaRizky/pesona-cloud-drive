@@ -48,28 +48,6 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
     node.style.userSelect='none';
    });
   });
-  root.addEventListener('touchstart',event=>{
-   if(!mobile()||!event.touches||event.touches.length!==1)return;
-   const item=event.target.closest(selector);
-   if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
-   clearTimer();longPressed=false;
-   const touch=event.touches[0],x=touch.clientX,y=touch.clientY;
-   timer=setTimeout(()=>{
-    timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
-    updateBox(item,true);
-    if(navigator.vibrate)navigator.vibrate(25);
-   },600);
-   root.dataset.longPressStartX=String(x);
-   root.dataset.longPressStartY=String(y);
-  },{capture:true,passive:true});
-  root.addEventListener('touchmove',event=>{
-   if(timer===null||!event.touches||!event.touches.length)return;
-   const touch=event.touches[0];
-   if(Math.abs(touch.clientX-Number(root.dataset.longPressStartX))>12||
-      Math.abs(touch.clientY-Number(root.dataset.longPressStartY))>12)clearTimer();
-  },{capture:true,passive:true});
-  root.addEventListener('touchend',()=>{clearTimer();delete root.dataset.longPressStartX;delete root.dataset.longPressStartY;},{capture:true,passive:true});
-  root.addEventListener('touchcancel',()=>{clearTimer();delete root.dataset.longPressStartX;delete root.dataset.longPressStartY;},{capture:true,passive:true});
   root.addEventListener('pointerdown',event=>{
    if(!mobile()||event.pointerType==='mouse')return;
    const item=event.target.closest(selector);
