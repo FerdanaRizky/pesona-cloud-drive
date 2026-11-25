@@ -15,8 +15,11 @@ if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; 
     echo "[INFO] FFmpeg/ffprobe belum lengkap. Mencoba instalasi otomatis..."
     if command -v apt-get >/dev/null 2>&1; then
         export DEBIAN_FRONTEND=noninteractive
-        apt-get update
-        apt-get install -y ffmpeg
+        if apt-get update && apt-get install -y ffmpeg; then
+            echo "[OK] FFmpeg berhasil dipasang."
+        else
+            echo "[WARN] Instalasi FFmpeg otomatis gagal. Installer tetap melanjutkan; pasang FFmpeg setelah memeriksa koneksi/repository apt."
+        fi
     else
         echo "[WARN] Package manager apt tidak tersedia. Pasang FFmpeg secara manual."
     fi
