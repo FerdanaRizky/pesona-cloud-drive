@@ -17,9 +17,9 @@ printf '[client]\nuser="%s"\npassword="%s"\nhost="localhost"\ndefault-character-
 mysql_cmd() { "$MYSQL_BIN" --defaults-extra-file="$CNF" --batch --skip-column-names "$@"; }
 echo "[INFO] Memeriksa koneksi MySQL..."
 mysql_cmd -e "SELECT 1" >/dev/null || { echo "[ERROR] Koneksi MySQL gagal."; exit 1; }
-DB_EXISTS="$(mysql_cmd -e "SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='\${DB_NAME}'")"
+DB_EXISTS="$(mysql_cmd -e "SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}'")"
 [[ "$DB_EXISTS" == "1" ]] || { echo "[ERROR] Database '$DB_NAME' belum dibuat di aaPanel."; exit 1; }
-TABLE_COUNT="$(mysql_cmd -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='\${DB_NAME}'")"
+TABLE_COUNT="$(mysql_cmd -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='${DB_NAME}'")"
 [[ "$TABLE_COUNT" =~ ^[0-9]+$ ]] || { echo "[ERROR] Gagal memeriksa tabel database."; exit 1; }
 if (( TABLE_COUNT > 0 )); then
   echo "[ERROR] Database berisi $TABLE_COUNT tabel. Import dibatalkan agar data tidak tertimpa."
