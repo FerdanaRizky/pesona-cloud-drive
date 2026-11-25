@@ -142,20 +142,22 @@ document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('selectAllTrashFolders')?.addEventListener('change',function(){document.querySelectorAll('.trash-item-select[data-item-type="folder"]').forEach(x=>x.checked=this.checked);refreshTrashSelection();});
  document.getElementById('clearTrashSelection')?.addEventListener('click',()=>{document.querySelectorAll('.trash-item-select').forEach(x=>x.checked=false);refreshTrashSelection();});
  document.addEventListener('keydown',function(event){
-  if(event.key!=='Escape'&&event.key!=='Delete')return;
+  const isEscape=event.key==='Escape'||event.code==='Escape';
+  const isDelete=event.key==='Delete'||event.code==='Delete';
+  if(!isEscape&&!isDelete)return;
   const target=event.target,tag=(target?.tagName||'').toLowerCase();
   if(target?.isContentEditable||['textarea','select'].includes(tag)||(tag==='input'&&!['checkbox','radio'].includes(target.type))||document.querySelector('.modal.show'))return;
   const selected=[...document.querySelectorAll('.trash-item-select:checked')];
   if(!selected.length)return;
-  if(event.key==='Escape'){
+  if(isEscape){
    event.preventDefault();event.stopPropagation();
-   document.querySelectorAll('.trash-item-select').forEach(x=>{x.checked=false;x.dispatchEvent(new Event('change',{bubbles:true}));});
+   document.querySelectorAll('.trash-item-select').forEach(x=>{x.checked=false;x.closest('tr.file-row')?.classList.remove('is-drive-selected');});
    trashSelectionAnchor=null;refreshTrashSelection();return;
   }
   event.preventDefault();event.stopPropagation();
   if(!confirm('Hapus permanen '+selected.length+' item terpilih? Isi folder terpilih juga akan dihapus. Tindakan ini tidak dapat dibatalkan.'))return;
   bulkForm.action='/trash/bulk-purge';bulkForm.submit();
- });
+ },true);
  document.querySelectorAll('[data-trash-bulk-action]').forEach(button=>button.addEventListener('click',function(){
   const action=this.dataset.trashBulkAction,count=document.querySelectorAll('.trash-item-select:checked').length;
   if(!count)return;
