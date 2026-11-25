@@ -226,6 +226,12 @@ $formatActivityDate = static function ($value) {
 document.addEventListener('DOMContentLoaded', function () {
     const root = document.getElementById('dashboardDriveRoot');
     if (!root) return;
+    if (!document.getElementById('pcd-dashboard-touch-style')) {
+        const style = document.createElement('style');
+        style.id = 'pcd-dashboard-touch-style';
+        style.textContent = '#dashboardDriveRoot [data-dashboard-selectable], #dashboardDriveRoot [data-dashboard-selectable] *, #dashboardDriveRoot a { -webkit-touch-callout:none !important; -webkit-user-select:none !important; user-select:none !important; }';
+        document.head.appendChild(style);
+    }
     const buttons = root.querySelectorAll('[data-dashboard-view-button]');
     const saved = localStorage.getItem('pcd-dashboard-view') || 'grid';
     const setView = view => {
@@ -286,37 +292,66 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshSelection();
     }
     const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    root.addEventListener('pcd:mobile-toggle', event => {
-        const item = event.detail?.item;
-        const mode = event.detail?.mode;
-        if (!item || !root.contains(item)) return;
+    let mobileSelectionMode = false, longPressTimer = null, longPressItem = null, longPressFired = false;
+    let startX = 0, startY = 0;
+    const cancelLongPress = () => { if (longPressTimer !== null) clearTimeout(longPressTimer); longPressTimer = null; longPressItem = null; };
+    const toggleMobileItem = item => {
         const key = itemKey(item);
-        if (mode === 'add') selected.add(key);
-        else if (mode === 'remove') selected.delete(key);
-        else if (mode === 'toggle') selected.has(key) ? selected.delete(key) : selected.add(key);
-        refreshSelection();
+        if (selected.has(key)) selected.delete(key); else { selected.add(key); anchor = item; }
+        mobileSelectionMode = selected.size > 0;
         root.dataset.mobileSelectedCount = String(selected.size);
-        if (selected.size) root.dataset.mobileSelectionMode = 'true';
-        else delete root.dataset.mobileSelectionMode;
-    });
-    root.addEventListener('click', event => {
-        const item = getItem(event.target);
-        if (!item || isControl(event.target) || isMobileTouch()) return;
-        event.preventDefault();
-        choose(item, event);
-    }, true);
-    root.addEventListener('dblclick', event => {
+        if (mobileSelectionMode) root.dataset.mobileSelectionMode = 'true'; else delete root.dataset.mobileSelectionMode;
+        refreshSelection();
+    };
+    const beginLongPress = (event, point) => {
+        if (!isMobileTouch() || !point || (event.touches && event.touches.length !== 1)) return;
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
-        const link = item.querySelector('.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-list-name[href]');
-        if (link) { event.preventDefault(); window.location.assign(link.href); }
-    });
-    root.addEventListener('keydown', event => {
-        if ((event.key === 'Enter' || event.key === ' ') && getItem(event.target) && !isControl(event.target)) {
-            event.preventDefault(); choose(getItem(event.target), event);
+        cancelLongPress(); longPressFired = false; longPressItem = item;
+        startX = point.clientX; startY = point.clientY;
+        longPressTimer = window.setTimeout(() => {
+            longPressTimer = null;
+            if (!longPressItem || !root.contains(longPressItem)) return;
+            longPressFired = true; mobileSelectionMode = true;
+            root.dataset.mobileSelectionMode = 'true';
+            toggleMobileItem(longPressItem);
+            if (navigator.vibrate) { try { navigator.vibrate(30); } catch (error) {} }
+        }, 500);
+    };
+    root.addEventListener('touchstart', event => {
+        if (event.touches && event.touches.length === 1) beginLongPress(event, event.touches[0]);
+    }, { capture: true, passive: true });
+    root.addEventListener('touchmove', event => {
+        if (longPressTimer === null || !event.touches || !event.touches.length) return;
+        const p = event.touches[0];
+        if (Math.abs(p.clientX - startX) > 12 || Math.abs(p.clientY - startY) > 12) cancelLongPress();
+    }, { capture: true, passive: true });
+    root.addEventListener('touchend', cancelLongPress, { capture: true, passive: true });
+    root.addEventListener('touchcancel', cancelLongPress, { capture: true, passive: true });
+    root.addEventListener('pointerdown', event => { if (event.pointerType === 'touch') beginLongPress(event, event); }, { capture: true, passive: true });
+    root.addEventListener('pointermove', event => {
+        if (longPressTimer !== null && event.pointerType === 'touch' &&
+            (Math.abs(event.clientX - startX) > 12 || Math.abs(event.clientY - startY) > 12)) cancelLongPress();
+    }, { capture: true, passive: true });
+    root.addEventListener('pointerup', event => { if (event.pointerType === 'touch') cancelLongPress(); }, { capture: true, passive: true });
+    root.addEventListener('pointercancel', cancelLongPress, { capture: true, passive: true });
+    root.addEventListener('contextmenu', event => {
+        if (getItem(event.target)) { event.preventDefault(); event.stopPropagation(); }
+    }, true);
+    root.addEventListener('click', event => {
+        const item = getItem(event.target);
+        if (!isMobileTouch() || !item || isControl(event.target)) return;
+        if (longPressFired) { longPressFired = false; event.preventDefault(); event.stopImmediatePropagation(); return; }
+        if (mobileSelectionMode || root.dataset.mobileSelectionMode === 'true') {
+            event.preventDefault(); event.stopImmediatePropagation(); toggleMobileItem(item); return;
         }
-    });
-    clear?.addEventListener('click', () => { selected.clear(); anchor = null; refreshSelection(); });
+        const clickedLink = event.target.closest('a[href]');
+        if (!clickedLink) {
+            const link = item.querySelector('.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-file-preview[href], .dashboard-list-name[href]');
+            if (link) { event.preventDefault(); window.location.assign(link.href); }
+        }
+    }, true);
+    clear?.addEventListener('click', () => { selected.clear(); anchor = null; mobileSelectionMode = false; delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0'; refreshSelection(); });
 
     const actionModal = document.getElementById('dashboardFileActionModal');
     const actionForm = document.getElementById('dashboardFileActionForm');
