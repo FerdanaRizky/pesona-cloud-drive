@@ -285,11 +285,65 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         refreshSelection();
     }
+    let mobileSelectionMode = false;
+    let mobileLongPressTimer = null;
+    let mobileLongPressFired = false;
+    const isMobileTouch = () => window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+    root.addEventListener('touchstart', event => {
+        if (!isMobileTouch() || !event.touches || event.touches.length !== 1) return;
+        const item = getItem(event.target);
+        if (!item || isControl(event.target)) return;
+        mobileLongPressFired = false;
+        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
+        mobileLongPressTimer = setTimeout(() => {
+            mobileLongPressTimer = null;
+            mobileLongPressFired = true;
+            mobileSelectionMode = true;
+            root.dataset.mobileSelectionMode = 'true';
+            choose(item, { shiftKey: false, ctrlKey: true, metaKey: false });
+            if (navigator.vibrate) navigator.vibrate(25);
+        }, 600);
+    }, { capture: true, passive: true });
+    root.addEventListener('touchmove', event => {
+        if (mobileLongPressTimer === null || !event.touches || !event.touches.length) return;
+        if (!getItem(event.target)) {
+            clearTimeout(mobileLongPressTimer);
+            mobileLongPressTimer = null;
+        }
+    }, { capture: true, passive: true });
+    const cancelMobileLongPress = () => {
+        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
+        mobileLongPressTimer = null;
+    };
+    root.addEventListener('touchend', cancelMobileLongPress, { capture: true, passive: true });
+    root.addEventListener('touchcancel', cancelMobileLongPress, { capture: true, passive: true });
     root.addEventListener('click', event => {
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
-        event.preventDefault(); choose(item, event);
-    });
+        if (isMobileTouch()) {
+            if (mobileLongPressFired) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                mobileLongPressFired = false;
+                return;
+            }
+            if (mobileSelectionMode) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const key = itemKey(item);
+                selected.has(key) ? selected.delete(key) : selected.add(key);
+                refreshSelection();
+                if (!selected.size) {
+                    mobileSelectionMode = false;
+                    delete root.dataset.mobileSelectionMode;
+                }
+                return;
+            }
+            return;
+        }
+        event.preventDefault();
+        choose(item, event);
+    }, true);
     root.addEventListener('dblclick', event => {
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
