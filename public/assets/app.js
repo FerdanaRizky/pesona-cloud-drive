@@ -12,7 +12,8 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
 (()=>{
  const roots=[
   {el:document.getElementById('driveViewRoot'),selector:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card',box:'.drive-item-select'},
-  {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'}
+  {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'},
+  {el:document.getElementById('shareViewRoot'),selector:'tr.share-row',box:'.share-row-select'}
  ].filter(entry=>entry.el);
  const mobile=()=>window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
  roots.forEach(({el:root,selector,box:boxSelector})=>{
@@ -70,7 +71,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   });
  });
  document.addEventListener('contextmenu',event=>{
-  if(mobile()&&event.target.closest('#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#trashViewRoot tr.file-row'))event.preventDefault();
+  if(mobile()&&event.target.closest('#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#trashViewRoot tr.file-row,#shareViewRoot tr.share-row'))event.preventDefault();
  },true);
 })();
 
