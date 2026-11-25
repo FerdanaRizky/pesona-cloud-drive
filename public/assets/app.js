@@ -15,7 +15,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'},
   {el:document.getElementById('shareViewRoot'),selector:'tr.share-row',box:'.share-row-select'}
  ].filter(entry=>entry.el);
- const mobile=()=>window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+ const mobile=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
  roots.forEach(({el:root,selector,box:boxSelector})=>{
   const isControl=target=>!!target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.trash-item-select,.multi-select-control');
   let timer=null,startX=0,startY=0,longPressed=false,selectionMode=false;
@@ -49,7 +49,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
    });
   });
   root.addEventListener('pointerdown',event=>{
-   if(!mobile()||event.pointerType==='mouse')return;
+   if(!mobile()||event.pointerType==='touch'||event.pointerType==='mouse')return;
    const item=event.target.closest(selector);
    if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
    clearTimer();longPressed=false;
@@ -60,6 +60,25 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
     if(navigator.vibrate)navigator.vibrate(25);
    },550);
   },{capture:true,passive:true});
+  root.addEventListener('touchstart',event=>{
+   if(!mobile()||!event.touches||event.touches.length!==1)return;
+   const item=event.target.closest(selector);
+   if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
+   clearTimer();longPressed=false;
+   const touch=event.touches[0];startX=touch.clientX;startY=touch.clientY;
+   timer=setTimeout(()=>{
+    timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
+    updateBox(item,true);
+    if(navigator.vibrate)navigator.vibrate(25);
+   },600);
+  },{capture:true,passive:true});
+  root.addEventListener('touchmove',event=>{
+   if(timer===null||!event.touches||!event.touches.length)return;
+   const touch=event.touches[0];
+   if(Math.abs(touch.clientX-startX)>14||Math.abs(touch.clientY-startY)>14)clearTimer();
+  },{capture:true,passive:true});
+  root.addEventListener('touchend',clearTimer,{capture:true,passive:true});
+  root.addEventListener('touchcancel',clearTimer,{capture:true,passive:true});
   root.addEventListener('pointermove',event=>{
    if(timer===null)return;
    if(Math.abs(event.clientX-startX)>12||Math.abs(event.clientY-startY)>12)clearTimer();
@@ -99,7 +118,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
    A tap outside selectable items must not accidentally navigate to a preview;
    selected checkboxes remain selected and the bulk-action toolbar stays usable. */
 document.addEventListener('click',event=>{
- const mobile=window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+ const mobile=('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
  if(!mobile)return;
  const activeRoots=[
   {root:document.getElementById('dashboardDriveRoot'),items:'[data-dashboard-selectable]'},
