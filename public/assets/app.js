@@ -84,7 +84,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
  document.addEventListener('touchend',clearLongPress,{capture:true,passive:true});
  document.addEventListener('touchcancel',clearLongPress,{capture:true,passive:true});
  document.addEventListener('contextmenu',event=>{
-  if(findEntry(event.target)){event.preventDefault();event.stopPropagation();}
+  if(isTouchDevice()&&findEntry(event.target)){event.preventDefault();event.stopPropagation();}
  },true);
  document.addEventListener('click',event=>{
   if(!isTouchDevice())return;
