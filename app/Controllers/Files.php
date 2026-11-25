@@ -564,8 +564,9 @@ class Files extends BaseController
         }
 
         $videoExtensions = ['mp4','m4v','mov','webm','ogv','ogg','avi','mkv','3gp','3g2','ts','mts','m2ts','mpg','mpeg','wmv','flv','vob','asf','divx'];
+        $fileExtension = strtolower((string) ($file['extension'] ?? '')) ?: strtolower((string) pathinfo((string) ($file['original_name'] ?? ''), PATHINFO_EXTENSION));
         $isVideo = str_starts_with(strtolower((string) $file['mime_type']), 'video/')
-            || in_array(strtolower((string) $file['extension']), $videoExtensions, true);
+            || in_array($fileExtension, $videoExtensions, true);
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
         $this->logActivity($uid, 'file.preview', 'Membuka preview file: ' . $file['original_name']);
         $officePreview = false;
@@ -644,7 +645,7 @@ class Files extends BaseController
             'flv' => 'video/x-flv', 'vob' => 'video/dvd', 'asf' => 'video/x-ms-asf',
             'divx' => 'video/divx',
         ];
-        $extension = strtolower((string) $file['extension']);
+        $extension = strtolower((string) ($file['extension'] ?? '')) ?: strtolower((string) pathinfo((string) ($file['original_name'] ?? ''), PATHINFO_EXTENSION));
         $contentType = strtolower((string) $file['mime_type']);
         $isVideo = str_starts_with($contentType, 'video/') || isset($videoMimeByExtension[$extension]);
         if ($isVideo && !str_starts_with($contentType, 'video/')) $contentType = $videoMimeByExtension[$extension];
