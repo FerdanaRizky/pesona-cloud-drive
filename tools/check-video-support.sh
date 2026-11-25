@@ -13,25 +13,27 @@ echo "============================================================"
 # FFmpeg supplies ffprobe for inspecting container and codec metadata.
 if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
     echo "[INFO] FFmpeg/ffprobe belum lengkap. Mencoba instalasi otomatis..."
-    if command -v apt-get >/dev/null 2>&1; then
-        export DEBIAN_FRONTEND=noninteractive
-        if apt-get update && apt-get install -y ffmpeg; then
-            echo "[OK] FFmpeg berhasil dipasang."
-        else
-            echo "[WARN] Instalasi FFmpeg otomatis gagal. Installer tetap melanjutkan; pasang FFmpeg setelah memeriksa koneksi/repository apt."
-        fi
-    else
-        echo "[WARN] Package manager apt tidak tersedia. Pasang FFmpeg secara manual."
+    if ! command -v apt-get >/dev/null 2>&1; then
+        echo "[ERROR] apt-get tidak tersedia. Instal FFmpeg dan ffprobe secara manual sebelum melanjutkan."
+        exit 1
     fi
+
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y ffmpeg
+
+    if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+        echo "[ERROR] FFmpeg/ffprobe masih belum tersedia setelah instalasi. Periksa repository dan koneksi server."
+        exit 1
+    fi
+    echo "[OK] FFmpeg dan ffprobe berhasil dipasang."
+else
+    echo "[OK] FFmpeg dan ffprobe sudah terpasang; instalasi dilewati."
 fi
 
-if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
-    echo "[OK] FFmpeg : $(command -v ffmpeg)"
-    ffmpeg -version 2>&1 | head -n 1 || true
-    echo "[OK] ffprobe: $(command -v ffprobe)"
-else
-    echo "[WARN] FFmpeg/ffprobe belum tersedia; pemeriksaan codec dilewati."
-fi
+echo "[OK] FFmpeg : $(command -v ffmpeg)"
+ffmpeg -version 2>&1 | head -n 1 || true
+echo "[OK] ffprobe: $(command -v ffprobe)"
 
 echo
 echo "=== PEMERIKSAAN KONFIGURASI NGINX AKTIF ==="
@@ -64,7 +66,7 @@ fi
 
 echo
 echo "=== PEMERIKSAAN CODEC MP4 / MOV ==="
-if command -v ffprobe >/dev/null 2>&1 && [[ -d "$PRIVATE_STORAGE" ]]; then
+if [[ -d "$PRIVATE_STORAGE" ]]; then
     FOUND=0
     while IFS= read -r -d '' video; do
         FOUND=$((FOUND + 1))
@@ -87,7 +89,7 @@ if command -v ffprobe >/dev/null 2>&1 && [[ -d "$PRIVATE_STORAGE" ]]; then
         echo "[OK] Sampel diperiksa: $FOUND file (maksimal 5 file)."
     fi
 else
-    echo "[WARN] ffprobe atau direktori private storage belum tersedia; codec tidak diperiksa."
+    echo "[WARN] Direktori private storage belum tersedia; codec tidak diperiksa."
 fi
 
 echo
