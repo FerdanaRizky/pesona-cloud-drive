@@ -149,8 +149,12 @@ document.addEventListener('click',event=>{
   '#dashboardDriveRoot [data-dashboard-selectable], #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card'
  );
  if(!item)return;
+ const dashboardRootForSelection=document.getElementById('dashboardDriveRoot');
  const driveRootForSelection=document.getElementById('driveViewRoot');
- if(driveRootForSelection?.dataset.mobileSelectionMode==='true'&&driveRootForSelection.contains(item))return;
+ if(
+  (dashboardRootForSelection?.dataset.mobileSelectionMode==='true'&&dashboardRootForSelection.contains(item))||
+  (driveRootForSelection?.dataset.mobileSelectionMode==='true'&&driveRootForSelection.contains(item))
+ )return;
  if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn,.multi-select-control'))return;
  const clickedLink=event.target.closest('a[href],a[data-mobile-href]');
  const primaryLink=clickedLink||item.querySelector(
