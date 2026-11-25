@@ -320,6 +320,14 @@ document.addEventListener('DOMContentLoaded', function () {
     root.addEventListener('click', event => {
         if (isMobileTouch()) return;
         const item = getItem(event.target);
+        if (item && !isControl(event.target)) {
+            const clickedLink = event.target.closest('a[href]');
+            if (clickedLink && item.contains(clickedLink) && !clickedLink.closest('.dashboard-list-location')) event.preventDefault();
+        }
+    }, true);
+    root.addEventListener('click', event => {
+        if (isMobileTouch()) return;
+        const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
         const link = event.target.closest('a[href]');
         if (link && item.contains(link) && !link.closest('.dashboard-list-location')) event.preventDefault();
@@ -418,6 +426,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, true);
     clear?.addEventListener('click', () => { selected.clear(); anchor = null; mobileSelectionMode = false; delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0'; refreshSelection(); });
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !selected.size) return;
+        const target = event.target, tag = (target?.tagName || '').toLowerCase();
+        if (target?.isContentEditable || ['input','textarea','select'].includes(tag) || document.querySelector('.modal.show')) return;
+        event.preventDefault();
+        selected.clear(); anchor = null; mobileSelectionMode = false;
+        delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0';
+        refreshSelection();
+    });
 
     const actionModal = document.getElementById('dashboardFileActionModal');
     const actionForm = document.getElementById('dashboardFileActionForm');
