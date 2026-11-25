@@ -116,6 +116,8 @@ $formatActivityDate = static function ($value) {
                     $mime = strtolower((string) ($file['mime_type'] ?? ''));
                     $previewable = str_starts_with($mime, 'image/')
                         || $mime === 'application/pdf'
+                        || str_starts_with($mime, 'video/')
+                        || in_array($ext, ['mp4','m4v','mov','webm','ogv','ogg','avi','mkv','3gp','3g2','ts','mts','m2ts','mpg','mpeg','wmv','flv','vob','asf','divx'], true)
                         || in_array($ext, ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true);
                     $kind = 'file'; $label = strtoupper($ext ?: 'FILE');
                     if (in_array($ext, ['doc','docx','odt'], true)) { $kind='word'; $label='DOC'; }
@@ -130,7 +132,7 @@ $formatActivityDate = static function ($value) {
                     $ownerName = (string) ($user['name'] ?? session()->get('name') ?? 'Saya');
                     $parentId = (int) ($file['parent_id'] ?? 0);
                     $locationName = (string) ($file['dashboard_location'] ?? 'Drive Saya');
-                    $fileUrl = in_array($kind, ['image','pdf','word','sheet','slides'], true) ? '/files/preview/' . (int) $file['id'] : '/files/download/' . (int) $file['id'];
+                    $fileUrl = ($previewable || in_array($kind, ['image','pdf','word','sheet','slides'], true)) ? '/files/preview/' . (int) $file['id'] : '/files/download/' . (int) $file['id'];
                 ?>
                     <tr class="dashboard-selectable-item dashboard-file-list-row" data-dashboard-selectable data-item-type="file" data-item-id="<?= (int) $file['id'] ?>" tabindex="0" role="option" aria-selected="false">
                         <td>
@@ -168,7 +170,8 @@ $formatActivityDate = static function ($value) {
                 $image = str_starts_with($mime, 'image/') && in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
                 $pdf = $mime === 'application/pdf' || $ext === 'pdf';
                 $office = in_array($ext, ['doc','docx','xls','xlsx','ppt','pptx','odt','ods','odp'], true);
-                $previewable = $image || $pdf || $office;
+                $video = str_starts_with($mime, 'video/') || in_array($ext, ['mp4','m4v','mov','webm','ogv','ogg','avi','mkv','3gp','3g2','ts','mts','m2ts','mpg','mpeg','wmv','flv','vob','asf','divx'], true);
+                $previewable = $image || $pdf || $office || $video;
                 $kind = 'file';
                 $label = strtoupper($ext ?: 'FILE');
                 if (in_array($ext, ['doc','docx','odt'], true)) { $kind='word'; $label='DOC'; }
