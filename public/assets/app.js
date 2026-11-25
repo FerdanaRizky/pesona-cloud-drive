@@ -117,6 +117,28 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
  },true);
 })();
 
+/* Keep an active mobile multi-selection stable.
+   A tap outside selectable items must not accidentally navigate to a preview;
+   selected checkboxes remain selected and the bulk-action toolbar stays usable. */
+document.addEventListener('click',event=>{
+ const mobile=window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
+ if(!mobile)return;
+ const activeRoots=[
+  {root:document.getElementById('driveViewRoot'),items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card'},
+  {root:document.getElementById('trashViewRoot'),items:'tr.file-row'},
+  {root:document.getElementById('shareViewRoot'),items:'tr.share-row'}
+ ];
+ const active=activeRoots.find(entry=>entry.root?.dataset.mobileSelectionMode==='true');
+ if(!active)return;
+ if(event.target.closest(active.items))return;
+ if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.multi-select-control,.bulk-action-toolbar,.selection-toolbar'))return;
+ const link=event.target.closest('a[href]');
+ if(link){
+  event.preventDefault();
+  event.stopImmediatePropagation();
+ }
+},true);
+
 /* Mobile navigation: a single tap opens a file or folder instead of requiring a double tap.
    Selection by checkbox and all action/menu controls remain available. */
 document.addEventListener('click',event=>{
