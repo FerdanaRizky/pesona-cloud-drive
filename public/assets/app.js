@@ -11,7 +11,6 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
 (()=>{
  const isTouchDevice=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0;
  const configs=[
-  {id:'dashboardDriveRoot',items:'[data-dashboard-selectable]',kind:'dashboard'},
   {id:'driveViewRoot',items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card',box:'.drive-item-select'},
   {id:'trashViewRoot',items:'tr.file-row',box:'.trash-item-select'},
   {id:'shareViewRoot',items:'tr.share-row',box:'.share-row-select'}
@@ -23,8 +22,6 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
  const style=document.createElement('style');
  style.id='pcd-unified-mobile-touch-style';
  style.textContent=`
-  #dashboardDriveRoot [data-dashboard-selectable],
-  #dashboardDriveRoot [data-dashboard-selectable] *,
   #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-list-row *,
   #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-file-card *,
   #driveViewRoot .file-manager-folder-card, #driveViewRoot .file-manager-folder-card *,
