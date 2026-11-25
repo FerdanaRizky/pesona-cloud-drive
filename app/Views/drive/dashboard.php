@@ -113,6 +113,7 @@ $formatActivityDate = static function ($value) {
                 <tbody>
                 <?php foreach ($files as $file):
                     $ext = strtolower((string) ($file['extension'] ?? ''));
+                    if ($ext === '') $ext = strtolower((string) pathinfo((string) ($file['original_name'] ?? ''), PATHINFO_EXTENSION));
                     $mime = strtolower((string) ($file['mime_type'] ?? ''));
                     $previewable = str_starts_with($mime, 'image/')
                         || $mime === 'application/pdf'
@@ -166,6 +167,7 @@ $formatActivityDate = static function ($value) {
         <div class="dashboard-file-grid">
             <?php foreach ($files as $file):
                 $ext = strtolower((string) ($file['extension'] ?? ''));
+                    if ($ext === '') $ext = strtolower((string) pathinfo((string) ($file['original_name'] ?? ''), PATHINFO_EXTENSION));
                 $mime = strtolower((string) ($file['mime_type'] ?? ''));
                 $image = str_starts_with($mime, 'image/') && in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
                 $pdf = $mime === 'application/pdf' || $ext === 'pdf';
