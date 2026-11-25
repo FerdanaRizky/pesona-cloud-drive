@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const previewTitle = document.getElementById('dashboardPreviewTitle');
     const openPreview = (item, link) => {
         if (!previewModal || !previewFrame || !window.bootstrap?.Modal) return;
-        const match = (link?.getAttribute('href') || '').match(/\\/files\\/preview\\/(\\d+)/);
+        const match = (link?.getAttribute('href') || '').split('/files/preview/')[1]?.match(/^([0-9]+)/);
         if (!match) return;
         const name = item.querySelector('.dashboard-list-filename,.dashboard-file-title')?.textContent?.trim()
             || link.getAttribute('title') || link.getAttribute('aria-label') || 'Preview file';
