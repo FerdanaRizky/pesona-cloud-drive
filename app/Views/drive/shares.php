@@ -144,6 +144,25 @@ document.addEventListener('DOMContentLoaded',function(){
  shareRoot?.addEventListener('dblclick',event=>{const row=event.target.closest('tr.share-row');if(!row||shareIsControl(event.target))return;const toggle=row.querySelector('[data-toggle-share-link]');if(toggle){event.preventDefault();toggle.click();}});
  shareRoot?.addEventListener('change',event=>{const box=event.target.closest('.share-row-select');if(!box)return;box.closest('tr.share-row')?.classList.toggle('is-drive-selected',box.checked);});
 
+ // Escape clears selected links; Delete revokes the selected links after confirmation.
+ document.addEventListener('keydown',function(event){
+  const isEscape=event.key==='Escape'||event.code==='Escape';
+  const isDelete=event.key==='Delete'||event.code==='Delete';
+  if(!isEscape&&!isDelete)return;
+  const target=event.target,tag=(target?.tagName||'').toLowerCase();
+  if(target?.isContentEditable||['textarea','select'].includes(tag)||(tag==='input'&&!['checkbox','radio'].includes(target.type))||document.querySelector('.modal.show'))return;
+  const selected=boxes().filter(box=>box.checked);
+  if(!selected.length)return;
+  if(isEscape){
+   event.preventDefault();event.stopPropagation();
+   boxes().forEach(box=>{box.checked=false;box.closest('tr.share-row')?.classList.remove('is-drive-selected');});
+   shareSelectionAnchor=null;refresh();return;
+  }
+  event.preventDefault();event.stopPropagation();
+  if(!confirm('Cabut '+selected.length+' link berbagi terpilih? Tautan tidak dapat digunakan lagi.'))return;
+  form.action='/shares/bulk-revoke';form.submit();
+ },true);
+
  refresh();
 });
 </script>
