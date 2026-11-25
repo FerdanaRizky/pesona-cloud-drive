@@ -285,100 +285,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         refreshSelection();
     }
-    let mobileSelectionMode = false;
-    let mobileLongPressTimer = null;
-    let mobileLongPressFired = false;
-    const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
-    let mobileLongPressStartX = 0;
-    let mobileLongPressStartY = 0;
-    root.addEventListener('pointerdown', event => {
-        if (!isMobileTouch() || event.pointerType === 'touch' || event.pointerType === 'mouse') return;
-        const item = getItem(event.target);
-        if (!item || isControl(event.target)) return;
-        mobileLongPressFired = false;
-        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
-        mobileLongPressStartX = event.clientX;
-        mobileLongPressStartY = event.clientY;
-        mobileLongPressTimer = setTimeout(() => {
-            mobileLongPressTimer = null;
-            mobileLongPressFired = true;
-            mobileSelectionMode = true;
-            root.dataset.mobileSelectionMode = 'true';
-            choose(item, { shiftKey: false, ctrlKey: true, metaKey: false });
-            if (navigator.vibrate) navigator.vibrate(25);
-        }, 600);
-    }, { capture: true, passive: true });
-    root.addEventListener('touchstart', event => {
-        if (!isMobileTouch() || !event.touches || event.touches.length !== 1) return;
-        const item = getItem(event.target);
-        if (!item || isControl(event.target)) return;
-        mobileLongPressFired = false;
-        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
-        const touch = event.touches[0];
-        mobileLongPressStartX = touch.clientX;
-        mobileLongPressStartY = touch.clientY;
-        mobileLongPressTimer = setTimeout(() => {
-            mobileLongPressTimer = null;
-            mobileLongPressFired = true;
-            mobileSelectionMode = true;
-            root.dataset.mobileSelectionMode = 'true';
-            choose(item, { shiftKey: false, ctrlKey: true, metaKey: false });
-            if (navigator.vibrate) navigator.vibrate(25);
-        }, 600);
-    }, { capture: true, passive: true });
-    root.addEventListener('touchmove', event => {
-        if (mobileLongPressTimer === null || !event.touches || !event.touches.length) return;
-        const touch = event.touches[0];
-        if (Math.abs(touch.clientX - mobileLongPressStartX) > 14 ||
-            Math.abs(touch.clientY - mobileLongPressStartY) > 14) {
-            clearTimeout(mobileLongPressTimer);
-            mobileLongPressTimer = null;
-        }
-    }, { capture: true, passive: true });
-    const finishMobileTouch = () => {
-        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
-        mobileLongPressTimer = null;
-    };
-    root.addEventListener('touchend', finishMobileTouch, { capture: true, passive: true });
-    root.addEventListener('touchcancel', finishMobileTouch, { capture: true, passive: true });
-    root.addEventListener('pointermove', event => {
-        if (mobileLongPressTimer === null) return;
-        if (Math.abs(event.clientX - mobileLongPressStartX) > 12 ||
-            Math.abs(event.clientY - mobileLongPressStartY) > 12) {
-            clearTimeout(mobileLongPressTimer);
-            mobileLongPressTimer = null;
-        }
-    }, { capture: true, passive: true });
-    const cancelMobileLongPress = () => {
-        if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
-        mobileLongPressTimer = null;
-    };
-    root.addEventListener('pointerup', cancelMobileLongPress, { capture: true, passive: true });
-    root.addEventListener('pointercancel', cancelMobileLongPress, { capture: true, passive: true });
+    const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    root.addEventListener('pcd:mobile-toggle', event => {
+        const item = event.detail?.item;
+        const mode = event.detail?.mode;
+        if (!item || !root.contains(item)) return;
+        const key = itemKey(item);
+        if (mode === 'add') selected.add(key);
+        else if (mode === 'remove') selected.delete(key);
+        else if (mode === 'toggle') selected.has(key) ? selected.delete(key) : selected.add(key);
+        refreshSelection();
+        root.dataset.mobileSelectedCount = String(selected.size);
+        if (selected.size) root.dataset.mobileSelectionMode = 'true';
+        else delete root.dataset.mobileSelectionMode;
+    });
     root.addEventListener('click', event => {
         const item = getItem(event.target);
-        if (!item || isControl(event.target)) return;
-        if (isMobileTouch()) {
-            if (mobileLongPressFired) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                mobileLongPressFired = false;
-                return;
-            }
-            if (mobileSelectionMode) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                const key = itemKey(item);
-                selected.has(key) ? selected.delete(key) : selected.add(key);
-                refreshSelection();
-                if (!selected.size) {
-                    mobileSelectionMode = false;
-                    delete root.dataset.mobileSelectionMode;
-                }
-                return;
-            }
-            return;
-        }
+        if (!item || isControl(event.target) || isMobileTouch()) return;
         event.preventDefault();
         choose(item, event);
     }, true);
