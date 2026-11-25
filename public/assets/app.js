@@ -11,7 +11,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
    Desktop selection and existing action controls remain unchanged. */
 (()=>{
  const roots=[
-  {el:document.getElementById('driveViewRoot'),selector:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card',box:'.drive-item-select'},
+  {el:document.getElementById('driveViewRoot'),selector:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile',box:'.drive-item-select'},
   {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'},
   {el:document.getElementById('shareViewRoot'),selector:'tr.share-row',box:'.share-row-select'}
  ].filter(entry=>entry.el);
@@ -32,7 +32,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   if(!document.getElementById('pcd-ios-longpress-style')){
    const style=document.createElement('style');
    style.id='pcd-ios-longpress-style';
-   style.textContent='#driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card, #driveViewRoot .file-manager-list-row *, #driveViewRoot .file-manager-file-card *, #driveViewRoot .file-manager-folder-card * { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; } #driveViewRoot a, #driveViewRoot a * { -webkit-touch-callout: none !important; }';
+   style.textContent='#driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card, #driveViewRoot tr.file-row, #driveViewRoot .folder-tile, #driveViewRoot .file-manager-list-row *, #driveViewRoot .file-manager-file-card *, #driveViewRoot .file-manager-folder-card *, #driveViewRoot tr.file-row *, #driveViewRoot .folder-tile *, #dashboardDriveRoot [data-dashboard-selectable], #dashboardDriveRoot [data-dashboard-selectable] *, #trashViewRoot tr.file-row, #trashViewRoot tr.file-row *, #shareViewRoot tr.share-row, #shareViewRoot tr.share-row * { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; } #driveViewRoot a, #driveViewRoot a * { -webkit-touch-callout: none !important; }';
    document.head.appendChild(style);
   }
   // iOS Safari: disable the native text/image callout on selectable rows and
@@ -71,7 +71,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
     updateBox(item,true);
     if(navigator.vibrate)navigator.vibrate(25);
    },600);
-  },{capture:true,passive:true});
+  },{capture:true,passive:false});
   root.addEventListener('touchmove',event=>{
    if(timer===null||!event.touches||!event.touches.length)return;
    const touch=event.touches[0];
@@ -110,7 +110,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
   });
  });
  document.addEventListener('contextmenu',event=>{
-  if(mobile()&&event.target.closest('#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#trashViewRoot tr.file-row,#shareViewRoot tr.share-row'))event.preventDefault();
+  if(mobile()&&event.target.closest('#dashboardDriveRoot [data-dashboard-selectable],#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#driveViewRoot tr.file-row,#driveViewRoot .folder-tile,#trashViewRoot tr.file-row,#shareViewRoot tr.share-row'))event.preventDefault();
  },true);
 })();
 
@@ -122,7 +122,7 @@ document.addEventListener('click',event=>{
  if(!mobile)return;
  const activeRoots=[
   {root:document.getElementById('dashboardDriveRoot'),items:'[data-dashboard-selectable]'},
-  {root:document.getElementById('driveViewRoot'),items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card'},
+  {root:document.getElementById('driveViewRoot'),items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile'},
   {root:document.getElementById('trashViewRoot'),items:'tr.file-row'},
   {root:document.getElementById('shareViewRoot'),items:'tr.share-row'}
  ];
@@ -218,7 +218,7 @@ if(driveRoot){
 /* Prevent browser text highlighting while Shift-clicking items for range selection on every Drive page. */
 document.addEventListener('mousedown',event=>{
  if(!event.shiftKey)return;
- const selectable=event.target.closest('[data-dashboard-selectable],.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile');
+ const selectable=event.target.closest('[data-dashboard-selectable],.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile,tr.file-row,.folder-tile');
  if(!selectable)return;
  event.preventDefault();
  const selection=window.getSelection?.();
