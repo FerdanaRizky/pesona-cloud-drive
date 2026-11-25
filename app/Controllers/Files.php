@@ -563,10 +563,13 @@ class Files extends BaseController
             return $this->response->setStatusCode(404);
         }
 
-        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        $videoExtensions = ['mp4','m4v','mov','webm','ogv','ogg','avi','mkv','3gp','3g2','ts','mts','m2ts','mpg','mpeg','wmv','flv','vob','asf','divx'];
+        $isVideo = str_starts_with(strtolower((string) $file['mime_type']), 'video/')
+            || in_array(strtolower((string) $file['extension']), $videoExtensions, true);
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
         $this->logActivity($uid, 'file.preview', 'Membuka preview file: ' . $file['original_name']);
         $officePreview = false;
-        if (!in_array($file['mime_type'], $allowed, true)) {
+        if (!$isVideo && !in_array($file['mime_type'], $allowed, true)) {
             if (!\App\Libraries\OfficePreview::supports($file)) {
                 return redirect()->to('/files')->with('error', 'Preview tidak tersedia untuk tipe file ini.');
             }
@@ -631,10 +634,23 @@ class Files extends BaseController
         $file = (new DriveFileModel())->where('id', $id)->where('user_id', $uid)->where('is_trashed', $trashMode ? 1 : 0)->first();
         if (!$file || !is_file($file['storage_path'])) return $this->response->setStatusCode(404);
 
-        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/ogg'];
+        $videoMimeByExtension = [
+            'mp4' => 'video/mp4', 'm4v' => 'video/mp4', 'mov' => 'video/quicktime',
+            'webm' => 'video/webm', 'ogv' => 'video/ogg', 'ogg' => 'video/ogg',
+            'avi' => 'video/x-msvideo', 'mkv' => 'video/x-matroska',
+            '3gp' => 'video/3gpp', '3g2' => 'video/3gpp2',
+            'ts' => 'video/mp2t', 'mts' => 'video/mp2t', 'm2ts' => 'video/mp2t',
+            'mpg' => 'video/mpeg', 'mpeg' => 'video/mpeg', 'wmv' => 'video/x-ms-wmv',
+            'flv' => 'video/x-flv', 'vob' => 'video/dvd', 'asf' => 'video/x-ms-asf',
+            'divx' => 'video/divx',
+        ];
+        $extension = strtolower((string) $file['extension']);
+        $contentType = strtolower((string) $file['mime_type']);
+        $isVideo = str_starts_with($contentType, 'video/') || isset($videoMimeByExtension[$extension]);
+        if ($isVideo && !str_starts_with($contentType, 'video/')) $contentType = $videoMimeByExtension[$extension];
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
         $sourcePath = $file['storage_path'];
-        $contentType = $file['mime_type'];
-        if (!in_array($contentType, $allowed, true)) {
+        if (!$isVideo && !in_array($contentType, $allowed, true)) {
             if (!\App\Libraries\OfficePreview::supports($file)) return $this->response->setStatusCode(415);
             $sourcePath = \App\Libraries\OfficePreview::convert($file);
             if (!$sourcePath) return $this->response->setStatusCode(503)->setBody('Office preview is not available. Install LibreOffice.');
