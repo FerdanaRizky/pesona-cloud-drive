@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     let mobileSelectionMode = false, longPressTimer = null, longPressItem = null, longPressFired = false;
-    let startX = 0, startY = 0;
+    let startX = 0, startY = 0, touchStartItem = null, touchMoved = false, suppressNextClick = false;
     const cancelLongPress = () => { if (longPressTimer !== null) clearTimeout(longPressTimer); longPressTimer = null; longPressItem = null; };
     const toggleMobileItem = item => {
         const key = itemKey(item);
@@ -319,15 +319,37 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 500);
     };
     root.addEventListener('touchstart', event => {
-        if (event.touches && event.touches.length === 1) beginLongPress(event, event.touches[0]);
+        touchStartItem = null; touchMoved = false;
+        if (event.touches && event.touches.length === 1) {
+            touchStartItem = getItem(event.target);
+            beginLongPress(event, event.touches[0]);
+        }
     }, { capture: true, passive: true });
     root.addEventListener('touchmove', event => {
-        if (longPressTimer === null || !event.touches || !event.touches.length) return;
+        if (!event.touches || !event.touches.length) return;
         const p = event.touches[0];
-        if (Math.abs(p.clientX - startX) > 12 || Math.abs(p.clientY - startY) > 12) cancelLongPress();
+        if (Math.abs(p.clientX - startX) > 12 || Math.abs(p.clientY - startY) > 12) {
+            touchMoved = true;
+            cancelLongPress();
+        }
     }, { capture: true, passive: true });
-    root.addEventListener('touchend', cancelLongPress, { capture: true, passive: true });
-    root.addEventListener('touchcancel', cancelLongPress, { capture: true, passive: true });
+    root.addEventListener('touchend', event => {
+        const item = touchStartItem;
+        const wasLongPress = longPressFired;
+        cancelLongPress();
+        touchStartItem = null;
+        if (!item || touchMoved || wasLongPress || !mobileSelectionMode || isControl(event.target)) {
+            if (wasLongPress) suppressNextClick = true;
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        suppressNextClick = true;
+        toggleMobileItem(item);
+    }, { capture: true, passive: false });
+    root.addEventListener('touchcancel', () => {
+        cancelLongPress(); touchStartItem = null; touchMoved = false;
+    }, { capture: true, passive: true });
     root.addEventListener('pointerdown', event => { if (event.pointerType === 'touch') beginLongPress(event, event); }, { capture: true, passive: true });
     root.addEventListener('pointermove', event => {
         if (longPressTimer !== null && event.pointerType === 'touch' &&
@@ -341,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
     root.addEventListener('click', event => {
         const item = getItem(event.target);
         if (!isMobileTouch() || !item || isControl(event.target)) return;
-        if (longPressFired) { longPressFired = false; event.preventDefault(); event.stopImmediatePropagation(); return; }
+        if (longPressFired || suppressNextClick) { longPressFired = false; suppressNextClick = false; event.preventDefault(); event.stopImmediatePropagation(); return; }
         if (mobileSelectionMode || root.dataset.mobileSelectionMode === 'true') {
             event.preventDefault(); event.stopImmediatePropagation(); toggleMobileItem(item); return;
         }
