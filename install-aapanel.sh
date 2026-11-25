@@ -184,7 +184,7 @@ sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]
 # Generate a persistent encryption starter key once. Never rotate it on reinstall/update.
 # Existing share-token ciphertext depends on this key.
 if ! grep -Eq '^[[:space:]]*encryption\.key[[:space:]]*=' .env; then
-    ENCRYPTION_KEY="$(openssl rand -hex 16)"
+    ENCRYPTION_KEY="$("$PHP_BIN" -r 'echo bin2hex(random_bytes(16));')"
     printf "\nencryption.key = '%s'\n" "$ENCRYPTION_KEY" >> .env
     echo "[OK] encryption.key dibuat untuk enkripsi token tautan berbagi."
 else
