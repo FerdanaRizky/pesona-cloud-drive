@@ -124,6 +124,7 @@ document.addEventListener('click',event=>{
  const mobile=window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
  if(!mobile)return;
  const activeRoots=[
+  {root:document.getElementById('dashboardDriveRoot'),items:'[data-dashboard-selectable]'},
   {root:document.getElementById('driveViewRoot'),items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card'},
   {root:document.getElementById('trashViewRoot'),items:'tr.file-row'},
   {root:document.getElementById('shareViewRoot'),items:'tr.share-row'}
