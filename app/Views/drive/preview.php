@@ -11,8 +11,13 @@
   <img src="/files/preview-content/<?= (int)$file['id'] ?>" alt="<?= esc($file['original_name']) ?>" class="img-fluid mx-auto" style="max-height:75vh;object-fit:contain">
 <?php elseif ($file['mime_type'] === 'application/pdf'): ?>
   <iframe src="/files/preview-content/<?= (int)$file['id'] ?>" title="<?= esc($file['original_name']) ?>" style="width:100%;height:78vh;border:0;background:#fff"></iframe>
-<?php elseif (str_starts_with($file['mime_type'], 'video/')): ?>
-  <video controls playsinline preload="metadata" style="width:100%;max-height:78vh"><source src="/files/preview-content/<?= (int)$file['id'] ?>" type="<?= esc($file['mime_type']) ?>">Browser tidak mendukung preview video.</video>
+<?php elseif (str_starts_with(strtolower((string) ($file['mime_type'] ?? '')), 'video/') || in_array(strtolower((string) ($file['extension'] ?? '')), ['mp4','m4v','mov','webm','ogv','ogg','avi','mkv','3gp','3g2','ts','mts','m2ts','mpg','mpeg','wmv','flv','vob','asf','divx'], true)): ?>
+  <div class="w-100 rounded overflow-hidden" style="background:#000">
+    <video controls playsinline preload="metadata" style="display:block;width:100%;max-height:78vh;background:#000" poster="">
+      <source src="/files/preview-content/<?= (int) $file['id'] ?><?= !empty($trashMode) ? '?trash=1' : '' ?>" type="<?= esc(str_starts_with(strtolower((string) ($file['mime_type'] ?? '')), 'video/') ? $file['mime_type'] : 'video/' . strtolower((string) ($file['extension'] ?? ''))) ?>">
+      Browser Anda tidak mendukung pemutar video atau codec file ini. Coba unduh file untuk memutarnya dengan aplikasi pemutar video.
+    </video>
+  </div>
 <?php endif ?>
 </div>
 <?= $this->endSection() ?>
