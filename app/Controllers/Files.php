@@ -580,7 +580,18 @@ class Files extends BaseController
             }
         }
 
-        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview, 'trashMode' => $trashMode]);
+        $returnUrl = (string) $this->request->getGet('return');
+        if ($returnUrl === '') {
+            $referer = (string) $this->request->getServer('HTTP_REFERER');
+            $parts = $referer !== '' ? parse_url($referer) : false;
+            $returnUrl = is_array($parts) ? (string) ($parts['path'] ?? '/') . (isset($parts['query']) ? '?' . $parts['query'] : '') : '';
+        }
+        // Only allow a local relative URL as the preview return destination.
+        if ($returnUrl === '' || $returnUrl[0] !== '/' || str_starts_with($returnUrl, '//') || preg_match('/[\\r\\n]/', $returnUrl)) {
+            $returnUrl = $trashMode ? '/trash' : '/files';
+        }
+
+        return view('drive/preview', ['title' => 'Preview - ' . $file['original_name'], 'file' => $file, 'officePreview' => $officePreview, 'trashMode' => $trashMode, 'returnUrl' => $returnUrl]);
     }
 
     public function thumbnail(int $id)
