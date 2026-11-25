@@ -289,12 +289,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let mobileLongPressTimer = null;
     let mobileLongPressFired = false;
     const isMobileTouch = () => window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
-    root.addEventListener('touchstart', event => {
-        if (!isMobileTouch() || !event.touches || event.touches.length !== 1) return;
+    let mobileLongPressStartX = 0;
+    let mobileLongPressStartY = 0;
+    root.addEventListener('pointerdown', event => {
+        if (!isMobileTouch() || event.pointerType === 'mouse') return;
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
         mobileLongPressFired = false;
         if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
+        mobileLongPressStartX = event.clientX;
+        mobileLongPressStartY = event.clientY;
         mobileLongPressTimer = setTimeout(() => {
             mobileLongPressTimer = null;
             mobileLongPressFired = true;
@@ -304,9 +308,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (navigator.vibrate) navigator.vibrate(25);
         }, 600);
     }, { capture: true, passive: true });
-    root.addEventListener('touchmove', event => {
-        if (mobileLongPressTimer === null || !event.touches || !event.touches.length) return;
-        if (!getItem(event.target)) {
+    root.addEventListener('pointermove', event => {
+        if (mobileLongPressTimer === null) return;
+        if (Math.abs(event.clientX - mobileLongPressStartX) > 12 ||
+            Math.abs(event.clientY - mobileLongPressStartY) > 12) {
             clearTimeout(mobileLongPressTimer);
             mobileLongPressTimer = null;
         }
@@ -315,8 +320,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (mobileLongPressTimer !== null) clearTimeout(mobileLongPressTimer);
         mobileLongPressTimer = null;
     };
-    root.addEventListener('touchend', cancelMobileLongPress, { capture: true, passive: true });
-    root.addEventListener('touchcancel', cancelMobileLongPress, { capture: true, passive: true });
+    root.addEventListener('pointerup', cancelMobileLongPress, { capture: true, passive: true });
+    root.addEventListener('pointercancel', cancelMobileLongPress, { capture: true, passive: true });
     root.addEventListener('click', event => {
         const item = getItem(event.target);
         if (!item || isControl(event.target)) return;
