@@ -28,6 +28,13 @@ window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();})
    item.classList.toggle('is-drive-selected',checked);
   };
   const clearTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+  // Strong iOS Safari link-preview suppression on selectable file items.
+  if(!document.getElementById('pcd-ios-longpress-style')){
+   const style=document.createElement('style');
+   style.id='pcd-ios-longpress-style';
+   style.textContent='#driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card, #driveViewRoot .file-manager-list-row *, #driveViewRoot .file-manager-file-card *, #driveViewRoot .file-manager-folder-card * { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; } #driveViewRoot a, #driveViewRoot a * { -webkit-touch-callout: none !important; }';
+   document.head.appendChild(style);
+  }
   // iOS Safari: disable the native text/image callout on selectable rows and
   // use Touch Events as a fallback because long-press may open the iOS menu
   // before Pointer Events complete on some Safari versions.
