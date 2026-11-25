@@ -6,164 +6,128 @@ sidebarBackdrop?.addEventListener('click',closeSidebar);
 sidebar?.querySelectorAll('a.nav-link').forEach(link=>link.addEventListener('click',closeSidebar));
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();});
-/* Mobile long-press multi-select for File Saya, Favorit, and Sampah.
-   Hold briefly to enter selection mode; subsequent taps toggle items.
-   Desktop selection and existing action controls remain unchanged. */
+/* Unified mobile touch selection for Dashboard, File Saya/Favorit, Sampah and Share links.
+   One document-level manager owns long-press, click suppression and selection-mode taps. */
 (()=>{
- const roots=[
-  {el:document.getElementById('driveViewRoot'),selector:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile',box:'.drive-item-select'},
-  {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'},
-  {el:document.getElementById('shareViewRoot'),selector:'tr.share-row',box:'.share-row-select'}
- ].filter(entry=>entry.el);
- const mobile=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
- roots.forEach(({el:root,selector,box:boxSelector})=>{
-  const isControl=target=>!!target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.trash-item-select,.multi-select-control');
-  let timer=null,startX=0,startY=0,longPressed=false,selectionMode=false;
-  const checkboxFor=item=>item?.querySelector(boxSelector);
-  const updateBox=(item,checked)=>{
-   const box=checkboxFor(item);if(!box)return;
-   box.checked=checked;
-   box.dispatchEvent(new Event('change',{bubbles:true}));
-   item.classList.toggle('is-dashboard-selected',checked);
-   item.classList.toggle('is-drive-selected',checked);
-  };
-  const clearTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
-  // Strong iOS Safari link-preview suppression on selectable file items.
-  if(!document.getElementById('pcd-ios-longpress-style')){
-   const style=document.createElement('style');
-   style.id='pcd-ios-longpress-style';
-   style.textContent='#driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card, #driveViewRoot tr.file-row, #driveViewRoot .folder-tile, #driveViewRoot .file-manager-list-row *, #driveViewRoot .file-manager-file-card *, #driveViewRoot .file-manager-folder-card *, #driveViewRoot tr.file-row *, #driveViewRoot .folder-tile *, #dashboardDriveRoot [data-dashboard-selectable], #dashboardDriveRoot [data-dashboard-selectable] *, #trashViewRoot tr.file-row, #trashViewRoot tr.file-row *, #shareViewRoot tr.share-row, #shareViewRoot tr.share-row * { -webkit-touch-callout: none !important; -webkit-user-select: none !important; user-select: none !important; } #driveViewRoot a, #driveViewRoot a * { -webkit-touch-callout: none !important; }';
-   document.head.appendChild(style);
+ const isTouchDevice=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0;
+ const configs=[
+  {id:'dashboardDriveRoot',items:'[data-dashboard-selectable]',kind:'dashboard'},
+  {id:'driveViewRoot',items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card',box:'.drive-item-select'},
+  {id:'trashViewRoot',items:'tr.file-row',box:'.trash-item-select'},
+  {id:'shareViewRoot',items:'tr.share-row',box:'.share-row-select'}
+ ];
+ const roots=configs.map(c=>({...c,root:document.getElementById(c.id)})).filter(c=>c.root);
+ const controlSelector='button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.multi-select-control,.bulk-action-toolbar,.selection-toolbar,.dashboard-more-btn';
+ const findEntry=target=>roots.map(c=>({config:c,item:target.closest(c.items)})).find(x=>x.item&&x.config.root.contains(x.item));
+ const isControl=target=>!!target.closest(controlSelector);
+ const style=document.createElement('style');
+ style.id='pcd-unified-mobile-touch-style';
+ style.textContent=`
+  #dashboardDriveRoot [data-dashboard-selectable],
+  #dashboardDriveRoot [data-dashboard-selectable] *,
+  #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-list-row *,
+  #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-file-card *,
+  #driveViewRoot .file-manager-folder-card, #driveViewRoot .file-manager-folder-card *,
+  #trashViewRoot tr.file-row, #trashViewRoot tr.file-row *,
+  #shareViewRoot tr.share-row, #shareViewRoot tr.share-row * {
+    -webkit-touch-callout:none !important;
+    -webkit-user-select:none !important;
+    user-select:none !important;
+  }`;
+ document.head.appendChild(style);
+ let timer=null, startX=0, startY=0, pending=null, suppressClick=false, suppressReset=null;
+ const clearLongPress=()=>{if(timer!==null)clearTimeout(timer);timer=null;pending=null;};
+ const sendDashboard=(root,item,mode)=>{
+  root.dispatchEvent(new CustomEvent('pcd:mobile-toggle',{bubbles:false,detail:{item,mode}}));
+ };
+ const setSelected=(entry,checked)=>{
+  const {config,item}=entry;
+  if(config.kind==='dashboard'){sendDashboard(config.root,item,checked?'add':'remove');return;}
+  const box=item.querySelector(config.box);
+  if(!box)return;
+  box.checked=checked;
+  box.dispatchEvent(new Event('change',{bubbles:true}));
+  item.classList.toggle('is-drive-selected',checked);
+ };
+ const hasSelection=config=>{
+  if(config.kind==='dashboard')return Number(config.root.dataset.mobileSelectedCount||0)>0;
+  return [...config.root.querySelectorAll(config.box)].some(box=>box.checked);
+ };
+ const enterSelection=(entry)=>{
+  const {config,item}=entry;
+  config.root.dataset.mobileSelectionMode='true';
+  setSelected(entry,true);
+  if(navigator.vibrate)try{navigator.vibrate(25);}catch(e){}
+ };
+ const start=(event)=>{
+  if(!isTouchDevice()||event.touches?.length!==1)return;
+  const entry=findEntry(event.target);
+  if(!entry||isControl(event.target))return;
+  clearLongPress();
+  pending=entry;
+  startX=event.touches[0].clientX;startY=event.touches[0].clientY;
+  timer=setTimeout(()=>{
+   timer=null;
+   if(!pending)return;
+   enterSelection(pending);
+   suppressClick=true;
+   if(suppressReset!==null)clearTimeout(suppressReset);
+   suppressReset=setTimeout(()=>{suppressClick=false;suppressReset=null;},1100);
+  },550);
+ };
+ document.addEventListener('touchstart',start,{capture:true,passive:true});
+ document.addEventListener('touchmove',event=>{
+  if(timer===null||!event.touches?.length)return;
+  const t=event.touches[0];
+  if(Math.abs(t.clientX-startX)>12||Math.abs(t.clientY-startY)>12)clearLongPress();
+ },{capture:true,passive:true});
+ document.addEventListener('touchend',clearLongPress,{capture:true,passive:true});
+ document.addEventListener('touchcancel',clearLongPress,{capture:true,passive:true});
+ document.addEventListener('contextmenu',event=>{
+  if(findEntry(event.target)){event.preventDefault();event.stopPropagation();}
+ },true);
+ document.addEventListener('click',event=>{
+  if(!isTouchDevice())return;
+  const entry=findEntry(event.target);
+  if(suppressClick&&entry){
+   suppressClick=false;
+   if(suppressReset!==null)clearTimeout(suppressReset);
+   suppressReset=null;
+   event.preventDefault();event.stopImmediatePropagation();return;
   }
-  // iOS Safari: disable the native text/image callout on selectable rows and
-  // use Touch Events as a fallback because long-press may open the iOS menu
-  // before Pointer Events complete on some Safari versions.
-  root.querySelectorAll(selector).forEach(item=>{
-   item.style.webkitTouchCallout='none';
-   item.style.webkitUserSelect='none';
-   item.style.userSelect='none';
-   item.querySelectorAll('a, img, .file-name, .folder-name').forEach(node=>{
-    node.style.webkitTouchCallout='none';
-    node.style.webkitUserSelect='none';
-    node.style.userSelect='none';
-   });
-  });
-  root.addEventListener('pointerdown',event=>{
-   if(!mobile()||event.pointerType==='touch'||event.pointerType==='mouse')return;
-   const item=event.target.closest(selector);
-   if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
-   clearTimer();longPressed=false;
-   startX=event.clientX;startY=event.clientY;
-   timer=setTimeout(()=>{
-    timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
-    updateBox(item,true);
-    if(navigator.vibrate)navigator.vibrate(25);
-   },550);
-  },{capture:true,passive:true});
-  root.addEventListener('touchstart',event=>{
-   if(!mobile()||!event.touches||event.touches.length!==1)return;
-   const item=event.target.closest(selector);
-   if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
-   clearTimer();longPressed=false;
-   const touch=event.touches[0];startX=touch.clientX;startY=touch.clientY;
-   timer=setTimeout(()=>{
-    timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
-    updateBox(item,true);
-    if(navigator.vibrate)navigator.vibrate(25);
-   },600);
-  },{capture:true,passive:false});
-  root.addEventListener('touchmove',event=>{
-   if(timer===null||!event.touches||!event.touches.length)return;
-   const touch=event.touches[0];
-   if(Math.abs(touch.clientX-startX)>14||Math.abs(touch.clientY-startY)>14)clearTimer();
-  },{capture:true,passive:true});
-  root.addEventListener('touchend',clearTimer,{capture:true,passive:true});
-  root.addEventListener('touchcancel',clearTimer,{capture:true,passive:true});
-  root.addEventListener('pointermove',event=>{
-   if(timer===null)return;
-   if(Math.abs(event.clientX-startX)>12||Math.abs(event.clientY-startY)>12)clearTimer();
-  },{capture:true,passive:true});
-  const finishPointer=()=>clearTimer();
-  root.addEventListener('pointerup',finishPointer,{capture:true,passive:true});
-  root.addEventListener('pointercancel',finishPointer,{capture:true,passive:true});
-  root.addEventListener('click',event=>{
-   if(!mobile())return;
-   const item=event.target.closest(selector);
-   if(!item||!root.contains(item)||isControl(event.target))return;
-   if(longPressed){
-    event.preventDefault();event.stopImmediatePropagation();longPressed=false;
+  const active=roots.find(c=>c.root.dataset.mobileSelectionMode==='true');
+  if(active){
+   if(entry&&entry.config===active&&!isControl(event.target)){
+    event.preventDefault();event.stopImmediatePropagation();
+    const {config,item}=entry;
+    const selected=config.kind==='dashboard'
+      ? item.classList.contains('is-dashboard-selected')
+      : !!item.querySelector(config.box)?.checked;
+    setSelected(entry,!selected);
+    if(!hasSelection(config)){
+     delete config.root.dataset.mobileSelectionMode;
+     if(config.kind==='dashboard')config.root.dataset.mobileSelectedCount='0';
+    }
     return;
    }
-   if(!selectionMode)return;
-   const box=checkboxFor(item);if(!box)return;
-   event.preventDefault();event.stopImmediatePropagation();
-   updateBox(item,!box.checked);
-   if(![...root.querySelectorAll(boxSelector)].some(input=>input.checked)){
-    selectionMode=false;delete root.dataset.mobileSelectionMode;
+   if(event.target.closest('#'+active.id+' '+controlSelector))return;
+   if(active.root.contains(event.target)){
+    const link=event.target.closest('a[href]');
+    if(link){event.preventDefault();event.stopImmediatePropagation();}
+    return;
    }
-  },true);
-  root.addEventListener('change',event=>{
-   if(!event.target.matches(boxSelector))return;
-   if(![...root.querySelectorAll(boxSelector)].some(input=>input.checked)){
-    selectionMode=false;delete root.dataset.mobileSelectionMode;
+  }
+  if(entry&&!isControl(event.target)){
+   const {config,item}=entry;
+   if(config.kind==='dashboard'){
+    const link=event.target.closest('a[href]')||item.querySelector('.dashboard-folder-main[href],.dashboard-file-title[href],.dashboard-file-preview[href],.dashboard-list-name[href]');
+    if(link&&item.contains(link)&&!event.target.closest('a[href]')){
+     event.preventDefault();window.location.assign(link.href);
+    }
    }
-  });
- });
- document.addEventListener('contextmenu',event=>{
-  if(mobile()&&event.target.closest('#dashboardDriveRoot [data-dashboard-selectable],#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#driveViewRoot tr.file-row,#driveViewRoot .folder-tile,#trashViewRoot tr.file-row,#shareViewRoot tr.share-row'))event.preventDefault();
+  }
  },true);
-})();
-
-/* Keep an active mobile multi-selection stable.
-   A tap outside selectable items must not accidentally navigate to a preview;
-   selected checkboxes remain selected and the bulk-action toolbar stays usable. */
-document.addEventListener('click',event=>{
- const mobile=('ontouchstart' in window)||navigator.maxTouchPoints>0||window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
- if(!mobile)return;
- const activeRoots=[
-  {root:document.getElementById('dashboardDriveRoot'),items:'[data-dashboard-selectable]'},
-  {root:document.getElementById('driveViewRoot'),items:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card,tr.file-row,.folder-tile'},
-  {root:document.getElementById('trashViewRoot'),items:'tr.file-row'},
-  {root:document.getElementById('shareViewRoot'),items:'tr.share-row'}
- ];
- const active=activeRoots.find(entry=>entry.root?.dataset.mobileSelectionMode==='true');
- if(!active)return;
- if(event.target.closest(active.items))return;
- if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.multi-select-control,.bulk-action-toolbar,.selection-toolbar'))return;
- const link=event.target.closest('a[href]');
- if(link){
-  event.preventDefault();
-  event.stopImmediatePropagation();
- }
-},true);
-
-/* Mobile navigation: a single tap opens a file or folder instead of requiring a double tap.
-   Selection by checkbox and all action/menu controls remain available. */
-document.addEventListener('click',event=>{
- const mobile=window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
- if(!mobile)return;
- const item=event.target.closest(
-  '#dashboardDriveRoot [data-dashboard-selectable], #driveViewRoot .file-manager-list-row, #driveViewRoot .file-manager-file-card, #driveViewRoot .file-manager-folder-card'
- );
- if(!item)return;
- const dashboardRootForSelection=document.getElementById('dashboardDriveRoot');
- const driveRootForSelection=document.getElementById('driveViewRoot');
- if(
-  (dashboardRootForSelection?.dataset.mobileSelectionMode==='true'&&dashboardRootForSelection.contains(item))||
-  (driveRootForSelection?.dataset.mobileSelectionMode==='true'&&driveRootForSelection.contains(item))
- )return;
- if(event.target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.dashboard-more-btn,.multi-select-control'))return;
- const clickedLink=event.target.closest('a[href],a[data-mobile-href]');
- const primaryLink=clickedLink||item.querySelector(
-  '.dashboard-folder-main[href], .dashboard-file-title[href], .dashboard-file-preview[href], .dashboard-list-name[href], a[data-mobile-href]'
- );
- if(!primaryLink||!item.contains(primaryLink))return;
- const destination=primaryLink.dataset.mobileHref||primaryLink.href;
- if(!destination)return;
- event.preventDefault();
- event.stopImmediatePropagation();
- window.location.assign(destination);
-},true);
+})(); 
 
 /* Drive interaction: single click selects, double click opens (list and grid). */
 const driveRoot=document.getElementById('driveViewRoot');
