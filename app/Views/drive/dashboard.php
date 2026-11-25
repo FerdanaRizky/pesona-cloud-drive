@@ -335,23 +335,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (item.dataset.itemType === 'file' && link.pathname.includes('/files/preview/')) openPreview(item, link);
         else window.location.assign(link.href);
     });
-    document.addEventListener('keydown', event => {
-        if (event.key !== 'Delete' && event.key !== 'Escape') return;
-        if (event.target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(event.target?.tagName)) return;
-        if (document.querySelector('.modal.show') || selected.size === 0) return;
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            selected.clear(); anchor = null; mobileSelectionMode = false;
-            delete root.dataset.mobileSelectionMode; root.dataset.mobileSelectedCount = '0';
-            refreshSelection();
-        } else {
-            event.preventDefault();
-            if (!confirm('Pindahkan ' + selected.size + ' item terpilih ke Sampah?')) return;
-            bulkForm.action = '/files/bulk-trash';
-            bulkForm.requestSubmit();
-        }
-    });
-
     const isMobileTouch = () => ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     let mobileSelectionMode = false, longPressTimer = null, longPressItem = null, longPressFired = false;
     let startX = 0, startY = 0, touchStartItem = null, touchMoved = false, suppressNextClick = false;
