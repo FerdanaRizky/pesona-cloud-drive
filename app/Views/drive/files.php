@@ -101,7 +101,7 @@ driveRoot.addEventListener('dblclick',event=>{
  const item=event.target.closest('.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card');
  if(!item||isItemControl(event.target))return;
  const link=item.querySelector('.dashboard-folder-main[href],.dashboard-file-title[href],.dashboard-file-preview[href],.dashboard-list-name[href]');
- if(link){event.preventDefault();window.location.assign(link.href);}
+ if(link){event.preventDefault();if(/\\/files\\/preview\\//.test(link.href)){openDrivePreview(link);}else{window.location.assign(link.href);}}
 });
 selectAll?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select').forEach(box=>box.checked=selectAll.checked);refreshSelection();});
 selectAllFolders?.addEventListener('change',()=>{document.querySelectorAll('.drive-item-select[data-item-type="folder"]').forEach(box=>box.checked=selectAllFolders.checked);refreshSelection();});
@@ -181,7 +181,6 @@ refreshSelection();
 const previewModalEl=document.getElementById('drivePreviewModal'),previewFrame=document.getElementById('drivePreviewFrame'),previewTitle=document.getElementById('drivePreviewTitle');
 function openDrivePreview(link){if(!previewModalEl||!previewFrame||!window.bootstrap?.Modal)return;const match=(link.getAttribute('href')||'').match(/\/files\/preview\/(\d+)(?:\?([^#]*))?/);if(!match)return;const query=match[2]?'?'+match[2]:'';previewTitle.textContent=(link.getAttribute('title')||link.textContent||'Preview file').trim();previewFrame.src='/files/preview-content/'+match[1]+query;window.bootstrap.Modal.getOrCreateInstance(previewModalEl).show();}
 previewModalEl?.addEventListener('hidden.bs.modal',()=>{if(previewFrame)previewFrame.src='about:blank';});
-driveRoot?.addEventListener('click',event=>{const link=event.target.closest('a[href*="/files/preview/"]');if(!link||!driveRoot.contains(link))return;event.preventDefault();event.stopPropagation();openDrivePreview(link);},true);
 document.addEventListener('keydown',function(event){
  if(event.key!=='Delete'&&event.key!=='Escape')return;
  const target=event.target,tag=(target?.tagName||'').toLowerCase();
