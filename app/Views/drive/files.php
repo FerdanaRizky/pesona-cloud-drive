@@ -179,12 +179,12 @@ document.getElementById('bulkActionConfirm')?.addEventListener('click',function(
 bulkModal?.addEventListener('hidden.bs.modal',()=>{if(selectionForm)selectionForm.dataset.pendingAction='';});
 refreshSelection();
 const previewModalEl=document.getElementById('drivePreviewModal'),previewFrame=document.getElementById('drivePreviewFrame'),previewTitle=document.getElementById('drivePreviewTitle');
-function openDrivePreview(link){if(!previewModalEl||!previewFrame||!window.bootstrap?.Modal)return;const match=(link.getAttribute('href')||'').match(/\/files\/preview\/(\d+)(?:\?([^#]*))?/);if(!match)return;const query=match[2]?'?'+match[2]:'';previewTitle.textContent=(link.getAttribute('title')||link.textContent||'Preview file').trim();previewFrame.src='/files/preview-content/'+match[1]+query;window.bootstrap.Modal.getOrCreateInstance(previewModalEl).show();}
+function openDrivePreview(link){if(!previewModalEl||!previewFrame||!window.bootstrap?.Modal)return;const match=(link.getAttribute('href')||'').match(/\/files\/preview\/(\d+)(?:\?([^#]*))?/);if(!match)return;const query=match[2]?'?'+match[2]:'';const item=link.closest('.file-manager-list-row,.file-manager-file-card');const itemName=item?.querySelector('.dashboard-list-filename,.dashboard-file-title')?.textContent||link.getAttribute('title')||link.getAttribute('aria-label')||link.textContent||'Preview file';previewTitle.textContent=itemName.replace(/^Buka\\s+/,'').trim();previewFrame.src='/files/preview-content/'+match[1]+query;window.bootstrap.Modal.getOrCreateInstance(previewModalEl).show();}
 previewModalEl?.addEventListener('hidden.bs.modal',()=>{if(previewFrame)previewFrame.src='about:blank';});
 document.addEventListener('keydown',function(event){
  if(event.key!=='Delete'&&event.key!=='Escape')return;
  const target=event.target,tag=(target?.tagName||'').toLowerCase();
- if(target?.isContentEditable||['input','textarea','select'].includes(tag))return;
+ if(target?.isContentEditable||['textarea','select'].includes(tag)||(tag==='input'&&!['checkbox','radio'].includes(target.type)))return;
  if(document.querySelector('.modal.show'))return;
  const selected=selectedUnique();
  if(!selected.length)return;
