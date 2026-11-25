@@ -181,6 +181,16 @@ composer install --no-dev --prefer-dist --optimize-autoloader
 
 # Replace only deployment keys, preserving unrelated .env settings.
 sed -i -E '/^[[:space:]]*#?[[:space:]]*app\.baseURL[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*app\.forceGlobalSecureRequests[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*database\.default\.(hostname|database|username|password|DBDriver|port)[[:space:]]*=/d; /^[[:space:]]*#?[[:space:]]*storage\.privatePath[[:space:]]*=/d' .env
+# Generate a persistent encryption starter key once. Never rotate it on reinstall/update.
+# Existing share-token ciphertext depends on this key.
+if ! grep -Eq '^[[:space:]]*encryption\.key[[:space:]]*=' .env; then
+    ENCRYPTION_KEY="$(openssl rand -hex 16)"
+    printf "\nencryption.key = '%s'\n" "$ENCRYPTION_KEY" >> .env
+    echo "[OK] encryption.key dibuat untuk enkripsi token tautan berbagi."
+else
+    echo "[OK] encryption.key yang sudah ada dipertahankan."
+fi
+
 escape_env() {
     local value="$1"
     value="${value//\\/\\\\}"
