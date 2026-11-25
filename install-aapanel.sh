@@ -344,6 +344,13 @@ if ! "$PHP_BIN" -r 'exit(function_exists("putenv") ? 0 : 1);'; then
 fi
 echo "[OK] Fungsi PHP putenv() tersedia."
 
+# Install/check FFmpeg and inspect active Nginx + existing MP4/MOV codecs.
+if [[ -f "$SOURCE_DIR/tools/check-video-support.sh" ]]; then
+    bash "$SOURCE_DIR/tools/check-video-support.sh" "$STORAGE" "$DOMAIN"
+else
+    echo "[WARN] tools/check-video-support.sh tidak ditemukan; pemeriksaan video dilewati."
+fi
+
 # Collect system facts with CLI PHP; failures are non-fatal on fresh installations.
 if [[ -f "$APP_DIR/tools/collect-system-info.php" ]]; then
     "$PHP_BIN" "$APP_DIR/tools/collect-system-info.php" || echo "[WARN] Snapshot informasi sistem dilewati."
