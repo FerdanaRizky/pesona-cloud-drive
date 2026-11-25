@@ -368,7 +368,7 @@ fi
 
 if [[ "$RESTORE_MODE" == "2" ]]; then
     [[ -f "$SOURCE_DIR/tools/restore-database.sh" ]] || { echo "[ERROR] tools/restore-database.sh tidak ditemukan."; exit 1; }
-    bash "$SOURCE_DIR/tools/restore-database.sh" "$DB_NAME" "$DB_USER" "$DB_PASS" "$RESTORE_SQL"
+    PCD_DB_PASS="$DB_PASS" bash "$SOURCE_DIR/tools/restore-database.sh" "$DB_NAME" "$DB_USER" "$RESTORE_SQL"
     echo "[OK] Database berhasil dipulihkan."
 fi
 
