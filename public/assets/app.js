@@ -6,59 +6,71 @@ sidebarBackdrop?.addEventListener('click',closeSidebar);
 sidebar?.querySelectorAll('a.nav-link').forEach(link=>link.addEventListener('click',closeSidebar));
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 window.addEventListener('resize',()=>{if(window.innerWidth>991)closeSidebar();});
-/* Mobile long-press multi-select for File Saya.
-   Hold an item briefly to enter selection mode; subsequent taps toggle other items.
-   Desktop click/Shift-click behavior and all action controls remain unchanged. */
+/* Mobile long-press multi-select for File Saya, Favorit, and Sampah.
+   Hold briefly to enter selection mode; subsequent taps toggle items.
+   Desktop selection and existing action controls remain unchanged. */
 (()=>{
- const root=document.getElementById('driveViewRoot');
- if(!root)return;
+ const roots=[
+  {el:document.getElementById('driveViewRoot'),selector:'.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card',box:'.drive-item-select'},
+  {el:document.getElementById('trashViewRoot'),selector:'tr.file-row',box:'.trash-item-select'}
+ ].filter(entry=>entry.el);
  const mobile=()=>window.matchMedia('(max-width: 767px), (pointer: coarse)').matches;
- const itemSelector='.file-manager-list-row,.file-manager-file-card,.file-manager-folder-card';
- const isControl=target=>!!target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.multi-select-control');
- let timer=null,startX=0,startY=0,longPressed=false,selectionMode=false;
- const checkboxFor=item=>item?.querySelector('.drive-item-select');
- const updateBox=(item,checked)=>{
-  const box=checkboxFor(item);if(!box)return;
-  box.checked=checked;
-  box.dispatchEvent(new Event('change',{bubbles:true}));
-  item.classList.toggle('is-dashboard-selected',checked);
- };
- const clearTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
- root.addEventListener('pointerdown',event=>{
-  if(!mobile()||event.pointerType==='mouse')return;
-  const item=event.target.closest(itemSelector);
-  if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
-  clearTimer();longPressed=false;
-  startX=event.clientX;startY=event.clientY;
-  timer=setTimeout(()=>{
-   timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
-   updateBox(item,true);
-   if(navigator.vibrate)navigator.vibrate(25);
-  },550);
- },{capture:true,passive:true});
- root.addEventListener('pointermove',event=>{
-  if(timer===null)return;
-  if(Math.abs(event.clientX-startX)>12||Math.abs(event.clientY-startY)>12)clearTimer();
- },{capture:true,passive:true});
- const finishPointer=()=>clearTimer();
- root.addEventListener('pointerup',finishPointer,{capture:true,passive:true});
- root.addEventListener('pointercancel',finishPointer,{capture:true,passive:true});
- root.addEventListener('click',event=>{
-  if(!mobile())return;
-  const item=event.target.closest(itemSelector);
-  if(!item||!root.contains(item)||isControl(event.target))return;
-  if(longPressed){
-   event.preventDefault();event.stopImmediatePropagation();longPressed=false;
-   return;
-  }
-  if(!selectionMode)return;
-  const box=checkboxFor(item);if(!box)return;
-  event.preventDefault();event.stopImmediatePropagation();
-  updateBox(item,!box.checked);
-  if(![...root.querySelectorAll('.drive-item-select')].some(input=>input.checked)){selectionMode=false;delete root.dataset.mobileSelectionMode;}
- },true);
+ roots.forEach(({el:root,selector,box:boxSelector})=>{
+  const isControl=target=>!!target.closest('button,input,select,textarea,form,label,.dropdown,.dropdown-menu,[data-bs-toggle],.drive-item-select,.trash-item-select,.multi-select-control');
+  let timer=null,startX=0,startY=0,longPressed=false,selectionMode=false;
+  const checkboxFor=item=>item?.querySelector(boxSelector);
+  const updateBox=(item,checked)=>{
+   const box=checkboxFor(item);if(!box)return;
+   box.checked=checked;
+   box.dispatchEvent(new Event('change',{bubbles:true}));
+   item.classList.toggle('is-dashboard-selected',checked);
+   item.classList.toggle('is-drive-selected',checked);
+  };
+  const clearTimer=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+  root.addEventListener('pointerdown',event=>{
+   if(!mobile()||event.pointerType==='mouse')return;
+   const item=event.target.closest(selector);
+   if(!item||!root.contains(item)||isControl(event.target)||!checkboxFor(item))return;
+   clearTimer();longPressed=false;
+   startX=event.clientX;startY=event.clientY;
+   timer=setTimeout(()=>{
+    timer=null;longPressed=true;selectionMode=true;root.dataset.mobileSelectionMode='true';
+    updateBox(item,true);
+    if(navigator.vibrate)navigator.vibrate(25);
+   },550);
+  },{capture:true,passive:true});
+  root.addEventListener('pointermove',event=>{
+   if(timer===null)return;
+   if(Math.abs(event.clientX-startX)>12||Math.abs(event.clientY-startY)>12)clearTimer();
+  },{capture:true,passive:true});
+  const finishPointer=()=>clearTimer();
+  root.addEventListener('pointerup',finishPointer,{capture:true,passive:true});
+  root.addEventListener('pointercancel',finishPointer,{capture:true,passive:true});
+  root.addEventListener('click',event=>{
+   if(!mobile())return;
+   const item=event.target.closest(selector);
+   if(!item||!root.contains(item)||isControl(event.target))return;
+   if(longPressed){
+    event.preventDefault();event.stopImmediatePropagation();longPressed=false;
+    return;
+   }
+   if(!selectionMode)return;
+   const box=checkboxFor(item);if(!box)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   updateBox(item,!box.checked);
+   if(![...root.querySelectorAll(boxSelector)].some(input=>input.checked)){
+    selectionMode=false;delete root.dataset.mobileSelectionMode;
+   }
+  },true);
+  root.addEventListener('change',event=>{
+   if(!event.target.matches(boxSelector))return;
+   if(![...root.querySelectorAll(boxSelector)].some(input=>input.checked)){
+    selectionMode=false;delete root.dataset.mobileSelectionMode;
+   }
+  });
+ });
  document.addEventListener('contextmenu',event=>{
-  if(mobile()&&event.target.closest('#driveViewRoot '+itemSelector))event.preventDefault();
+  if(mobile()&&event.target.closest('#driveViewRoot .file-manager-list-row,#driveViewRoot .file-manager-file-card,#driveViewRoot .file-manager-folder-card,#trashViewRoot tr.file-row'))event.preventDefault();
  },true);
 })();
 
